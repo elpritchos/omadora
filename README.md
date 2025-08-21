@@ -14,6 +14,20 @@ Read more at about Omarchy itself at [omarchy.org](https://omarchy.org).
 Omadora attempts to only install packages from the official Fedora repositories, currently with the exception of a few Hyprland related packages.
 These are provided by the [solopasha/hyprland](https://copr.fedorainfracloud.org/coprs/solopasha/hyprland/) COPR, and as such, users should perform their own due diligence to ensure Omadora is safe to install.
 
+## Installation
+
+Install a minmal base OS install of Fedora using the [Everything Network Installer](https://alt.fedoraproject.org/).
+Similar to Omarchy, it is recommended to use drive encryption, disable root, and add a privileged user.
+
+Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
+
+Run `~/.local/share/omadora/install.sh` to install.
+
+## Usage
+
+Omadora does not use the seamless login implemented in Omarchy, therefore once logged in, start Omadora using `omadora`.
+Stop Omadora by using the power menu, or executing the bash command `uswm stop`.
+
 ## License
 
 Omadora is released under the [MIT License](https://opensource.org/licenses/MIT).
