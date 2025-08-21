@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Ensure .config dir
+mkdir -p ~/.config
+
 # Copy over Omadora configs
 cp -R ~/.local/share/omadora/config/* ~/.config/
 
