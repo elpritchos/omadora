@@ -1,7 +1,7 @@
 # Omadora
 
 This is my minimal functional install of Hyprland on Fedora, based on the Omarchy implementation and patterns.
-This provides a more stable release cycle with tested and curated packages.
+It provides a more stable release cycle with tested and curated packages.
 
 Omadora purposely does not include all the apps and features included with Omarchy.
 It is intended to be a minimal install that matches the base functionality to allow users to build from.
@@ -11,12 +11,15 @@ Read more at about Omarchy itself at [omarchy.org](https://omarchy.org).
 
 ## Important
 
-Omadora attempts to only install packages from the official Fedora repositories, currently with the exception of a few Hyprland related packages.
+Omadora attempts to install only packages from the official Fedora repositories, currently with the exception of a few Hyprland related packages.
 These are provided by the [solopasha/hyprland](https://copr.fedorainfracloud.org/coprs/solopasha/hyprland/) COPR, and as such, users should perform their own due diligence to ensure Omadora is safe to install.
+
+Some functionality may be broken.
+Feel free to submit issues or PRs for improvement, however there are no guarantees for timely fixes or updates.
 
 ## Installation
 
-Install a minmal base OS install of Fedora using the [Everything Network Installer](https://alt.fedoraproject.org/).
+Install a minimal base OS install of Fedora using the [Everything Network Installer](https://alt.fedoraproject.org/).
 Similar to Omarchy, it is recommended to use drive encryption, disable root, and add a privileged user.
 
 Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
@@ -26,7 +29,7 @@ Run `~/.local/share/omadora/install.sh` to install.
 ## Usage
 
 Omadora does not use the seamless login implemented in Omarchy, therefore once logged in, start Omadora using `omadora`.
-Stop Omadora by using the power menu, or executing the bash command `uswm stop`.
+Stop Omadora by using the power menu or executing the bash command `uswm stop`.
 
 ## License
 
