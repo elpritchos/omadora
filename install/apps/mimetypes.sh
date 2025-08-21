@@ -14,7 +14,7 @@ xdg-mime default imv.desktop image/tiff
 xdg-mime default org.gnome.Evince.desktop application/pdf
 
 # Use Chromium as the default browser
-xdg-settings set default-web-browser chromium.desktop
+xdg-settings set default-web-browser chromium-browser.desktop
 xdg-mime default chromium.desktop x-scheme-handler/http
 xdg-mime default chromium.desktop x-scheme-handler/https
 
