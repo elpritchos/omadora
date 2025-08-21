@@ -23,7 +23,9 @@ sudo dnf install -y \
   plocate \
   bash-completion \
   alacritty \
-  cargo
+  cargo \
+  pipewire-devel \
+  clang
 
 cargo install \
   impala \
