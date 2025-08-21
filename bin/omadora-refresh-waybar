@@ -1,0 +1,5 @@
+#!/bin/bash
+
+omadora-refresh-config waybar/config.jsonc
+omadora-refresh-config waybar/style.css
+omadora-restart-waybar

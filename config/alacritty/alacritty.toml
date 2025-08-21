@@ -1,0 +1,21 @@
+general.import = [ "~/.config/omadora/current/theme/alacritty.toml" ]
+
+[env]
+TERM = "xterm-256color"
+
+[font]
+normal = { family = "Cascadia Mono NF", style = "Regular" }
+bold = { family = "Cascadia Mono NF", style = "Bold" }
+italic = { family = "Cascadia Mono NF", style = "Italic" }
+size = 9
+
+[window]
+padding.x = 14
+padding.y = 14
+decorations = "None"
+opacity = 0.98
+
+[keyboard]
+bindings = [
+{ key = "F11", action = "ToggleFullscreen" }
+]

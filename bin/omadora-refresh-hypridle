@@ -1,0 +1,4 @@
+#!/bin/bash
+
+omadora-refresh-config hypr/hypridle.conf
+omadora-restart-hypridle

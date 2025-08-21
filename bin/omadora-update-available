@@ -1,0 +1,20 @@
+#!/bin/bash
+
+omadora_path="$HOME/.local/share/omadora"
+
+# Ensure remote is reachable
+if ! git -C "$omadora_path" ls-remote &>/dev/null; then
+  echo "Error: Unable to reach remote repository."
+  exit 1
+fi
+
+latest_tag=$(git -C "$omadora_path" ls-remote --tags origin | grep -v "{}" | awk '{print $2}' | sed 's#refs/tags/##' | sort -V | tail -n 1)
+current_tag=$(git -C "$omadora_path" describe --tags $(git -C "$omadora_path" rev-list --tags --max-count=1))
+
+if [[ "$current_tag" != "$latest_tag" ]]; then
+  echo "Omadora update available ($latest_tag)"
+  exit 0
+else
+  echo "Omadora is up to date ($current_tag)"
+  exit 1
+fi

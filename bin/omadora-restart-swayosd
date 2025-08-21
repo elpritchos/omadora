@@ -1,0 +1,3 @@
+#!/bin/bash
+
+omadora-restart-app swayosd-server

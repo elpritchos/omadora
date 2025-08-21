@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+omadora-update-git
+omadora-migrate
+omadora-update-system-pkgs
+# TODO: add fwupd etc.
+# TODO: omadora-update-restart
+omadora-restart-waybar # removes update-available icon

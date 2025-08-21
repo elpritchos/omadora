@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# omadora-theme-set: Set a theme, specified by its name.
+# Usage: omadora-theme-set <theme-name>
+
+if [[ -z "$1" && "$1" != "CNCLD" ]]; then
+  echo "Usage: omadora-theme-set <theme-name>" >&2
+  exit 1
+fi
+
+THEMES_DIR="$HOME/.config/omadora/themes/"
+CURRENT_THEME_DIR="$HOME/.config/omadora/current/theme"
+
+THEME_NAME=$(echo "$1" | sed -E 's/<[^>]+>//g' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+THEME_PATH="$THEMES_DIR/$THEME_NAME"
+
+# Check if the theme entered exists
+if [[ ! -d "$THEME_PATH" ]]; then
+  echo "Theme '$THEME_NAME' does not exist in $THEMES_DIR" >&2
+  exit 2
+fi
+
+# Update theme symlinks
+ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
+
+# Change gnome modes
+if [[ -f ~/.config/omadora/current/theme/light.mode ]]; then
+  gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
+  gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"
+else
+  gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
+  gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
+fi
+
+# Change gnome icon theme color
+if [[ -f ~/.config/omadora/current/theme/icons.theme ]]; then
+  gsettings set org.gnome.desktop.interface icon-theme "$(<~/.config/omadora/current/theme/icons.theme)"
+else
+  gsettings set org.gnome.desktop.interface icon-theme "Yaru-blue"
+fi
+
+# Trigger alacritty config reload
+touch "$HOME/.config/alacritty/alacritty.toml"
+
+# Restart components to apply new theme
+pkill -SIGUSR2 btop
+omadora-restart-waybar
+omadora-restart-swayosd
+makoctl reload
+hyprctl reload
+
+# Set new background
+omadora-theme-bg-next

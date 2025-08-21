@@ -1,0 +1,7 @@
+OMADORA_PATH=$HOME/.local/share/omadora
+
+export PATH=$OMADORA_PATH/bin/:$PATH
+
+if command -v mise &> /dev/null; then
+  eval "$(mise activate bash)"
+fi

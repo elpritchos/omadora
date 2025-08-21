@@ -1,0 +1,264 @@
+#!/bin/bash
+
+export PATH="$HOME/.local/share/omadora/bin:$PATH"
+
+menu() {
+  local prompt="$1"
+  local options="$2"
+  local extra="$3"
+  local preselect="$4"
+
+  read -r -a args <<<"$extra"
+
+  if [[ -n "$preselect" ]]; then
+    local index
+    index=$(echo -e "$options" | grep -nxF "$preselect" | cut -d: -f1)
+    if [[ -n "$index" ]]; then
+      args+=("-a" "$index")
+    fi
+  fi
+
+  #echo -e "$options" | walker --dmenu --theme dmenu_250 -p "$prompt…" "${args[@]}"
+  echo -e "$options" | wofi --dmenu "${args[@]}"
+}
+
+terminal() {
+  alacritty --class Omadora -e $1
+}
+
+present_terminal() {
+  alacritty --class Omadora -e bash -c "omadora-show-logo; eval \"$1\"; omadora-show-done;"
+}
+
+edit_in_nvim() {
+  notify-send "Editing config file" "$1"
+  alacritty -e nvim "$1"
+}
+
+open_web() {
+  setsid chromium-browser --new-window --app="$1" &
+}
+
+install() {
+  present_terminal "echo 'Installing $1...'; sudo dnf install -y $2"
+}
+
+install_and_launch() {
+  present_terminal "echo 'Installing $1...'; sudo dnf install -y $2 && setsid gtk-launch $3"
+}
+
+install_font() {
+  present_terminal "echo 'Installing $1...'; sudo dnf install -y $2 && sleep 2 && omadora-font-set '$3'"
+}
+
+show_learn_menu() {
+  case $(menu "Learn" "  Keybindings\n  Omadora\n  Omarchy\n  Hyprland\n Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
+  *Keybindings*) omadora-menu-keybindings ;;
+  *Omadora*) open_web "https://github.com/elpritchos/omadora" ;;
+  *Omarchy*) open_web "https://manuals.omamix.org/2/the-omarchy-manual" ;;
+  *Hyprland*) open_web "https://wiki.hypr.land" ;;
+  *Fedora*) open_web "https://docs.fedoraproject.org" ;;
+  *Arch*) open_web "https://wiki.archlinux.org" ;;
+  *Neovim*) open_web "https://neovim.io/doc/user/quickref.html" ;;
+  *Bash*) open_web "https://devhints.io/bash" ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_style_menu() {
+  case $(menu "Style" "󰸌  Theme\n  Font\n  Background") in
+  *Theme*) show_theme_menu ;;
+  *Font*) show_font_menu ;;
+  *Background*) omadora-theme-bg-next ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_theme_menu() {
+  theme=$(menu "Theme" "$(omadora-theme-list)" "" "$(omadora-theme-current)")
+  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
+    show_main_menu
+  else
+    omadora-theme-set "$theme"
+  fi
+}
+
+show_font_menu() {
+  theme=$(menu "Font" "$(omadora-font-list)" "-w 350" "$(omadora-font-current)")
+  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
+    show_main_menu
+  else
+    omadora-font-set "$theme"
+  fi
+}
+
+show_capture_menu() {
+  case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰃉  Color") in
+  *Screenshot*) show_screenshot_menu ;;
+  *Color*) pkill hyprpicker || hyprpicker -a ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_screenshot_menu() {
+  case $(menu "Screenshot" "  Region\n  Window\n  Display") in
+  *Region*) omadora-cmd-screenshot ;;
+  *Window*) omadora-cmd-screenshot window ;;
+  *Display*) omadora-cmd-screenshot output ;;
+  *) show_capture_menu ;;
+  esac
+}
+
+show_toggle_menu() {
+  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar") in
+  *Screensaver*) omadora-launch-screensaver ;;
+  *Nightlight*) omadora-toggle-nightlight ;;
+  *Idle*) omadora-toggle-idle ;;
+  *Bar*) pkill -SIGUSR1 waybar ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_setup_menu() {
+  local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
+  [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
+  [ -f ~/.config/hypr/input.conf ] && options="$options\n  Input"
+  options="$options\n  Config"
+
+  case $(menu "Setup" "$options") in
+  *Audio*) alacritty --class=Wiremix -e wiremix ;;
+  *Wifi*) alacritty --class=Impala -e impala ;;
+  *Bluetooth*) blueberry ;;
+  *Power*) show_setup_power_menu ;;
+  *Monitors*) edit_in_nvim ~/.config/hypr/monitors.conf ;;
+  *Keybindings*) edit_in_nvim ~/.config/hypr/bindings.conf ;;
+  *Input*) edit_in_nvim ~/.config/hypr/input.conf ;;
+  *Config*) show_setup_config_menu ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_setup_power_menu() {
+  profile=$(menu "Power Profile" "$(omadora-powerprofiles-list)" "" "$(powerprofilesctl get)")
+
+  if [[ "$profile" == "CNCLD" || -z "$profile" ]]; then
+    show_main_menu
+  else
+    powerprofilesctl set "$profile"
+  fi
+}
+
+show_setup_config_menu() {
+  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n󰞅  XCompose") in
+  *Hyprland*) edit_in_nvim ~/.config/hypr/hyprland.conf ;;
+  *Hypridle*) edit_in_nvim ~/.config/hypr/hypridle.conf && omadora-restart-hypridle ;;
+  *Hyprlock*) edit_in_nvim ~/.config/hypr/hyprlock.conf ;;
+  *Hyprsunset*) edit_in_nvim ~/.config/hypr/hyprsunset.conf && omadora-restart-hyprsunset ;;
+  *Swayosd*) edit_in_nvim ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
+  *Walker*) edit_in_nvim ~/.config/walker/config.toml && omadora-restart-walker ;;
+  *Waybar*) edit_in_nvim ~/.config/waybar/config.jsonc && omadora-restart-waybar ;;
+  *XCompose*) edit_in_nvim ~/.XCompose && omadora-restart-xcompose ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_install_menu() {
+  case $(menu "Install" "  Package\n  Web App\n  Style") in
+  *Package*) terminal omadora-pkg-install ;;
+  *Web*) present_terminal omadora-webapp-install ;;
+  *Style*) show_install_style_menu ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_install_style_menu() {
+  case $(menu "Install" "󰸌  Theme\n  Background") in
+  *Theme*) present_terminal omadora-theme-install ;;
+  *Background*) nautilus ~/.config/omadora/current/theme/backgrounds ;;
+  *) show_install_menu ;;
+  esac
+}
+
+show_remove_menu() {
+  case $(menu "Remove" "  Package\n  Web App\n󰸌  Theme") in
+  *Package*) terminal omadora-pkg-remove ;;
+  *Web*) present_terminal omadora-webapp-remove ;;
+  *Theme*) present_terminal omadora-theme-remove ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_update_menu() {
+  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process") in
+  *Omadora*) present_terminal omadora-update ;;
+  *Config*) show_update_config_menu ;;
+  *Themes*) present_terminal omadora-theme-update ;;
+  *Process*) show_update_process_menu ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_update_process_menu() {
+  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  *Hypridle*) omadora-restart-hypridle ;;
+  *Hyprsunset*) omadora-restart-hyprsunset ;;
+  *Swayosd*) omadora-restart-swayosd ;;
+  *Walker*) omadora-restart-walker ;;
+  *Waybar*) omadora-restart-waybar ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_update_config_menu() {
+  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  *Hyprland*) present_terminal omadora-refresh-hyprland ;;
+  *Hypridle*) present_terminal omadora-refresh-hypridle ;;
+  *Hyprlock*) present_terminal omadora-refresh-hyprlock ;;
+  *Hyprsunset*) present_terminal omadora-refresh-hyprsunset ;;
+  *Plymouth*) present_terminal omadora-refresh-plymouth ;;
+  *Swayosd*) present_terminal omadora-refresh-swayosd ;;
+  *Walker*) present_terminal omadora-refresh-walker ;;
+  *Waybar*) present_terminal omadora-refresh-waybar ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_system_menu() {
+  case $(menu "System" "  Lock\n󰤄  Suspend\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
+  *Lock*) omadora-lock-screen ;;
+  *Suspend*) systemctl suspend ;;
+  *Stop*) uwsm stop ;;
+  *Reboot*) systemctl reboot ;;
+  *Shutdown*) systemctl poweroff ;;
+  *) show_main_menu ;;
+  esac
+}
+
+show_main_menu() {
+  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n  Capture\n󰔎  Toggle\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
+}
+
+go_to_menu() {
+  case "${1,,}" in
+  *apps*) wofi --show drun -p "Launch…" ;;
+  #*apps*) walker -p "Launch…" ;;
+  *learn*) show_learn_menu ;;
+  *style*) show_style_menu ;;
+  *theme*) show_theme_menu ;;
+  *capture*) show_capture_menu ;;
+  *screenshot*) show_screenshot_menu ;;
+  *toggle*) show_toggle_menu ;;
+  *setup*) show_setup_menu ;;
+  *install*) show_install_menu ;;
+  *remove*) show_remove_menu ;;
+  *update*) show_update_menu ;;
+  *system*) show_system_menu ;;
+  *about*) gtk-launch About.desktop ;;
+  esac
+}
+
+if [[ -n "$1" ]]; then
+  go_to_menu "$1"
+else
+  show_main_menu
+fi

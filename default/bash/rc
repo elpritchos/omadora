@@ -1,0 +1,7 @@
+source ~/.local/share/omadora/default/bash/shell
+source ~/.local/share/omadora/default/bash/aliases
+source ~/.local/share/omadora/default/bash/functions
+source ~/.local/share/omadora/default/bash/prompt
+source ~/.local/share/omadora/default/bash/init
+source ~/.local/share/omadora/default/bash/envs
+[[ $- == *i* ]] && bind -f ~/.local/share/omadora/default/bash/inputrc
