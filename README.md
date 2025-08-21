@@ -19,7 +19,7 @@ Feel free to submit issues or PRs for improvement, however there are no guarante
 
 ## Installation
 
-Install a minimal base OS install of Fedora using the [Everything Network Installer](https://alt.fedoraproject.org/).
+Install the Fedora Custom Operating System base install using the [Everything Network Installer](https://alt.fedoraproject.org/).
 Similar to Omarchy, it is recommended to use drive encryption, disable root, and add a privileged user.
 
 Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
