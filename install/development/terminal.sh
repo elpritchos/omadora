@@ -25,7 +25,8 @@ sudo dnf install -y \
   alacritty \
   cargo \
   pipewire-devel \
-  clang
+  clang \
+  neovim
 
 cargo install \
   impala \
