@@ -30,6 +30,7 @@ show_subtext() {
 # Install prerequisites
 source $OMADORA_INSTALL/preflight/guard.sh
 source $OMADORA_INSTALL/preflight/presentation.sh
+source $OMADORA_INSTALL/preflight/copr.sh
 source $OMADORA_INSTALL/preflight/migrations.sh
 
 # Configuration

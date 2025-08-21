@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo dnf copr enable -y solopasha/hyprland
-
 # Missing: walker
 sudo dnf install -y \
   hyprland \
