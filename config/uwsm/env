@@ -1,4 +1,4 @@
-OMADORA_PATH=$HOME/.local/share/omadora
+export OMADORA_PATH=$HOME/.local/share/omadora
 
 export PATH=$OMADORA_PATH/bin/:$PATH
 

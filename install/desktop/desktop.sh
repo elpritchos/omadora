@@ -10,4 +10,5 @@ sudo dnf install -y \
   fcitx5-qt \
   fcitx5-configtool \
   chromium \
-  imv
+  imv \
+  nautilus
