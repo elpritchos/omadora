@@ -2,14 +2,14 @@
 
 fzf_args=(
   --multi
-  --preview 'echo "alt-p: toggle description, alt-j/k: scroll, F11: maximize"; echo; yay -Qi {1}'
+  --preview 'echo "alt-p: toggle description, alt-j/k: scroll, F11: maximize"; echo; dnf info {1}'
   --preview-window 'down:65%:wrap'
   --bind 'alt-p:toggle-preview'
   --bind 'alt-d:preview-half-page-down,alt-u:preview-half-page-up'
   --bind 'alt-k:preview-up,alt-j:preview-down'
 )
 
-pkg_name=$(dnf list --installed | fzf "${fzf_args[@]}")
+pkg_name=$(dnf repoquery --installed --qf "%{name}\n" 2>/dev/null | fzf "${fzf_args[@]}")
 
 if [[ -n "$pkg_name" ]]; then
   sudo dnf remove "$pkg_name"
