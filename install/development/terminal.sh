@@ -7,6 +7,7 @@ sudo dnf install -y \
   unzip \
   tar \
   iputils \
+  bind-utils \
   fd-find \
   fzf \
   ripgrep \
