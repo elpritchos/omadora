@@ -1,6 +1,7 @@
 #!/bin/bash
 
 sudo dnf install -y \
+  xdg-user-dirs \
   brightnessctl \
   playerctl \
   pamixer \
@@ -13,3 +14,5 @@ sudo dnf install -y \
   imv \
   nautilus \
   evince
+
+xdg-user-dirs-update
