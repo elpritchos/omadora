@@ -80,7 +80,7 @@ parse_bindings() {
 }'
 }
 
-dynamic_bindings | \
+pkill wofi || dynamic_bindings | \
   sort -u | \
   parse_bindings | \
   #walker --dmenu --theme keybindings -p 'Keybindings'

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+omadora-refresh-config wofi/config
+omadora-refresh-config wofi/style.css
+omadora-refresh-config wofi/select.css

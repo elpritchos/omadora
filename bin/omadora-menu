@@ -258,7 +258,7 @@ go_to_menu() {
 }
 
 if [[ -n "$1" ]]; then
-  go_to_menu "$1"
+  pkill wofi || go_to_menu "$1"
 else
-  show_main_menu
+  pkill wofi || show_main_menu
 fi
