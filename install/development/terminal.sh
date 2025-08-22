@@ -28,7 +28,10 @@ sudo dnf install -y \
   pipewire-devel \
   clang \
   neovim \
-  openssl-devel
+  openssl-devel \
+  fwupd \
+  pciutils \
+  usbutils
 
 cargo install \
   impala \

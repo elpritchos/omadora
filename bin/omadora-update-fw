@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo -e "\e[32m\nUpdate firmware\e[0m"
+fwupdmgr refresh
+fwupdmgr update
+echo
