@@ -4,6 +4,7 @@ set -e
 
 omadora-update-git
 omadora-migrate
+omadora-update-cargo
 omadora-update-system-pkgs
 # TODO: add fwupd etc.
 # TODO: omadora-update-restart

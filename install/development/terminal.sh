@@ -26,9 +26,11 @@ sudo dnf install -y \
   cargo \
   pipewire-devel \
   clang \
-  neovim
+  neovim \
+  openssl-devel
 
 cargo install \
   impala \
   wiremix \
-  eza
+  eza \
+  cargo-update

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Install iwd explicitly if it wasn't included in archinstall
-# This can happen if archinstall used ethernet
+# Install iwd explicitly for wifi if not set up during OS install
+# TODO: Remove Network Manager etc. if installed, set iwd to use internal dhcp
 if ! command -v iwctl &>/dev/null; then
   sudo dnf install -y iwd
   sudo systemctl enable --now iwd.service

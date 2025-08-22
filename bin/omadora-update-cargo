@@ -1,0 +1,5 @@
+#!/bin/bash
+
+echo -e "\e[32m\nUpdate cargo bins\e[0m"
+cargo install-update --all
+echo
