@@ -58,6 +58,7 @@ source $OMADORA_INSTALL/desktop/fonts.sh
 # Apps
 show_logo
 show_subtext "Installing default applications [4/5]"
+source $OMADORA_INSTALL/apps/apps.sh
 source $OMADORA_INSTALL/apps/mimetypes.sh
 
 # Updates

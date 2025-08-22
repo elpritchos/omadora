@@ -11,4 +11,5 @@ sudo dnf install -y \
   fcitx5-configtool \
   chromium \
   imv \
-  nautilus
+  nautilus \
+  evince
