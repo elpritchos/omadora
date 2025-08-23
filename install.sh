@@ -67,6 +67,9 @@ show_subtext "Updating system packages [5/5]"
 sudo updatedb
 sudo dnf upgrade -y
 
+# Post Install
+source $OMADORA_INSTALL/postinstall/remove-pkgs.sh
+
 # Reboot
 show_logo
 show_subtext "You're done! So we'll be rebooting now..."
