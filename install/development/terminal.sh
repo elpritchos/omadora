@@ -26,6 +26,7 @@ sudo dnf install -y \
   alacritty \
   cargo \
   pipewire-devel \
+  dbus-devel \
   clang \
   neovim \
   openssl-devel \
@@ -36,5 +37,6 @@ sudo dnf install -y \
 cargo install \
   impala \
   wiremix \
+  bluetui \
   eza \
   cargo-update

@@ -128,7 +128,7 @@ show_setup_menu() {
   case $(menu "Setup" "$options") in
   *Audio*) alacritty --class=Wiremix -e wiremix ;;
   *Wifi*) alacritty --class=Impala -e impala ;;
-  *Bluetooth*) blueberry ;;
+  *Bluetooth*) alacritty --class=Bluetui -e bluetui ;;
   *Power*) show_setup_power_menu ;;
   *Monitors*) edit_in_nvim ~/.config/hypr/monitors.conf ;;
   *Keybindings*) edit_in_nvim ~/.config/hypr/bindings.conf ;;
