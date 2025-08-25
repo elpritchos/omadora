@@ -34,10 +34,10 @@ After the OS install, `nmcli` can be used to connect to your WiFi network and in
 The Network Manager Submodules group can then be removed `sudo dnf group remove networkmanager-submodules`, along with all other Network Manager packages `sudo dnf remove NetworkManager*`.
 From there you should be able to connect to your WiFi network using `iwctl`, and continue with the general installation instructions above.
 
-NOTE: You may need to manually enable the built-in DHCP client for IWD as per the [Arch Wiki](https://wiki.archlinux.org/title/Iwd).
+> **NOTE:** You may need to manually enable the built-in DHCP client for IWD as per the [Arch Wiki](https://wiki.archlinux.org/title/Iwd).
 
-NOTE: There is also a chance you may be missing the correct WiFi device drivers after the Fedora install, in this case, you can use the bootable media to boot into Recovery Mode and get a shell, then `chroot /mnt/sysimage`, and from there connect and install the Hardware Support package group  `sudo dnf group install -y hardware-support`, or determine and install the specific drivers needed.
-You may also need to disable the guard checks in the Omadora `install.sh` due to the additional package group being installed.
+> **NOTE:** There is also a chance you may be missing the correct WiFi device drivers after the Fedora install, in this case, you can use the bootable media to boot into Recovery Mode and get a shell, then `chroot /mnt/sysimage`, and from there connect and install the Hardware Support package group  `sudo dnf group install -y hardware-support`, or determine and install the specific drivers needed.
+> You may also need to disable the guard checks in the Omadora `install.sh` due to the additional package group being installed.
 
 ## Usage
 
