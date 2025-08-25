@@ -10,6 +10,7 @@ sudo dnf install -y \
   hyprsunset \
   hyprpolkitagent \
   hyprland-qtutils \
+  hyprland-protocols \
   waybar \
   mako \
   swaybg \
