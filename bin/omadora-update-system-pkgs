@@ -1,5 +1,14 @@
 #!/bin/bash
 
+STATE_DIR=$HOME/.local/state/omadora
+
 echo -e "\e[32m\nUpdate system packages\e[0m"
 sudo dnf upgrade -y
+
+# Fedora: use dnf5 needs-restarting to detect if a reboot is recommended/required.
+# Non-zero exit status indicates a reboot is needed.
+if ! dnf5 needs-restarting >/dev/null 2>&1; then
+  touch $STATE_DIR/reboot-required
+fi
+
 echo

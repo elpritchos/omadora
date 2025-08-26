@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo -e "\e[32m\nUpdate Flatpaks\e[0m"
+
+if command -v flatpak >/dev/null 2>&1; then
+  flatpak update -y
+else
+  echo "flatpak not found, skipping"
+fi
+
+echo

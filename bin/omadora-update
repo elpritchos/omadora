@@ -5,8 +5,8 @@ set -e
 omadora-update-git
 omadora-migrate
 omadora-update-cargo
+omadora-update-flatpak
 omadora-update-system-pkgs
 omadora-update-fw
-# TODO: add fwupd etc.
-# TODO: omadora-update-restart
+omadora-update-restart
 omadora-restart-waybar # removes update-available icon

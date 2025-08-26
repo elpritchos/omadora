@@ -53,7 +53,7 @@
     "format": "",
     "exec": "omadora-update-available",
     "on-click": "alacritty --class Omadora --title Omadora -e omadora-update",
-    "tooltip-format": "Omadora update available",
+    "tooltip-format": "System update available",
     "interval": 3600
   },
   "cpu": {

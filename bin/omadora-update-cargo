@@ -1,5 +1,11 @@
 #!/bin/bash
 
-echo -e "\e[32m\nUpdate cargo bins\e[0m"
-cargo install-update --all
+echo -e "\e[32m\nUpdate Cargo bins\e[0m"
+
+if command -v cargo install-update --version >/dev/null 2>&1; then
+  cargo install-update --all
+else
+  echo "cargo install-update not found, skipping"
+fi
+
 echo
