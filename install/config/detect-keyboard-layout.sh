@@ -1,10 +1,11 @@
 #!/bin/bash
 
-conf="/etc/vconsole.conf"
+# Copy Fedora X11 keyboard layout to Hyprland config
 hyprconf="$HOME/.config/hypr/hyprland.conf"
 
-layout=$(grep '^XKBLAYOUT=' "$conf" | cut -d= -f2 | tr -d '"')
-variant=$(grep '^XKBVARIANT=' "$conf" | cut -d= -f2 | tr -d '"')
+# Get layout and variant using localectl
+layout=$(localectl status | awk -F: '/X11 Layout/ {gsub(/ /,"",$2); print $2}')
+variant=$(localectl status | awk -F: '/X11 Variant/ {gsub(/ /,"",$2); print $2}')
 
 if [[ -n "$layout" ]]; then
   sed -i "/^[[:space:]]*kb_options *=/i\  kb_layout = $layout" "$hyprconf"

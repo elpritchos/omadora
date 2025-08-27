@@ -11,6 +11,3 @@ if [ -d ~/.bashrc.d ]; then
     done
 fi
 unset rc
-
-# Add your own exports, aliases, and functions here or within the .bashrc.d dir
-

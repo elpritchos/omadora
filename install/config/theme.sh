@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo dnf install -y kvantum-qt5 gnome-themes-extra yaru-icon-theme
-
 gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
 gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
 gsettings set org.gnome.desktop.interface icon-theme "Yaru-blue"
@@ -22,5 +20,4 @@ mkdir -p ~/.config/mako
 ln -snf ~/.config/omadora/current/theme/mako.ini ~/.config/mako/config
 
 # Screensaver
-sudo dnf install -y pipx
 pipx install terminaltexteffects

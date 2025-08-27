@@ -1,77 +1,57 @@
 #!/bin/bash
 
 # Exit immediately if a command exits with a non-zero status
-set -e
+set -eE
 
-OMADORA_PATH="$HOME/.local/share/omadora"
-OMADORA_INSTALL="$OMADORA_PATH/install"
+export PATH="$HOME/.local/share/omadora/bin:$PATH"
+OMADORA_INSTALL=~/.local/share/omadora/install
 
-export PATH="$OMADORA_PATH/bin:$PATH"
+# Sudo keep-alive
+if ! sudo -n true 2>/dev/null; then
+  sudo -v
+fi
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# Give people a chance to retry running the installation
-catch_errors() {
-  echo -e "\n\e[31mOmadora installation failed!\e[0m"
-  echo "You can retry by running: bash $OMADORA_PATH/install.sh"
-}
-
-trap catch_errors ERR
-
-show_logo() {
-  clear
-  cat <$OMADORA_PATH/logo.txt
-  echo
-}
-
-show_subtext() {
-  echo "$1"
-  echo
-}
-
-# Install prerequisites
+# Preparation
+source $OMADORA_INSTALL/preflight/trap-errors.sh
 source $OMADORA_INSTALL/preflight/guard.sh
-source $OMADORA_INSTALL/preflight/presentation.sh
-source $OMADORA_INSTALL/preflight/copr.sh
+source $OMADORA_INSTALL/preflight/chroot.sh
+source $OMADORA_INSTALL/preflight/repositories.sh
 source $OMADORA_INSTALL/preflight/migrations.sh
 
+# Packaging
+source $OMADORA_INSTALL/packages.sh
+source $OMADORA_INSTALL/packaging/cargo.sh
+source $OMADORA_INSTALL/packaging/fonts.sh
+
 # Configuration
-show_logo
-show_subtext "Installing base config [1/5]"
 source $OMADORA_INSTALL/config/config.sh
+source $OMADORA_INSTALL/config/theme.sh
+source $OMADORA_INSTALL/config/branding.sh
+source $OMADORA_INSTALL/config/gpg.sh
+source $OMADORA_INSTALL/config/ssh-flakiness.sh
 source $OMADORA_INSTALL/config/detect-keyboard-layout.sh
-source $OMADORA_INSTALL/config/network.sh
-source $OMADORA_INSTALL/config/power.sh
-source $OMADORA_INSTALL/config/login.sh
+source $OMADORA_INSTALL/config/xcompose.sh
+source $OMADORA_INSTALL/config/mise-ruby.sh
+source $OMADORA_INSTALL/config/mimetypes.sh
+source $OMADORA_INSTALL/config/hardware/network.sh
+source $OMADORA_INSTALL/config/hardware/fix-fkeys.sh
+source $OMADORA_INSTALL/config/hardware/power.sh
 
-# Development
-show_logo
-show_subtext "Installing terminal tools [2/5]"
-source $OMADORA_INSTALL/development/terminal.sh
-
-# Desktop
-show_logo
-show_subtext "Installing desktop tools [3/5]"
-source $OMADORA_INSTALL/desktop/desktop.sh
-source $OMADORA_INSTALL/desktop/hyprland.sh
-source $OMADORA_INSTALL/desktop/theme.sh
-source $OMADORA_INSTALL/desktop/fonts.sh
-
-# Apps
-show_logo
-show_subtext "Installing default applications [4/5]"
-source $OMADORA_INSTALL/apps/apps.sh
-source $OMADORA_INSTALL/apps/mimetypes.sh
+# Login
+source $OMADORA_INSTALL/login/plymouth.sh
 
 # Updates
-show_logo
-show_subtext "Updating system packages [5/5]"
 sudo updatedb
+
+# Update system packages
 sudo dnf upgrade -y
 
-# Post Install
-source $OMADORA_INSTALL/postinstall/remove-pkgs.sh
-
 # Reboot
-show_logo
-show_subtext "You're done! So we'll be rebooting now..."
-sleep 2
+clear
+tte -i ~/.local/share/omadora/logo.txt --frame-rate 920 laseretch
+echo
+echo "You're done! So we're ready to reboot now..." | tte --frame-rate 640 wipe
+
+sleep 5
 reboot
