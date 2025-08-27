@@ -71,7 +71,7 @@ sudo dnf install -y \
   xdg-desktop-portal-gtk \
   xdg-desktop-portal-hyprland \
   xdg-user-dirs \
-  xml-starlet \
+  xmlstarlet \
   yaru-icon-theme \
   zoxide
 
