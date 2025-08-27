@@ -1,6 +1,6 @@
 export OMADORA_PATH=$HOME/.local/share/omadora
-
 export PATH=$OMADORA_PATH/bin/:$PATH
+export TERMINAL=alacritty
 
 if command -v mise &> /dev/null; then
   eval "$(mise activate bash)"
