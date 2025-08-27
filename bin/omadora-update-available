@@ -54,7 +54,8 @@ fi
 
 # Cargo built binaries (via cargo-update)
 if command -v cargo >/dev/null 2>&1 && cargo install-update --version >/dev/null 2>&1; then
-  if CARGO_TERM_COLOR=never cargo install-update --list 2>/dev/null | awk '/^Package[[:space:]]+Installed[[:space:]]+Latest[[:space:]]+Needs[[:space:]]+update$/ { in=1; next } in && NF { if ($NF ~ /^Yes/) exit 0 } END { exit 1 }'; then
+  if cargo install-update --list 2>/dev/null \
+       | awk 'NR>1 && $NF=="Yes"{found=1} END{exit !found}'; then
     messages+=("Cargo-installed binaries updates available via cargo install-update")
     updates_found=1
   fi
