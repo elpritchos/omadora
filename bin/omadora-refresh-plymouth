@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "$1" == "-y" ]] || gum confirm "Refresh Plymouth theme? This will replace your current startup screen with the default."; then
+if [[ "$1" == "-y" ]]; then
   #sudo cp ~/.local/share/omadora/default/plymouth/* /usr/share/plymouth/themes/omadora/
   sudo plymouth-set-default-theme -R details
 fi

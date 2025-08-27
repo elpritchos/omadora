@@ -1,17 +1,16 @@
 #!/bin/bash
 
-omadora_path="$HOME/.local/share/omadora"
-
 updates_found=0
 messages=()
 
-# Omadora repo updates
-if ! git -C "$omadora_path" ls-remote &>/dev/null; then
+# Ensure remote is reachable
+if ! git -C "$OMADORA_PATH" ls-remote &>/dev/null; then
   echo "Error: Unable to reach remote repository."
   exit 1
 fi
-latest_tag=$(git -C "$omadora_path" ls-remote --tags origin | grep -v "{}" | awk '{print $2}' | sed 's#refs/tags/##' | sort -V | tail -n 1)
-current_tag=$(git -C "$omadora_path" describe --tags $(git -C "$omadora_path" rev-list --tags --max-count=1))
+
+latest_tag=$(git -C "$OMADORA_PATH" ls-remote --tags origin | grep -v "{}" | awk '{print $2}' | sed 's#refs/tags/##' | sort -V | tail -n 1)
+current_tag=$(git -C "$OMADORA_PATH" describe --tags $(git -C "$OMADORA_PATH" rev-list --tags --max-count=1))
 
 if [[ "$current_tag" != "$latest_tag" ]]; then
   messages+=("Omadora update available ($latest_tag)")
@@ -27,7 +26,7 @@ if command -v dnf5 >/dev/null 2>&1; then
   dnf5 -q check-upgrade >/dev/null 2>&1
   rc=$?
   if [[ $rc -eq 100 ]]; then
-    messages+=("Fedora system updates available via dnf5")
+    messages+=("Fedora system updates available")
     updates_found=1
   elif [[ $rc -ne 0 ]]; then
     messages+=("Warning: dnf5 check-upgrade failed")

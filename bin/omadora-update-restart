@@ -7,3 +7,13 @@ if [ -f "$STATE_DIR/reboot-required" ]; then
 elif [ -f "$STATE_DIR/relaunch-required" ]; then
   gum confirm "Updates require Hyprland relaunch. Ready?" && omadora-state clear relaunch-required && uwsm stop
 fi
+
+for file in "$HOME"/.local/state/omadora/restart-*-required; do
+  if [ -f "$file" ]; then
+    filename=$(basename "$file")
+    service=$(echo "$filename" | sed 's/restart-\(.*\)-required/\1/')
+    echo "Restarting $service"
+    omadora-state clear "$filename"
+    omadora-restart-"$service"
+  fi
+done

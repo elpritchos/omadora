@@ -23,7 +23,7 @@ menu() {
 }
 
 terminal() {
-  alacritty --class Omadora -e $1
+  alacritty --class Omadora -e "$@"
 }
 
 present_terminal() {
@@ -33,10 +33,6 @@ present_terminal() {
 edit_in_nvim() {
   notify-send "Editing config file" "$1"
   alacritty -e nvim "$1"
-}
-
-open_web() {
-  setsid chromium-browser --new-window --app="$1" &
 }
 
 install() {
@@ -54,22 +50,24 @@ install_font() {
 show_learn_menu() {
   case $(menu "Learn" "  Keybindings\n  Omadora\n  Omarchy\n  Hyprland\n Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
   *Keybindings*) omadora-menu-keybindings ;;
-  *Omadora*) open_web "https://github.com/elpritchos/omadora" ;;
-  *Omarchy*) open_web "https://manuals.omamix.org/2/the-omarchy-manual" ;;
-  *Hyprland*) open_web "https://wiki.hypr.land" ;;
-  *Fedora*) open_web "https://docs.fedoraproject.org" ;;
-  *Arch*) open_web "https://wiki.archlinux.org" ;;
-  *Neovim*) open_web "https://neovim.io/doc/user/quickref.html" ;;
-  *Bash*) open_web "https://devhints.io/bash" ;;
+  *Omadora*) omadora-launch-webapp "https://github.com/elpritchos/omadora" ;;
+  *Omarchy*) omadora-launch-webapp "https://learn.omacom.io/2/the-omarchy-manual" ;;
+  *Hyprland*) omadora-launch-webapp "https://wiki.hypr.land" ;;
+  *Fedora*) omadora-launch-webapp "https://docs.fedoraproject.org" ;;
+  *Arch*) omadora-launch-webapp "https://wiki.archlinux.org" ;;
+  *Neovim*) omadora-launch-webapp "https://neovim.io/doc/user/quickref.html" ;;
+  *Bash*) omadora-launch-webapp "https://devhints.io/bash" ;;
   *) show_main_menu ;;
   esac
 }
 
 show_style_menu() {
-  case $(menu "Style" "󰸌  Theme\n  Font\n  Background") in
+  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n󱄄  Screensaver\n  About") in
   *Theme*) show_theme_menu ;;
   *Font*) show_font_menu ;;
   *Background*) omadora-theme-bg-next ;;
+  *Screensaver*) edit_in_nvim ~/.config/omadora/branding/screensaver.txt ;;
+  *About*) edit_in_nvim ~/.config/omadora/branding/about.txt ;;
   *) show_main_menu ;;
   esac
 }
@@ -95,6 +93,7 @@ show_font_menu() {
 show_capture_menu() {
   case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰃉  Color") in
   *Screenshot*) show_screenshot_menu ;;
+  *Screenrecord*) show_screenrecord_menu ;;
   *Color*) pkill hyprpicker || hyprpicker -a ;;
   *) show_main_menu ;;
   esac
@@ -109,12 +108,20 @@ show_screenshot_menu() {
   esac
 }
 
+show_screenrecord_menu() {
+  case $(menu "Screenrecord" "  Region\n  Display") in
+  *Region*) omadora-cmd-screenrecord ;;
+  *Display*) omadora-cmd-screenrecord output ;;
+  *) show_capture_menu ;;
+  esac
+}
+
 show_toggle_menu() {
   case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar") in
-  *Screensaver*) omadora-launch-screensaver ;;
+  *Screensaver*) omadora-toggle-screensaver ;;
   *Nightlight*) omadora-toggle-nightlight ;;
   *Idle*) omadora-toggle-idle ;;
-  *Bar*) pkill -SIGUSR1 waybar ;;
+  *Bar*) omadora-toggle-waybar ;;
   *) show_main_menu ;;
   esac
 }
@@ -123,16 +130,23 @@ show_setup_menu() {
   local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
   [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
   [ -f ~/.config/hypr/input.conf ] && options="$options\n  Input"
-  options="$options\n  Config"
+  options="$options\n󰱔  DNS\n  Config"
 
   case $(menu "Setup" "$options") in
   *Audio*) alacritty --class=Wiremix -e wiremix ;;
-  *Wifi*) alacritty --class=Impala -e impala ;;
-  *Bluetooth*) alacritty --class=Bluetui -e bluetui ;;
+  *Wifi*)
+    rfkill unblock wifi
+    alacritty --class=Impala -e impala
+    ;;
+  *Bluetooth*)
+    rfkill unblock bluetooth
+    alacritty --class=Bluetui -e bluetui
+    ;;
   *Power*) show_setup_power_menu ;;
   *Monitors*) edit_in_nvim ~/.config/hypr/monitors.conf ;;
   *Keybindings*) edit_in_nvim ~/.config/hypr/bindings.conf ;;
   *Input*) edit_in_nvim ~/.config/hypr/input.conf ;;
+  *DNS*) present_terminal omadora-setup-dns ;;
   *Config*) show_setup_config_menu ;;
   *) show_main_menu ;;
   esac
@@ -163,9 +177,10 @@ show_setup_config_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "  Package\n  Web App\n  Style") in
+  case $(menu "Install" "  Package\n  Web App\n  TUI\n  Style") in
   *Package*) terminal omadora-pkg-install ;;
   *Web*) present_terminal omadora-webapp-install ;;
+  *TUI*) present_terminal omadora-tui-install ;;
   *Style*) show_install_style_menu ;;
   *) show_main_menu ;;
   esac
@@ -180,9 +195,10 @@ show_install_style_menu() {
 }
 
 show_remove_menu() {
-  case $(menu "Remove" "  Package\n  Web App\n󰸌  Theme") in
+  case $(menu "Remove" "  Package\n  Web App\n  TUI\n󰸌  Theme") in
   *Package*) terminal omadora-pkg-remove ;;
   *Web*) present_terminal omadora-webapp-remove ;;
+  *TUI*) present_terminal omadora-tui-remove ;;
   *Theme*) present_terminal omadora-theme-remove ;;
   *) show_main_menu ;;
   esac
@@ -224,8 +240,9 @@ show_update_config_menu() {
 }
 
 show_system_menu() {
-  case $(menu "System" "  Lock\n󰤄  Suspend\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
+  case $(menu "System" "  Lock\n󱄄  Screensaver\n󰤄  Suspend\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
   *Lock*) omadora-lock-screen ;;
+  *Screensaver*) omadora-launch-screensaver force ;;
   *Suspend*) systemctl suspend ;;
   *Stop*) uwsm stop ;;
   *Reboot*) systemctl reboot ;;
@@ -253,7 +270,7 @@ go_to_menu() {
   *remove*) show_remove_menu ;;
   *update*) show_update_menu ;;
   *system*) show_system_menu ;;
-  *about*) gtk-launch About.desktop ;;
+  *about*) terminal bash -c 'fastfetch; read -n 1 -s' ;;
   esac
 }
 
