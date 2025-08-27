@@ -79,3 +79,5 @@ sudo dnf remove -y \
   kitty \
   NetworkManager* \
   nwg-panel
+
+sudo rm -rf /etc/NetworkManager
