@@ -30,7 +30,6 @@ sudo dnf install -y \
   gum \
   hypridle \
   hyprland \
-  hyprland-protocols \
   hyprland-qtutils \
   hyprlock \
   hyprpicker \
