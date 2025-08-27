@@ -48,7 +48,7 @@ install_font() {
 }
 
 show_learn_menu() {
-  case $(menu "Learn" "  Keybindings\n  Omadora\n  Omarchy\n  Hyprland\n Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
+  case $(menu "Learn" "  Keybindings\n  Omadora\n  Omarchy\n  Hyprland\n  Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
   *Keybindings*) omadora-menu-keybindings ;;
   *Omadora*) omadora-launch-webapp "https://github.com/elpritchos/omadora" ;;
   *Omarchy*) omadora-launch-webapp "https://learn.omacom.io/2/the-omarchy-manual" ;;
@@ -163,13 +163,14 @@ show_setup_power_menu() {
 }
 
 show_setup_config_menu() {
-  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n󰞅  XCompose") in
+  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Wofi\n󰍜  Waybar\n󰞅  XCompose") in
   *Hyprland*) edit_in_nvim ~/.config/hypr/hyprland.conf ;;
   *Hypridle*) edit_in_nvim ~/.config/hypr/hypridle.conf && omadora-restart-hypridle ;;
   *Hyprlock*) edit_in_nvim ~/.config/hypr/hyprlock.conf ;;
   *Hyprsunset*) edit_in_nvim ~/.config/hypr/hyprsunset.conf && omadora-restart-hyprsunset ;;
   *Swayosd*) edit_in_nvim ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
-  *Walker*) edit_in_nvim ~/.config/walker/config.toml && omadora-restart-walker ;;
+  *Wofi*) edit_in_nvim ~/.config/wofi/config && omadora-restart-wofi ;;
+  #*Walker*) edit_in_nvim ~/.config/walker/config.toml && omadora-restart-walker ;;
   *Waybar*) edit_in_nvim ~/.config/waybar/config.jsonc && omadora-restart-waybar ;;
   *XCompose*) edit_in_nvim ~/.XCompose && omadora-restart-xcompose ;;
   *) show_main_menu ;;

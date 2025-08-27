@@ -1,6 +1,10 @@
 #!/bin/bash
 
-# Ensure iwd service enabled
+# Ensure iwd service with dhcp enabled
+sudo tee /etc/iwd/main.conf >/dev/null <<'EOF'
+[General]
+EnableNetworkConfiguration=true
+EOF
 chrootable_systemctl_enable iwd.service
 
 # Prevent systemd-networkd-wait-online timeout on boot
