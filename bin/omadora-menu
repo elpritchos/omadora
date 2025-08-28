@@ -163,14 +163,15 @@ show_setup_power_menu() {
 }
 
 show_setup_config_menu() {
-  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Wofi\n󰍜  Waybar\n󰞅  XCompose") in
+  #case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n󰞅  XCompose") in
+  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󰌧  Wofi\n󰍜  Waybar\n󰞅  XCompose") in
   *Hyprland*) edit_in_nvim ~/.config/hypr/hyprland.conf ;;
   *Hypridle*) edit_in_nvim ~/.config/hypr/hypridle.conf && omadora-restart-hypridle ;;
   *Hyprlock*) edit_in_nvim ~/.config/hypr/hyprlock.conf ;;
   *Hyprsunset*) edit_in_nvim ~/.config/hypr/hyprsunset.conf && omadora-restart-hyprsunset ;;
-  *Swayosd*) edit_in_nvim ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
-  *Wofi*) edit_in_nvim ~/.config/wofi/config && omadora-restart-wofi ;;
+  #*Swayosd*) edit_in_nvim ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
   #*Walker*) edit_in_nvim ~/.config/walker/config.toml && omadora-restart-walker ;;
+  *Wofi*) edit_in_nvim ~/.config/wofi/config && omadora-restart-wofi ;;
   *Waybar*) edit_in_nvim ~/.config/waybar/config.jsonc && omadora-restart-waybar ;;
   *XCompose*) edit_in_nvim ~/.XCompose && omadora-restart-xcompose ;;
   *) show_main_menu ;;
@@ -216,25 +217,29 @@ show_update_menu() {
 }
 
 show_update_process_menu() {
-  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  #case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n󰌧  Wofi\n󰍜  Waybar") in
   *Hypridle*) omadora-restart-hypridle ;;
   *Hyprsunset*) omadora-restart-hyprsunset ;;
-  *Swayosd*) omadora-restart-swayosd ;;
-  *Walker*) omadora-restart-walker ;;
+  #*Swayosd*) omadora-restart-swayosd ;;
+  #*Walker*) omadora-restart-walker ;;
+  *Wofi*) omadora-restart-wofi ;;
   *Waybar*) omadora-restart-waybar ;;
   *) show_main_menu ;;
   esac
 }
 
 show_update_config_menu() {
-  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  #case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n󰌧  Wofi\n󰍜  Waybar") in
   *Hyprland*) present_terminal omadora-refresh-hyprland ;;
   *Hypridle*) present_terminal omadora-refresh-hypridle ;;
   *Hyprlock*) present_terminal omadora-refresh-hyprlock ;;
   *Hyprsunset*) present_terminal omadora-refresh-hyprsunset ;;
   *Plymouth*) present_terminal omadora-refresh-plymouth ;;
-  *Swayosd*) present_terminal omadora-refresh-swayosd ;;
-  *Walker*) present_terminal omadora-refresh-walker ;;
+  #*Swayosd*) present_terminal omadora-refresh-swayosd ;;
+  #*Walker*) present_terminal omadora-refresh-walker ;;
+  *Wofi*) present_terminal omadora-refresh-wofi ;;
   *Waybar*) present_terminal omadora-refresh-waybar ;;
   *) show_main_menu ;;
   esac

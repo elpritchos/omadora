@@ -7,14 +7,16 @@ if [[ -n "$font_name" && "$font_name" != "CNCLD" ]]; then
     sed -i "s/family = \".*\"/family = \"$font_name\"/g" ~/.config/alacritty/alacritty.toml
     sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/waybar/style.css
     sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/swayosd/style.css
+    sed -i "s/font-family: .*/font-family: '$font_name', monospace;/g" ~/.config/wofi/style.css
     xmlstarlet ed -L \
       -u '//match[@target="pattern"][test/string="monospace"]/edit[@name="family"]/string' \
       -v "$font_name" \
       ~/.config/fontconfig/fonts.conf
 
     omadora-restart-waybar
-    omadora-restart-swayosd
-    omadora-restart-walker
+    #omadora-restart-swayosd
+    #omadora-restart-walker
+    omadora-restart-wofi
   else
     echo "Font '$font_name' not found."
     exit 1
