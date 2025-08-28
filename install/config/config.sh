@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Ensure .config dir
-mkdir -p ~/.config
+xdg-user-dirs-update
 
-# Copy over Omadora configs
+# Copy over configs
+mkdir -p ~/.config
 cp -R ~/.local/share/omadora/config/* ~/.config/
 
-# Use default bashrc from Omadora
+# Use default bashrc
 cp ~/.local/share/omadora/default/bashrc ~/.bashrc
-
-# Ensure application directory exists for update-desktop-database
-mkdir -p ~/.local/share/applications
-

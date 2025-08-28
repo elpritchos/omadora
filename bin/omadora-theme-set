@@ -45,7 +45,7 @@ touch "$HOME/.config/alacritty/alacritty.toml"
 # Restart components to apply new theme
 pkill -SIGUSR2 btop
 omadora-restart-waybar
-omadora-restart-swayosd
+#omadora-restart-swayosd
 makoctl reload
 hyprctl reload
 

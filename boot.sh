@@ -23,8 +23,9 @@ echo -e "\nCloning Omadora from: https://github.com/${OMADORA_REPO}.git"
 rm -rf ~/.local/share/omadora/
 git clone "https://github.com/${OMADORA_REPO}.git" ~/.local/share/omadora >/dev/null
 
-# Use custom branch if instructed
-if [[ -n "$OMADORA_REF" ]]; then
+# Use custom branch if instructed, otherwise default to master
+OMADORA_REF="${OMADORA_REF:-master}"
+if [[ $OMADORA_REF != "master" ]]; then
   echo -e "\eUsing branch: $OMADORA_REF"
   cd ~/.local/share/omadora
   git fetch origin "${OMADORA_REF}" && git checkout "${OMADORA_REF}"

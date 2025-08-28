@@ -23,20 +23,16 @@ menu() {
 }
 
 terminal() {
-  alacritty --class Omadora -e $1
+  alacritty --class Omadora -e "$@"
 }
 
 present_terminal() {
-  alacritty --class Omadora -e bash -c "omadora-show-logo; eval \"$1\"; omadora-show-done;"
+  omadora-launch-floating-terminal-with-presentation $1
 }
 
 edit_in_nvim() {
   notify-send "Editing config file" "$1"
   alacritty -e nvim "$1"
-}
-
-open_web() {
-  setsid chromium-browser --new-window --app="$1" &
 }
 
 install() {
@@ -52,24 +48,26 @@ install_font() {
 }
 
 show_learn_menu() {
-  case $(menu "Learn" "  Keybindings\n  Omadora\n  Omarchy\n  Hyprland\n Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
+  case $(menu "Learn" "  Keybindings\n  Omadora\n  Omarchy\n  Hyprland\n  Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
   *Keybindings*) omadora-menu-keybindings ;;
-  *Omadora*) open_web "https://github.com/elpritchos/omadora" ;;
-  *Omarchy*) open_web "https://manuals.omamix.org/2/the-omarchy-manual" ;;
-  *Hyprland*) open_web "https://wiki.hypr.land" ;;
-  *Fedora*) open_web "https://docs.fedoraproject.org" ;;
-  *Arch*) open_web "https://wiki.archlinux.org" ;;
-  *Neovim*) open_web "https://neovim.io/doc/user/quickref.html" ;;
-  *Bash*) open_web "https://devhints.io/bash" ;;
+  *Omadora*) omadora-launch-webapp "https://github.com/elpritchos/omadora" ;;
+  *Omarchy*) omadora-launch-webapp "https://learn.omacom.io/2/the-omarchy-manual" ;;
+  *Hyprland*) omadora-launch-webapp "https://wiki.hypr.land" ;;
+  *Fedora*) omadora-launch-webapp "https://docs.fedoraproject.org" ;;
+  *Arch*) omadora-launch-webapp "https://wiki.archlinux.org" ;;
+  *Neovim*) omadora-launch-webapp "https://neovim.io/doc/user/quickref.html" ;;
+  *Bash*) omadora-launch-webapp "https://devhints.io/bash" ;;
   *) show_main_menu ;;
   esac
 }
 
 show_style_menu() {
-  case $(menu "Style" "󰸌  Theme\n  Font\n  Background") in
+  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n󱄄  Screensaver\n  About") in
   *Theme*) show_theme_menu ;;
   *Font*) show_font_menu ;;
   *Background*) omadora-theme-bg-next ;;
+  *Screensaver*) edit_in_nvim ~/.config/omadora/branding/screensaver.txt ;;
+  *About*) edit_in_nvim ~/.config/omadora/branding/about.txt ;;
   *) show_main_menu ;;
   esac
 }
@@ -95,6 +93,7 @@ show_font_menu() {
 show_capture_menu() {
   case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰃉  Color") in
   *Screenshot*) show_screenshot_menu ;;
+  *Screenrecord*) show_screenrecord_menu ;;
   *Color*) pkill hyprpicker || hyprpicker -a ;;
   *) show_main_menu ;;
   esac
@@ -109,12 +108,20 @@ show_screenshot_menu() {
   esac
 }
 
+show_screenrecord_menu() {
+  case $(menu "Screenrecord" "  Region\n  Display") in
+  *Region*) omadora-cmd-screenrecord ;;
+  *Display*) omadora-cmd-screenrecord output ;;
+  *) show_capture_menu ;;
+  esac
+}
+
 show_toggle_menu() {
   case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar") in
-  *Screensaver*) omadora-launch-screensaver ;;
+  *Screensaver*) omadora-toggle-screensaver ;;
   *Nightlight*) omadora-toggle-nightlight ;;
   *Idle*) omadora-toggle-idle ;;
-  *Bar*) pkill -SIGUSR1 waybar ;;
+  *Bar*) omadora-toggle-waybar ;;
   *) show_main_menu ;;
   esac
 }
@@ -122,17 +129,24 @@ show_toggle_menu() {
 show_setup_menu() {
   local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
   [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
-  [ -f ~/.config/hypr/input.conf ] && options="$options\n  Input"
-  options="$options\n  Config"
+  [ -f ~/.config/hypr/input.conf ] && options="$options\n󰍽  Input"
+  options="$options\n󰱔  DNS\n  Config"
 
   case $(menu "Setup" "$options") in
   *Audio*) alacritty --class=Wiremix -e wiremix ;;
-  *Wifi*) alacritty --class=Impala -e impala ;;
-  *Bluetooth*) alacritty --class=Bluetui -e bluetui ;;
+  *Wifi*)
+    rfkill unblock wifi
+    alacritty --class=Impala -e impala
+    ;;
+  *Bluetooth*)
+    rfkill unblock bluetooth
+    alacritty --class=Bluetui -e bluetui
+    ;;
   *Power*) show_setup_power_menu ;;
   *Monitors*) edit_in_nvim ~/.config/hypr/monitors.conf ;;
   *Keybindings*) edit_in_nvim ~/.config/hypr/bindings.conf ;;
   *Input*) edit_in_nvim ~/.config/hypr/input.conf ;;
+  *DNS*) present_terminal omadora-setup-dns ;;
   *Config*) show_setup_config_menu ;;
   *) show_main_menu ;;
   esac
@@ -149,13 +163,15 @@ show_setup_power_menu() {
 }
 
 show_setup_config_menu() {
-  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n󰞅  XCompose") in
+  #case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n󰞅  XCompose") in
+  case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󰌧  Wofi\n󰍜  Waybar\n󰞅  XCompose") in
   *Hyprland*) edit_in_nvim ~/.config/hypr/hyprland.conf ;;
   *Hypridle*) edit_in_nvim ~/.config/hypr/hypridle.conf && omadora-restart-hypridle ;;
   *Hyprlock*) edit_in_nvim ~/.config/hypr/hyprlock.conf ;;
   *Hyprsunset*) edit_in_nvim ~/.config/hypr/hyprsunset.conf && omadora-restart-hyprsunset ;;
-  *Swayosd*) edit_in_nvim ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
-  *Walker*) edit_in_nvim ~/.config/walker/config.toml && omadora-restart-walker ;;
+  #*Swayosd*) edit_in_nvim ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
+  #*Walker*) edit_in_nvim ~/.config/walker/config.toml && omadora-restart-walker ;;
+  *Wofi*) edit_in_nvim ~/.config/wofi/config && omadora-restart-wofi ;;
   *Waybar*) edit_in_nvim ~/.config/waybar/config.jsonc && omadora-restart-waybar ;;
   *XCompose*) edit_in_nvim ~/.XCompose && omadora-restart-xcompose ;;
   *) show_main_menu ;;
@@ -163,9 +179,10 @@ show_setup_config_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "  Package\n  Web App\n  Style") in
+  case $(menu "Install" "  Package\n  Web App\n  TUI\n  Style") in
   *Package*) terminal omadora-pkg-install ;;
   *Web*) present_terminal omadora-webapp-install ;;
+  *TUI*) present_terminal omadora-tui-install ;;
   *Style*) show_install_style_menu ;;
   *) show_main_menu ;;
   esac
@@ -180,9 +197,10 @@ show_install_style_menu() {
 }
 
 show_remove_menu() {
-  case $(menu "Remove" "  Package\n  Web App\n󰸌  Theme") in
+  case $(menu "Remove" "  Package\n  Web App\n  TUI\n󰸌  Theme") in
   *Package*) terminal omadora-pkg-remove ;;
   *Web*) present_terminal omadora-webapp-remove ;;
+  *TUI*) present_terminal omadora-tui-remove ;;
   *Theme*) present_terminal omadora-theme-remove ;;
   *) show_main_menu ;;
   esac
@@ -199,33 +217,38 @@ show_update_menu() {
 }
 
 show_update_process_menu() {
-  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  #case $(menu "Restart" "  Hypridle\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n󰌧  Wofi\n󰍜  Waybar") in
   *Hypridle*) omadora-restart-hypridle ;;
   *Hyprsunset*) omadora-restart-hyprsunset ;;
-  *Swayosd*) omadora-restart-swayosd ;;
-  *Walker*) omadora-restart-walker ;;
+  #*Swayosd*) omadora-restart-swayosd ;;
+  #*Walker*) omadora-restart-walker ;;
+  *Wofi*) omadora-restart-wofi ;;
   *Waybar*) omadora-restart-waybar ;;
   *) show_main_menu ;;
   esac
 }
 
 show_update_config_menu() {
-  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  #case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Swayosd\n󰌧  Walker\n󰍜  Waybar") in
+  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n󰌧  Wofi\n󰍜  Waybar") in
   *Hyprland*) present_terminal omadora-refresh-hyprland ;;
   *Hypridle*) present_terminal omadora-refresh-hypridle ;;
   *Hyprlock*) present_terminal omadora-refresh-hyprlock ;;
   *Hyprsunset*) present_terminal omadora-refresh-hyprsunset ;;
   *Plymouth*) present_terminal omadora-refresh-plymouth ;;
-  *Swayosd*) present_terminal omadora-refresh-swayosd ;;
-  *Walker*) present_terminal omadora-refresh-walker ;;
+  #*Swayosd*) present_terminal omadora-refresh-swayosd ;;
+  #*Walker*) present_terminal omadora-refresh-walker ;;
+  *Wofi*) present_terminal omadora-refresh-wofi ;;
   *Waybar*) present_terminal omadora-refresh-waybar ;;
   *) show_main_menu ;;
   esac
 }
 
 show_system_menu() {
-  case $(menu "System" "  Lock\n󰤄  Suspend\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
+  case $(menu "System" "  Lock\n󱄄  Screensaver\n󰤄  Suspend\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
   *Lock*) omadora-lock-screen ;;
+  *Screensaver*) omadora-launch-screensaver force ;;
   *Suspend*) systemctl suspend ;;
   *Stop*) uwsm stop ;;
   *Reboot*) systemctl reboot ;;
@@ -253,7 +276,7 @@ go_to_menu() {
   *remove*) show_remove_menu ;;
   *update*) show_update_menu ;;
   *system*) show_system_menu ;;
-  *about*) gtk-launch About.desktop ;;
+  *about*) alacritty --class Omadora -o font.size=9 -e bash -c 'fastfetch; read -n 1 -s' ;;
   esac
 }
 
