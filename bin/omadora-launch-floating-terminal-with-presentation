@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cmd="$*"
+setsid alacritty --class Omadora -e bash -c "omadora-show-logo; $cmd; omadora-show-done"

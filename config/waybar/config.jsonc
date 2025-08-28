@@ -52,7 +52,7 @@
   "custom/update": {
     "format": "",
     "exec": "omadora-update-available",
-    "on-click": "alacritty --class Omadora --title Omadora -e omadora-update",
+    "on-click": "omadora-launch-floating-terminal-with-presentation omadora-update",
     "tooltip-format": "System update available",
     "interval": 3600
   },

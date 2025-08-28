@@ -34,18 +34,13 @@ source $OMADORA_INSTALL/config/detect-keyboard-layout.sh
 source $OMADORA_INSTALL/config/xcompose.sh
 source $OMADORA_INSTALL/config/mise-ruby.sh
 source $OMADORA_INSTALL/config/mimetypes.sh
+source $OMADORA_INSTALL/config/localdb.sh
 source $OMADORA_INSTALL/config/hardware/network.sh
 source $OMADORA_INSTALL/config/hardware/fix-fkeys.sh
 source $OMADORA_INSTALL/config/hardware/power.sh
 
 # Login
 source $OMADORA_INSTALL/login/plymouth.sh
-
-# Updates
-sudo updatedb
-
-# Update system packages
-sudo dnf upgrade -y
 
 # Reboot
 clear

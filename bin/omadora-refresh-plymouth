@@ -1,6 +1,7 @@
 #!/bin/bash
 
 if [[ "$1" == "-y" ]]; then
+  echo "Refreshing default plymouth theme..."
   #sudo cp ~/.local/share/omadora/default/plymouth/* /usr/share/plymouth/themes/omadora/
   sudo plymouth-set-default-theme -R details
 fi
