@@ -30,17 +30,17 @@ else
   messages+=("Omadora is up to date ($current_tag)")
 fi
 
-# Fedora system updates via dnf5
-if command -v dnf5 >/dev/null 2>&1; then
+# Fedora system updates via dnf
+if command -v dnf >/dev/null 2>&1; then
   # Refresh metadata quietly
-  dnf5 -q makecache >/dev/null 2>&1 || true
-  dnf5 -q check-upgrade >/dev/null 2>&1
+  sudo dnf -q makecache --refresh >/dev/null 2>&1 || true
+  sudo dnf -q check-upgrade >/dev/null 2>&1
   rc=$?
   if [[ $rc -eq 100 ]]; then
     messages+=("Fedora system updates available")
     updates_found=1
   elif [[ $rc -ne 0 ]]; then
-    messages+=("Warning: dnf5 check-upgrade failed")
+    messages+=("Warning: dnf check-upgrade failed")
   fi
 fi
 
