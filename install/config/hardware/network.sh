@@ -15,8 +15,8 @@ Name=wlan*
 [Network]
 DHCP=yes
 EOF
-chrootable_systemctl_enable systemd-networkd
-chrootable_systemctl_enable iwd.service
+sudo systemctl enable systemd-networkd.service
+sudo systemctl enable iwd.service
 
 # Prevent systemd-networkd-wait-online timeout on boot
 sudo systemctl disable systemd-networkd-wait-online.service

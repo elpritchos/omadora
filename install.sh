@@ -15,7 +15,6 @@ while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 # Preparation
 source $OMADORA_INSTALL/preflight/trap-errors.sh
 source $OMADORA_INSTALL/preflight/guard.sh
-source $OMADORA_INSTALL/preflight/chroot.sh
 source $OMADORA_INSTALL/preflight/repositories.sh
 source $OMADORA_INSTALL/preflight/migrations.sh
 
