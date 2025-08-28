@@ -9,10 +9,13 @@ if [[ ! -d "$OUTPUT_DIR" ]]; then
 fi
 
 screenrecording() {
-  filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
+  filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mkv"
   notify-send "Screen recording starting..." -t 1000
   sleep 1
-  wf-recorder -f "$filename" -c libx264 -p crf=23 -p preset=medium -p movflags=+faststart "$@"
+  wf-recorder -f "$filename" "$@"
+  if [ $? -ne 0 ]; then
+    notify-send "Screen recording failed" "wf-recorder encountered an error"
+  fi
 }
 
 if pgrep -x wf-recorder >/dev/null; then
