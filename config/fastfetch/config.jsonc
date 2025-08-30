@@ -71,6 +71,12 @@
       "text": "version=$(omadora-version); echo \"Omadora $version\""
     },
     {
+      "type": "command",
+      "key": "│ ├󰘬",
+      "keyColor": "blue",
+      "text": "branch=$(omadora-version-branch); echo \"$branch\""
+    },
+    {
       "type": "kernel",
       "key": "│ ├",
       "keyColor": "blue"
