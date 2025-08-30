@@ -27,7 +27,7 @@ terminal() {
 }
 
 present_terminal() {
-  omadora-launch-floating-terminal-with-presentation $1
+  omadora-launch-floating-terminal-with-presentation "$1"
 }
 
 edit_in_nvim() {
@@ -158,7 +158,7 @@ show_setup_power_menu() {
   if [[ "$profile" == "CNCLD" || -z "$profile" ]]; then
     show_main_menu
   else
-    powerprofilesctl set "$profile"
+    omadora-powerprofiles-set "$profile"
   fi
 }
 
@@ -263,20 +263,22 @@ show_main_menu() {
 
 go_to_menu() {
   case "${1,,}" in
-  *apps*) wofi --show drun -p "Launch…" ;;
   #*apps*) walker -p "Launch…" ;;
+  *apps*) wofi --show drun -p "Launch…" ;;
   *learn*) show_learn_menu ;;
   *style*) show_style_menu ;;
   *theme*) show_theme_menu ;;
   *capture*) show_capture_menu ;;
   *screenshot*) show_screenshot_menu ;;
+  *screenrecord*) show_screenrecord_menu ;;
   *toggle*) show_toggle_menu ;;
   *setup*) show_setup_menu ;;
+  *power*) show_setup_power_menu ;;
   *install*) show_install_menu ;;
   *remove*) show_remove_menu ;;
   *update*) show_update_menu ;;
-  *system*) show_system_menu ;;
   *about*) alacritty --class Omadora -o font.size=9 -e bash -c 'fastfetch; read -n 1 -s' ;;
+  *system*) show_system_menu ;;
   esac
 }
 

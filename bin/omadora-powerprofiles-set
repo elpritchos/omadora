@@ -1,0 +1,10 @@
+#!/bin/bash
+
+profile="$1"
+
+if powerprofilesctl set "$profile"; then
+    notify-send -a "PowerProfiles" "Power profile set to '$profile'"
+else
+    notify-send -a "PowerProfiles" "Failed to set power profile to '$profile'"
+    exit 1
+fi
