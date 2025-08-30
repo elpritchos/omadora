@@ -34,7 +34,7 @@ After the Fedora OS installation, `nmcli` can be used to connect to your WiFi ne
 When starting the Omadora install the guard check may prompt due to the extra package group being installed, this is fine to continue.
 During the install Network Manager will be completely removed and replaced with the `iwd` package to handle WiFi connections.
 
-After installation, use the Wiremix TUI to reconnect to your WiFi network as usual.
+After installation, use `iwctl` or the Wiremix TUI to reconnect to your WiFi network as usual.
 
 > **NOTE:** There is also a chance you may be missing the correct WiFi device drivers after the initial Fedora installation, in this case, you can use the bootable media to boot into Recovery Mode and get a shell, then `chroot /mnt/sysimage`, and from there connect and install the Hardware Support package group  `sudo dnf group install -y hardware-support`, or determine and install the specific drivers needed.
 
