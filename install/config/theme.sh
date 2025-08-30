@@ -13,6 +13,9 @@ mkdir -p ~/.config/omadora/current
 ln -snf ~/.config/omadora/themes/rose-pine-darker ~/.config/omadora/current/theme
 ln -snf ~/.config/omadora/current/theme/backgrounds/01_background.png ~/.config/omadora/current/background
 
+# Set specific app links for current theme
+ln -snf ~/.config/omadora/current/theme/neovim.lua ~/.config/nvim/lua/plugins/theme.lua
+
 mkdir -p ~/.config/btop/themes
 ln -snf ~/.config/omadora/current/theme/btop.theme ~/.config/btop/themes/current.theme
 

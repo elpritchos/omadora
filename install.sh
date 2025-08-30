@@ -22,6 +22,7 @@ source $OMADORA_INSTALL/preflight/migrations.sh
 source $OMADORA_INSTALL/packages.sh
 source $OMADORA_INSTALL/packaging/cargo.sh
 source $OMADORA_INSTALL/packaging/fonts.sh
+source $OMADORA_INSTALL/packaging/lazyvim.sh
 
 # Configuration
 source $OMADORA_INSTALL/config/config.sh
