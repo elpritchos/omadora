@@ -41,7 +41,7 @@ After installation, use `iwctl` or the Wiremix TUI to reconnect to your WiFi net
 ## Usage
 
 Omadora does not use the seamless login implemented in Omarchy, therefore once logged in, start Omadora using `omadora`.
-Stop Omadora by using the power menu or executing the bash command `uswm stop`.
+Stop Omadora by using the power menu or executing the bash command `uwsm stop`.
 
 ## License
 
