@@ -7,14 +7,13 @@ Omadora purposely does not include all the apps and features included with Omarc
 It is intended to be a minimal install that matches the base functionality to allow users to build from.
 However, as the implementation closely matches Omarchy, adding features from Omarchy should be simple.
 
-Read more at about Omarchy itself at [omarchy.org](https://omarchy.org).
+Read more about Omarchy itself at [omarchy.org](https://omarchy.org).
 
 ## Important
 
-Omadora attempts to install only packages from the official Fedora repositories, currently with the exception of a few Hyprland related packages.
-These are provided by the [solopasha/hyprland](https://copr.fedorainfracloud.org/coprs/solopasha/hyprland/) COPR, and as such, users should perform their own due diligence to ensure Omadora is safe to install.
+Omadora attempts to install only packages from the official Fedora repositories, currently with the exception of a few Hyprland related packages, and mise.
+These are provided by the [solopasha/hyprland](https://copr.fedorainfracloud.org/coprs/solopasha/hyprland/) and [jdxcode/mise](https://copr.fedorainfracloud.org/coprs/jdxcode/mise/) COPRs respectively, and as such, users should perform their own due diligence to ensure these are safe to install.
 
-Some functionality may be broken.
 Feel free to submit issues or PRs for improvement, however there are no guarantees for timely fixes or updates.
 
 ## Installation
