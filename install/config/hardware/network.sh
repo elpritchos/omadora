@@ -15,6 +15,8 @@ Name=wlan*
 [Network]
 DHCP=yes
 EOF
+
+# Ensure network services enabled
 sudo systemctl enable systemd-networkd.service
 sudo systemctl enable iwd.service
 

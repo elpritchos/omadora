@@ -207,11 +207,13 @@ show_remove_menu() {
 }
 
 show_update_menu() {
-  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process") in
+  #case $(menu "Update" " Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware\n  Timezone") in
+  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware") in
   *Omadora*) present_terminal omadora-update ;;
   *Config*) show_update_config_menu ;;
   *Themes*) present_terminal omadora-theme-update ;;
   *Process*) show_update_process_menu ;;
+  *Hardware*) show_update_hardware_menu ;;
   *) show_main_menu ;;
   esac
 }
@@ -225,7 +227,7 @@ show_update_process_menu() {
   #*Walker*) omadora-restart-walker ;;
   *Wofi*) omadora-restart-wofi ;;
   *Waybar*) omadora-restart-waybar ;;
-  *) show_main_menu ;;
+  *) show_update_menu ;;
   esac
 }
 
@@ -241,7 +243,15 @@ show_update_config_menu() {
   #*Walker*) present_terminal omadora-refresh-walker ;;
   *Wofi*) present_terminal omadora-refresh-wofi ;;
   *Waybar*) present_terminal omadora-refresh-waybar ;;
-  *) show_main_menu ;;
+  *) show_update_menu ;;
+  esac
+}
+
+show_update_hardware_menu() {
+  case $(menu "Restart" "󱚾  Wi-Fi\n󰂯  Bluetooth") in
+  *Wi-Fi*) present_terminal omadora-restart-wifi ;;
+  *Bluetooth*) present_terminal omadora-restart-bluetooth ;;
+  *) show_update_menu ;;
   esac
 }
 

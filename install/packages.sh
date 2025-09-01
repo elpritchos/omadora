@@ -28,6 +28,8 @@ sudo dnf install -y \
   gnome-themes-extra \
   google-noto-fonts-common \
   gum \
+  gvfs-mtp \
+  gvfs-smb \
   hypridle \
   hyprland \
   hyprland-qtutils \
@@ -39,7 +41,6 @@ sudo dnf install -y \
   imv \
   iputils \
   iwd \
-  jetbrains-mono-fonts-all \
   kvantum-qt5 \
   mako \
   mise \
@@ -73,11 +74,3 @@ sudo dnf install -y \
   xmlstarlet \
   yaru-icon-theme \
   zoxide
-
-# Clean up any unwanted packages that may have been installed
-sudo dnf remove -y \
-  kitty \
-  NetworkManager* \
-  nwg-panel
-
-sudo rm -rf /etc/NetworkManager
