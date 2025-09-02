@@ -64,7 +64,8 @@
   "clock": {
     "format": "{:%A %H:%M}",
     "format-alt": "{:%d %B W%V %Y}",
-    "tooltip": false
+    "tooltip-format": "{:%Z:%Ez}",
+    "on-click-right": "omadora-launch-floating-terminal-with-presentation omadora-cmd-tzupdate"
   },
   "network": {
     "format-icons": [

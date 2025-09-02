@@ -207,13 +207,13 @@ show_remove_menu() {
 }
 
 show_update_menu() {
-  #case $(menu "Update" " Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware\n  Timezone") in
-  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware") in
+  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware\n  Timezone") in
   *Omadora*) present_terminal omadora-update ;;
   *Config*) show_update_config_menu ;;
   *Themes*) present_terminal omadora-theme-update ;;
   *Process*) show_update_process_menu ;;
   *Hardware*) show_update_hardware_menu ;;
+  *Timezone*) present_terminal omadora-cmd-tzupdate ;;
   *) show_main_menu ;;
   esac
 }

@@ -40,7 +40,6 @@
 #custom-update {
   min-width: 12px;
   margin: 0 7.5px;
-  font-size: 10px;
 }
 
 #custom-expand-icon {
@@ -49,6 +48,10 @@
 
 tooltip {
   padding: 2px;
+}
+
+#custom-update {
+  font-size: 10px;
 }
 
 #clock {
