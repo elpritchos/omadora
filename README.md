@@ -14,8 +14,6 @@ Read more about Omarchy itself at [omarchy.org](https://omarchy.org).
 Omadora attempts to install only packages from the official Fedora repositories, currently with the exception of a few Hyprland related packages, and mise.
 These are provided by the [solopasha/hyprland](https://copr.fedorainfracloud.org/coprs/solopasha/hyprland/) and [jdxcode/mise](https://copr.fedorainfracloud.org/coprs/jdxcode/mise/) COPRs respectively, and as such, users should perform their own due diligence to ensure these are safe to install.
 
-Feel free to submit issues or PRs for improvement, however there are no guarantees for timely fixes or updates.
-
 ## Installation
 
 Install the Fedora Custom Operating System base install using the [Everything Network Installer](https://alt.fedoraproject.org/).
@@ -41,6 +39,14 @@ After installation, use `iwctl` or the Wiremix TUI to reconnect to your WiFi net
 
 Omadora does not use the seamless login implemented in Omarchy, therefore once logged in, start Omadora using `omadora`.
 Stop Omadora by using the power menu or executing the bash command `uwsm stop`.
+
+## Contribution
+
+Feel free to submit issues and PRs for improvement, I will do my best but cannot guarantee timely updates.
+
+If you like this project, then please also feel free to...
+
+[![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/elpritchos)
 
 ## License
 
