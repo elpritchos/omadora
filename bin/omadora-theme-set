@@ -42,6 +42,12 @@ fi
 # Trigger alacritty config reload
 touch "$HOME/.config/alacritty/alacritty.toml"
 
+# Reload ghostty config if version >= 1.2
+if command -v ghostty >/dev/null; then
+  v=$(ghostty --version | awk '/^Ghostty/{print $2}' | cut -d- -f1)
+  [[ $(printf '%s\n' 1.2.0 "$v" | sort -V | head -n1) == 1.2.0 ]] && pkill -SIGUSR2 ghostty
+fi
+
 # Restart components to apply new theme
 pkill -SIGUSR2 btop
 omadora-restart-waybar

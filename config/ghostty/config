@@ -1,0 +1,23 @@
+# Fonts
+font-family               = "Cascadia Mono NF"
+font-family-bold          = "Cascadia Mono NF"
+font-family-italic        = "Cascadia Mono NF"
+font-family-bold-italic   = "Cascadia Mono NF"
+font-feature = -calt, -liga, -dlig
+font-size = 9
+
+# Theme
+config-file = ?../omadora/current/theme/ghostty.theme
+background-opacity = 0.95
+
+# Mouse
+mouse-hide-while-typing = true
+
+# Window
+window-theme = ghostty
+window-padding-x = 12
+window-padding-y = 12
+
+# Other
+gtk-wide-tabs = false
+confirm-close-surface = false
