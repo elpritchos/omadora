@@ -1,2 +1,7 @@
 echo "Update Ghostty config"
-omadora-refresh-config ghostty/config
+
+if [ -d "$HOME/.config/ghostty" ]; then
+    omadora-refresh-config ghostty/config || true
+else
+    cp -r "$OMADORA_PATH/config/ghostty" "$HOME/.config/"
+fi
