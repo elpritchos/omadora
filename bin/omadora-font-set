@@ -7,7 +7,6 @@ if [[ -n "$font_name" && "$font_name" != "CNCLD" ]]; then
     sed -i "s/family = \".*\"/family = \"$font_name\"/g" ~/.config/alacritty/alacritty.toml
     sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/waybar/style.css
     sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/swayosd/style.css
-    sed -i "s/font-family: .*/font-family: '$font_name', monospace;/g" ~/.config/wofi/style.css
     sed -i "s/^\(font-family[^=]*=\) \".*\"$/\1 \"$font_name\"/" ~/.config/ghostty/config
     xmlstarlet ed -L \
       -u '//match[@target="pattern"][test/string="monospace"]/edit[@name="family"]/string' \

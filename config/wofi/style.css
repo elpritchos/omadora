@@ -1,13 +1,13 @@
 /* Colors are defined by theme file and can be referenced via @base, @text, @selected-text, and @border */
 
 * {
-  font-family: 'Cascadia Mono NF', monospace;
-  font-size: 18px;
+  font-family: monospace;
+  font-size: 16px;
 }
 
 window {
-  margin: 0px;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
   background-color: @base;
   opacity: 0.95;
 }
@@ -21,10 +21,10 @@ window {
 
 #outer-box {
   margin: 0;
-  padding: 20px;
+  padding: 10px 20px;
   border: none;
   background-color: @base;
-  border: 2px solid @border;
+  border: 1px solid @border;
 }
 
 #scroll {
@@ -36,7 +36,7 @@ window {
 
 #input {
   margin: 0;
-  padding: 10px;
+  padding: 3px;
   border: none;
   background-color: @base;
   color: @text;
@@ -49,7 +49,7 @@ window {
 }
 
 #text {
-  margin: 5px;
+  margin: 3px;
   border: none;
   color: @text;
 }
@@ -68,7 +68,7 @@ window {
 }
 
 #entry image {
-  -gtk-icon-transform: scale(0.7);
+  -gtk-icon-transform: scale(0.6);
 }
 
 @import ".config/omadora/current/theme/walker.css";
