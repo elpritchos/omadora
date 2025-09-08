@@ -36,6 +36,7 @@ source $OMADORA_INSTALL/config/hardware/fix-fkeys.sh
 source $OMADORA_INSTALL/config/hardware/power.sh
 
 # Login
+source $OMADORA_INSTALL/login/systemd.sh
 source $OMADORA_INSTALL/login/plymouth.sh
 
 # Finishing

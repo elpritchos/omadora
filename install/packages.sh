@@ -15,6 +15,7 @@ sudo dnf install -y \
   cascadia-code-nf-fonts \
   cascadia-mono-nf-fonts \
   chromium \
+  dbus-tools \
   evince \
   fastfetch \
   fcitx5 \
@@ -24,7 +25,6 @@ sudo dnf install -y \
   fd-find \
   fontawesome-fonts-all \
   fzf \
-  gnome-keyring \
   gnome-themes-extra \
   google-noto-fonts-common \
   gum \
