@@ -1,0 +1,10 @@
+name: Enhancement
+description: Feature or change
+labels: [enhancement]
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: What's needed?
+    validations:
+      required: true

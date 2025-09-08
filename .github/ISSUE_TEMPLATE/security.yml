@@ -1,0 +1,10 @@
+name: Security
+description: Report a security issue
+labels: [security]
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: What correction is needed?
+    validations:
+      required: true

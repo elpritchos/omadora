@@ -1,0 +1,18 @@
+name: Bug
+description: Report a problem
+labels: [bug]
+body:
+  - type: input
+    id: system-details
+    attributes:
+      label: System details
+      placeholder: e.g. Omadora v2.1.0, NVIDIA 5090, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: What's wrong?
+    validations:
+      required: true

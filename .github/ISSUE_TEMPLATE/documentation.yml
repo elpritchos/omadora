@@ -1,0 +1,10 @@
+name: Documentation
+description: New pages or changes to existing documentation
+labels: [documentation]
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: What correction or addition is needed?
+    validations:
+      required: true
