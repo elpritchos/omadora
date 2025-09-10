@@ -16,6 +16,7 @@ sudo dnf install -y \
   cascadia-mono-nf-fonts \
   chromium \
   dbus-tools \
+  du-dust \
   evince \
   fastfetch \
   fcitx5 \
