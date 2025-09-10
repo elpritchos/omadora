@@ -2,7 +2,7 @@
 
 # Drive, like /dev/nvme0, to display information about
 if (($# == 0)); then
-  echo "Usage: omarchy-drive-info [/dev/drive]"
+  echo "Usage: omadora-drive-info [/dev/drive]"
   exit 1
 else
   drive="$1"

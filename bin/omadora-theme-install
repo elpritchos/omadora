@@ -15,7 +15,7 @@ if [ -z "$REPO_URL" ]; then
 fi
 
 THEMES_DIR="$HOME/.config/omadora/themes"
-THEME_NAME=$(basename "$REPO_URL" .git | sed -E 's/^omarchy-//; s/-theme$//')
+THEME_NAME=$(basename "$REPO_URL" .git | sed -E 's/^(omarchy|omadora)-//; s/-theme$//')
 THEME_PATH="$THEMES_DIR/$THEME_NAME"
 
 # Remove existing theme if present
@@ -30,4 +30,4 @@ if ! git clone "$REPO_URL" "$THEME_PATH"; then
 fi
 
 # Apply the new theme with omadora-theme-set
-omadora-theme-set $THEME_NAME
+omadora-theme-set "$THEME_NAME"
