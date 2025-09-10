@@ -2,6 +2,21 @@
 
 export PATH="$HOME/.local/share/omadora/bin:$PATH"
 
+# Set to true when going directly to a submenu, so we can exit directly
+BACK_TO_EXIT=false
+
+back_to() {
+  local parent_menu="$1"
+
+  if [[ "$DIRECT_ACCESS" == "true" ]]; then
+    exit 0
+  elif [[ -n "$parent_menu" ]]; then
+    "$parent_menu"
+  else
+    show_main_menu
+  fi
+}
+
 menu() {
   local prompt="$1"
   local options="$2"
@@ -75,7 +90,7 @@ show_style_menu() {
 show_theme_menu() {
   theme=$(menu "Theme" "$(omadora-theme-list)" "" "$(omadora-theme-current)")
   if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
-    show_main_menu
+    back_to show_style_menu
   else
     omadora-theme-set "$theme"
   fi
@@ -84,7 +99,7 @@ show_theme_menu() {
 show_font_menu() {
   theme=$(menu "Font" "$(omadora-font-list)" "-w 350" "$(omadora-font-current)")
   if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
-    show_main_menu
+    back_to show_style_menu
   else
     omadora-font-set "$theme"
   fi
@@ -158,7 +173,7 @@ show_setup_power_menu() {
   profile=$(menu "Power Profile" "$(omadora-powerprofiles-list)" "" "$(powerprofilesctl get)")
 
   if [[ "$profile" == "CNCLD" || -z "$profile" ]]; then
-    show_main_menu
+    back_to show_setup_menu
   else
     omadora-powerprofiles-set "$profile"
   fi
@@ -274,7 +289,7 @@ show_system_menu() {
   *Stop*) uwsm stop ;;
   *Reboot*) systemctl reboot ;;
   *Shutdown*) systemctl poweroff ;;
-  *) show_main_menu ;;
+  *) back_to show_main_menu ;;
   esac
 }
 
@@ -304,6 +319,7 @@ go_to_menu() {
 }
 
 if [[ -n "$1" ]]; then
+  BACK_TO_EXIT=true
   pkill wofi || go_to_menu "$1"
 else
   pkill wofi || show_main_menu
