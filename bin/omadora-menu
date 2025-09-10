@@ -2,6 +2,21 @@
 
 export PATH="$HOME/.local/share/omadora/bin:$PATH"
 
+# Set to true when going directly to a submenu, so we can exit directly
+BACK_TO_EXIT=false
+
+back_to() {
+  local parent_menu="$1"
+
+  if [[ "$DIRECT_ACCESS" == "true" ]]; then
+    exit 0
+  elif [[ -n "$parent_menu" ]]; then
+    "$parent_menu"
+  else
+    show_main_menu
+  fi
+}
+
 menu() {
   local prompt="$1"
   local options="$2"
@@ -75,7 +90,7 @@ show_style_menu() {
 show_theme_menu() {
   theme=$(menu "Theme" "$(omadora-theme-list)" "" "$(omadora-theme-current)")
   if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
-    show_main_menu
+    back_to show_style_menu
   else
     omadora-theme-set "$theme"
   fi
@@ -84,7 +99,7 @@ show_theme_menu() {
 show_font_menu() {
   theme=$(menu "Font" "$(omadora-font-list)" "-w 350" "$(omadora-font-current)")
   if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
-    show_main_menu
+    back_to show_style_menu
   else
     omadora-font-set "$theme"
   fi
@@ -109,8 +124,10 @@ show_screenshot_menu() {
 }
 
 show_screenrecord_menu() {
-  case $(menu "Screenrecord" "  Region\n  Display") in
+  case $(menu "Screenrecord" "  Region\n  Region + Audio\n  Display\n  Display + Audio") in
+  *"Region + Audio"*) omadora-cmd-screenrecord region audio ;;
   *Region*) omadora-cmd-screenrecord ;;
+  *"Display + Audio"*) omadora-cmd-screenrecord output audio ;;
   *Display*) omadora-cmd-screenrecord output ;;
   *) show_capture_menu ;;
   esac
@@ -156,7 +173,7 @@ show_setup_power_menu() {
   profile=$(menu "Power Profile" "$(omadora-powerprofiles-list)" "" "$(powerprofilesctl get)")
 
   if [[ "$profile" == "CNCLD" || -z "$profile" ]]; then
-    show_main_menu
+    back_to show_setup_menu
   else
     omadora-powerprofiles-set "$profile"
   fi
@@ -207,13 +224,14 @@ show_remove_menu() {
 }
 
 show_update_menu() {
-  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware\n  Timezone") in
+  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware\n  Password\n  Timezone") in
   *Omadora*) present_terminal omadora-update ;;
   *Config*) show_update_config_menu ;;
   *Themes*) present_terminal omadora-theme-update ;;
   *Process*) show_update_process_menu ;;
   *Hardware*) show_update_hardware_menu ;;
   *Timezone*) present_terminal omadora-cmd-tzupdate ;;
+  *Password*) show_update_password_menu ;;
   *) show_main_menu ;;
   esac
 }
@@ -255,6 +273,14 @@ show_update_hardware_menu() {
   esac
 }
 
+show_update_password_menu() {
+  case $(menu "Update Password" "  Drive Encryption\n  User") in
+  *Drive*) present_terminal omadora-drive-set-password ;;
+  *User*) present_terminal passwd ;;
+  *) show_update_menu ;;
+  esac
+}
+
 show_system_menu() {
   case $(menu "System" "  Lock\n󱄄  Screensaver\n󰤄  Suspend\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
   *Lock*) omadora-lock-screen ;;
@@ -263,7 +289,7 @@ show_system_menu() {
   *Stop*) uwsm stop ;;
   *Reboot*) systemctl reboot ;;
   *Shutdown*) systemctl poweroff ;;
-  *) show_main_menu ;;
+  *) back_to show_main_menu ;;
   esac
 }
 
@@ -293,6 +319,7 @@ go_to_menu() {
 }
 
 if [[ -n "$1" ]]; then
+  BACK_TO_EXIT=true
   pkill wofi || go_to_menu "$1"
 else
   pkill wofi || show_main_menu
