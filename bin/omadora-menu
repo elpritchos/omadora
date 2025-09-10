@@ -109,8 +109,10 @@ show_screenshot_menu() {
 }
 
 show_screenrecord_menu() {
-  case $(menu "Screenrecord" "  Region\n  Display") in
+  case $(menu "Screenrecord" "  Region\n  Region + Audio\n  Display\n  Display + Audio") in
+  *"Region + Audio"*) omadora-cmd-screenrecord region audio ;;
   *Region*) omadora-cmd-screenrecord ;;
+  *"Display + Audio"*) omadora-cmd-screenrecord output audio ;;
   *Display*) omadora-cmd-screenrecord output ;;
   *) show_capture_menu ;;
   esac

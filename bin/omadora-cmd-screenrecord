@@ -8,12 +8,17 @@ if [[ ! -d "$OUTPUT_DIR" ]]; then
   exit 1
 fi
 
+if [[ $2 == "audio" ]]; then
+  AUDIO="--audio"
+else
+  AUDIO=""
+fi
+
 screenrecording() {
-  filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mkv"
+  filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
   notify-send "Screen recording starting..." -t 1000
   sleep 1
-  wf-recorder -f "$filename" "$@"
-  if [ $? -ne 0 ]; then
+  if ! wf-recorder "$AUDIO" -f "$filename" "$@"; then
     notify-send "Screen recording failed" "wf-recorder encountered an error"
   fi
 }
