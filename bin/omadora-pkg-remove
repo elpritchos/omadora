@@ -18,6 +18,5 @@ if [[ -n "$pkg_names" ]]; then
   # Convert newline-separated list into an array
   readarray -t pkgs <<< "$pkg_names"
   sudo dnf remove "${pkgs[@]}"
-  sudo updatedb
   omadora-show-done
 fi
