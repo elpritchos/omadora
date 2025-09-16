@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Small wait for window closing animations to finish
+sleep 0.1
+
 # Lock the screen
 pidof hyprlock || hyprlock &
 
