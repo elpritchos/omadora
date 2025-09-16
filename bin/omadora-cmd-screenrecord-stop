@@ -1,6 +1,0 @@
-#!/bin/bash
-
-if pgrep -x wf-recorder >/dev/null; then
-  pkill -x wf-recorder
-  notify-send "Screen recording stopped" -t 2000
-fi

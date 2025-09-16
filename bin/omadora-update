@@ -15,4 +15,6 @@ omadora-update-flatpak
 omadora-update-system-pkgs
 omadora-update-fw
 omadora-update-restart
-omadora-restart-waybar # removes update-available icon
+
+# Refresh waybar update available indicator
+pkill -RTMIN+7 waybar

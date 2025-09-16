@@ -4,31 +4,52 @@
 OUTPUT_DIR="${OMADORA_SCREENRECORD_DIR:-${XDG_VIDEOS_DIR:-$HOME/Videos}}"
 
 if [[ ! -d "$OUTPUT_DIR" ]]; then
-  notify-send "Screen recording directory does not exist: $OUTPUT_DIR" -u critical -t 3000
+  notify-send -u critical -t 3000 "Screen recording directory does not exist: $OUTPUT_DIR"
   exit 1
 fi
 
-if [[ $2 == "audio" ]]; then
-  AUDIO="--audio"
-else
-  AUDIO=""
-fi
+# Selects region or output
+SCOPE="$1"
 
-screenrecording() {
+# Selects audio inclusion or not
+AUDIO=$([[ $2 == "audio" ]] && echo "--audio")
+
+start_screenrecording() {
   filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
-  notify-send "Screen recording starting..." -t 1000
-  sleep 1
-  if ! wf-recorder "$AUDIO" -f "$filename" "$@"; then
-    notify-send "Screen recording failed" "wf-recorder encountered an error"
+
+  wf-recorder "$AUDIO" -f "$filename" "$@" &
+  wf_pid=$!
+
+  if ps -p $wf_pid > /dev/null; then
+    toggle_screenrecording_indicator
+  else
+    notify-send -u critical -t 3000 "Screen recording failed" "wf-recorder did not start"
+    exit 1
   fi
 }
 
-if pgrep -x wf-recorder >/dev/null; then
+stop_screenrecording() {
   pkill -x wf-recorder
+
   notify-send "Screen recording saved to $OUTPUT_DIR" -t 2000
-elif [[ "$1" == "output" ]]; then
-  screenrecording
+
+  sleep 1 # ensures the process is actually dead before we check
+  toggle_screenrecording_indicator
+}
+
+toggle_screenrecording_indicator() {
+  pkill -RTMIN+8 waybar
+}
+
+screenrecording_active() {
+  pgrep -x wf-recorder >/dev/null
+}
+
+if screenrecording_active; then
+  stop_screenrecording
+elif [[ "$SCOPE" == "output" ]]; then
+  start_screenrecording
 else
   region=$(slurp) || exit 1
-  screenrecording -g "$region"
+  start_screenrecording -g "$region"
 fi
