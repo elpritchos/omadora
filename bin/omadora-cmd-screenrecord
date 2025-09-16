@@ -17,7 +17,7 @@ AUDIO=$([[ $2 == "audio" ]] && echo "--audio")
 start_screenrecording() {
   filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 
-  wf-recorder "$AUDIO" -f "$filename" "$@" &
+  wf-recorder "$AUDIO" -f "$filename" "$@" &>/dev/null &
   wf_pid=$!
 
   if ps -p $wf_pid > /dev/null; then
@@ -47,9 +47,12 @@ screenrecording_active() {
 
 if screenrecording_active; then
   stop_screenrecording
+  echo "Stopped recording"
 elif [[ "$SCOPE" == "output" ]]; then
   start_screenrecording
+  echo "Started screen recording"
 else
   region=$(slurp) || exit 1
   start_screenrecording -g "$region"
+  echo "Started region recording"
 fi
