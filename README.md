@@ -45,7 +45,8 @@ Stop Omadora by using the power menu or executing the bash command `uwsm stop`.
 Neovim theme config files have been modified to not include the LazyVim plugin and therefore any Neovim configuration that uses the Lazy plugin manager can symlink in the theme plugin from `~/.config/omadora/current/theme/neovim.lua`.
 Third-party themes may still load the LazyVim plugin and would need to be modified manually after the theme install.
 
-Ghostty config and themes have been included but requires Ghostty 1.2+ for automatic config reload, otherwise the config can be reloaded manually using `Ctrl-Shift-,` after each theme change.
+Ghostty config and themes have been included but requires Ghostty 1.2+ for automatic config reload and themes to work properly.
+To use an older version, some of the Ghostty config files within the `themes` directory will need to be modified back to the old Ghostty theme names, and the config needs to be reloaded manually using `Ctrl-Shift-,` after each theme change.
 
 ## Contribution
 
