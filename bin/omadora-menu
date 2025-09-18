@@ -34,11 +34,11 @@ menu() {
   fi
 
   #echo -e "$options" | walker --dmenu --theme dmenu_250 -p "$prompt…" "${args[@]}"
-  echo -e "$options" | wofi --dmenu "${args[@]}"
+  echo -e "$options" | wofi --dmenu -p "$prompt…" "${args[@]}"
 }
 
 terminal() {
-  alacritty --class Omadora -e "$@"
+  alacritty --class=Omadora -e "$@"
 }
 
 present_terminal() {
@@ -76,33 +76,12 @@ show_learn_menu() {
   esac
 }
 
-show_style_menu() {
-  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n󱄄  Screensaver\n  About") in
-  *Theme*) show_theme_menu ;;
-  *Font*) show_font_menu ;;
-  *Background*) omadora-theme-bg-next ;;
-  *Screensaver*) open_in_editor ~/.config/omadora/branding/screensaver.txt ;;
-  *About*) open_in_editor ~/.config/omadora/branding/about.txt ;;
+show_trigger_menu() {
+  case $(menu "Trigger" "  Capture\n󰔎  Toggle") in
+  *Capture*) show_capture_menu ;;
+  *Toggle*) show_toggle_menu ;;
   *) show_main_menu ;;
   esac
-}
-
-show_theme_menu() {
-  theme=$(menu "Theme" "$(omadora-theme-list)" "" "$(omadora-theme-current)")
-  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
-    back_to show_style_menu
-  else
-    omadora-theme-set "$theme"
-  fi
-}
-
-show_font_menu() {
-  theme=$(menu "Font" "$(omadora-font-list)" "-w 350" "$(omadora-font-current)")
-  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
-    back_to show_style_menu
-  else
-    omadora-font-set "$theme"
-  fi
 }
 
 show_capture_menu() {
@@ -110,7 +89,7 @@ show_capture_menu() {
   *Screenshot*) show_screenshot_menu ;;
   *Screenrecord*) show_screenrecord_menu ;;
   *Color*) pkill hyprpicker || hyprpicker -a ;;
-  *) show_main_menu ;;
+  *) show_trigger_menu ;;
   esac
 }
 
@@ -139,15 +118,45 @@ show_toggle_menu() {
   *Nightlight*) omadora-toggle-nightlight ;;
   *Idle*) omadora-toggle-idle ;;
   *Bar*) omadora-toggle-waybar ;;
+  *) show_trigger_menu ;;
+  esac
+}
+
+show_style_menu() {
+  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n󱄄  Screensaver\n  About") in
+  *Theme*) show_theme_menu ;;
+  *Font*) show_font_menu ;;
+  *Background*) omadora-theme-bg-next ;;
+  *Hyprland*) open_in_editor ~/.config/hypr/looknfeel.conf ;;
+  *Screensaver*) open_in_editor ~/.config/omadora/branding/screensaver.txt ;;
+  *About*) open_in_editor ~/.config/omadora/branding/about.txt ;;
   *) show_main_menu ;;
   esac
+}
+
+show_theme_menu() {
+  theme=$(menu "Theme" "$(omadora-theme-list)" "" "$(omadora-theme-current)")
+  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
+    back_to show_style_menu
+  else
+    omadora-theme-set "$theme"
+  fi
+}
+
+show_font_menu() {
+  theme=$(menu "Font" "$(omadora-font-list)" "-w 350" "$(omadora-font-current)")
+  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
+    back_to show_style_menu
+  else
+    omadora-font-set "$theme"
+  fi
 }
 
 show_setup_menu() {
   local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
   [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
   [ -f ~/.config/hypr/input.conf ] && options="$options\n󰍽  Input"
-  options="$options\n󰱔  DNS\n  Config"
+  options="$options\n  Defaults\n󰱔  DNS\n  Config"
 
   case $(menu "Setup" "$options") in
   *Audio*) omadora-launch-audio ;;
@@ -163,6 +172,7 @@ show_setup_menu() {
   *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
   *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
   *Input*) open_in_editor ~/.config/hypr/input.conf ;;
+  *Defaults*) open_in_editor ~/.config/uwsm/default ;;
   *DNS*) present_terminal omadora-setup-dns ;;
   *Config*) show_setup_config_menu ;;
   *) show_main_menu ;;
@@ -294,7 +304,7 @@ show_system_menu() {
 }
 
 show_main_menu() {
-  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n  Capture\n󰔎  Toggle\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
+  go_to_menu "$(menu "Go" "󰀻  Apps\n󰧑  Learn\n󱓞  Trigger\n  Style\n  Setup\n󰉉  Install\n󰭌  Remove\n  Update\n  About\n  System")"
 }
 
 go_to_menu() {
@@ -302,12 +312,11 @@ go_to_menu() {
   #*apps*) walker -p "Launch…" ;;
   *apps*) wofi --show drun -p "Launch…" ;;
   *learn*) show_learn_menu ;;
+  *trigger*) show_trigger_menu ;;
   *style*) show_style_menu ;;
   *theme*) show_theme_menu ;;
-  *capture*) show_capture_menu ;;
   *screenshot*) show_screenshot_menu ;;
   *screenrecord*) show_screenrecord_menu ;;
-  *toggle*) show_toggle_menu ;;
   *setup*) show_setup_menu ;;
   *power*) show_setup_power_menu ;;
   *install*) show_install_menu ;;
