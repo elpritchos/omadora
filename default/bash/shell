@@ -10,6 +10,5 @@ if [[ ! -v BASH_COMPLETION_VERSINFO && -f /usr/share/bash-completion/bash_comple
 fi
 
 # Set complete path
-CARGO_PATH="$HOME/.cargo"
-export PATH="./bin:$HOME/.local/bin:$CARGO_PATH/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
 set +h

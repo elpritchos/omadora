@@ -13,8 +13,10 @@ omadora-refresh-config uwsm/default
 touch "$HOME/.local/state/omadora/relaunch-required"
 
 echo "Update hypr config"
-omadora-refresh-config hypr/input.conf
 omadora-refresh-config hypr/bindings.conf
+omadora-refresh-config hypr/envs.conf
+omadora-refresh-config hypr/input.conf
+omadora-refresh-config hypr/looknfeel.conf
 omadora-refresh-hyprsunset 
 
 echo "Update ghostty config"
