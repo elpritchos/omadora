@@ -20,3 +20,7 @@ window-padding-y = 12
 # Other
 gtk-wide-tabs = false
 confirm-close-surface = false
+resize-overlay = never
+
+# Keybinds
+keybind = f11=toggle_fullscreen

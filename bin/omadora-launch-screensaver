@@ -17,6 +17,7 @@ focused=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
 
 for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
   hyprctl dispatch focusmonitor $m
+
   hyprctl dispatch exec -- \
     alacritty --class Screensaver \
     --config-file ~/.local/share/omadora/default/alacritty/screensaver.toml \

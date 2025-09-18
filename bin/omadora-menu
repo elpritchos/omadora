@@ -45,9 +45,9 @@ present_terminal() {
   omadora-launch-floating-terminal-with-presentation "$1"
 }
 
-edit_in_nvim() {
+open_in_editor() {
   notify-send "Editing config file" "$1"
-  alacritty -e nvim "$1"
+  omadora-launch-editor "$1"
 }
 
 install() {
@@ -81,8 +81,8 @@ show_style_menu() {
   *Theme*) show_theme_menu ;;
   *Font*) show_font_menu ;;
   *Background*) omadora-theme-bg-next ;;
-  *Screensaver*) edit_in_nvim ~/.config/omadora/branding/screensaver.txt ;;
-  *About*) edit_in_nvim ~/.config/omadora/branding/about.txt ;;
+  *Screensaver*) open_in_editor ~/.config/omadora/branding/screensaver.txt ;;
+  *About*) open_in_editor ~/.config/omadora/branding/about.txt ;;
   *) show_main_menu ;;
   esac
 }
@@ -150,19 +150,19 @@ show_setup_menu() {
   options="$options\n󰱔  DNS\n  Config"
 
   case $(menu "Setup" "$options") in
-  *Audio*) alacritty --class=Wiremix -e wiremix ;;
+  *Audio*) omadora-launch-audio ;;
   *Wifi*)
     rfkill unblock wifi
-    alacritty --class=Impala -e impala
+    omadora-launch-wifi
     ;;
   *Bluetooth*)
     rfkill unblock bluetooth
-    alacritty --class=Bluetui -e bluetui
+    omadora-launch-bluetooth 
     ;;
   *Power*) show_setup_power_menu ;;
-  *Monitors*) edit_in_nvim ~/.config/hypr/monitors.conf ;;
-  *Keybindings*) edit_in_nvim ~/.config/hypr/bindings.conf ;;
-  *Input*) edit_in_nvim ~/.config/hypr/input.conf ;;
+  *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
+  *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
+  *Input*) open_in_editor ~/.config/hypr/input.conf ;;
   *DNS*) present_terminal omadora-setup-dns ;;
   *Config*) show_setup_config_menu ;;
   *) show_main_menu ;;
@@ -182,15 +182,15 @@ show_setup_power_menu() {
 show_setup_config_menu() {
   #case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n  Swayosd\n󰌧  Walker\n󰍜  Waybar\n󰞅  XCompose") in
   case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󰌧  Wofi\n󰍜  Waybar\n󰞅  XCompose") in
-  *Hyprland*) edit_in_nvim ~/.config/hypr/hyprland.conf ;;
-  *Hypridle*) edit_in_nvim ~/.config/hypr/hypridle.conf && omadora-restart-hypridle ;;
-  *Hyprlock*) edit_in_nvim ~/.config/hypr/hyprlock.conf ;;
-  *Hyprsunset*) edit_in_nvim ~/.config/hypr/hyprsunset.conf && omadora-restart-hyprsunset ;;
-  #*Swayosd*) edit_in_nvim ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
-  #*Walker*) edit_in_nvim ~/.config/walker/config.toml && omadora-restart-walker ;;
-  *Wofi*) edit_in_nvim ~/.config/wofi/config && omadora-restart-wofi ;;
-  *Waybar*) edit_in_nvim ~/.config/waybar/config.jsonc && omadora-restart-waybar ;;
-  *XCompose*) edit_in_nvim ~/.XCompose && omadora-restart-xcompose ;;
+  *Hyprland*) open_in_editor ~/.config/hypr/hyprland.conf ;;
+  *Hypridle*) open_in_editor ~/.config/hypr/hypridle.conf && omadora-restart-hypridle ;;
+  *Hyprlock*) open_in_editor ~/.config/hypr/hyprlock.conf ;;
+  *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && omadora-restart-hyprsunset ;;
+  #*Swayosd*) open_in_editor ~/.config/swayosd/config.toml && omadora-restart-swayosd ;;
+  #*Walker*) open_in_editor ~/.config/walker/config.toml && omadora-restart-walker ;;
+  *Wofi*) open_in_editor ~/.config/wofi/config && omadora-restart-wofi ;;
+  *Waybar*) open_in_editor ~/.config/waybar/config.jsonc && omadora-restart-waybar ;;
+  *XCompose*) open_in_editor ~/.XCompose && omadora-restart-xcompose ;;
   *) show_main_menu ;;
   esac
 }
@@ -313,7 +313,7 @@ go_to_menu() {
   *install*) show_install_menu ;;
   *remove*) show_remove_menu ;;
   *update*) show_update_menu ;;
-  *about*) alacritty --class Omadora -o font.size=9 -e bash -c 'fastfetch; read -n 1 -s' ;;
+  *about*) omadora-launch-about ;;
   *system*) show_system_menu ;;
   esac
 }
