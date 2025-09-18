@@ -1,3 +1,4 @@
-#!/bin/bash
+ICON_DIR="$HOME/.local/share/applications/icons"
 
-omadora-tui-install "Disk Usage" "bash -c 'dust -r; read -n 1 -s'" float https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/qdirstat.png
+# Must run after icons are installed
+omadora-tui-install "Disk Usage" "bash -c 'dust -r; read -n 1 -s'" float "$ICON_DIR/Disk Usage.png"
