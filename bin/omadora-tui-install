@@ -38,12 +38,13 @@ else
   APP_CLASS="TUI.tile"
 fi
 
+# NOTE: Using alacritty for TUIs instead of $TERMINAL
 cat >"$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Version=1.0
 Name=$APP_NAME
 Comment=$APP_NAME
-Exec=sh -c "\$TERMINAL --class=$APP_CLASS -e $APP_EXEC"
+Exec=alacritty --class=$APP_CLASS -e $APP_EXEC
 Terminal=false
 Type=Application
 Icon=$ICON_PATH
