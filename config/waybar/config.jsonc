@@ -61,7 +61,7 @@
   "cpu": {
     "interval": 5,
     "format": "󰍛",
-    "on-click": "$TERMINAL -e btop"
+    "on-click": "omadora-launch-system-monitor"
   },
   "clock": {
     "format": "{:L%A %H:%M}",
