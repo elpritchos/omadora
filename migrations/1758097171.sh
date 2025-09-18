@@ -15,6 +15,7 @@ touch "$HOME/.local/state/omadora/relaunch-required"
 echo "Update hypr config"
 omadora-refresh-config hypr/input.conf
 omadora-refresh-config hypr/bindings.conf
+omadora-refresh-hyprsunset 
 
 echo "Update ghostty config"
 omadora-refresh-config ghostty/config
