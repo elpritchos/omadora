@@ -18,3 +18,6 @@ omadora-refresh-config hypr/bindings.conf
 
 echo "Update ghostty config"
 omadora-refresh-config ghostty/config
+
+echo "Add gnome calculator"
+sudo dnf install -y gnome-calculator

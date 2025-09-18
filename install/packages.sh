@@ -26,6 +26,7 @@ sudo dnf install -y \
   fd-find \
   fontawesome-fonts-all \
   fzf \
+  gnome-calculator \
   gnome-themes-extra \
   google-noto-fonts-common \
   gum \
