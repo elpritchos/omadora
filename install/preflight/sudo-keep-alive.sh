@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Keep alive sudo during install
 if ! sudo -n true 2>/dev/null; then
   sudo -v

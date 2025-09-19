@@ -1,0 +1,5 @@
+source "$OMADORA_INSTALL/preflight/sudo-keep-alive.sh"
+source "$OMADORA_INSTALL/preflight/trap-errors.sh"
+source "$OMADORA_INSTALL/preflight/guard.sh"
+source "$OMADORA_INSTALL/preflight/dnf.sh"
+source "$OMADORA_INSTALL/preflight/migrations.sh"
