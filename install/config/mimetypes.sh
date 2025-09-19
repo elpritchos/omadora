@@ -1,5 +1,3 @@
-#!/bin/bash
-
 omadora-refresh-applications
 update-desktop-database ~/.local/share/applications
 

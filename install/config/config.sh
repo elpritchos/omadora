@@ -1,5 +1,3 @@
-#!/bin/bash
-
 xdg-user-dirs-update
 
 # Copy over configs

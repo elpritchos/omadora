@@ -61,7 +61,7 @@
   "cpu": {
     "interval": 5,
     "format": "󰍛",
-    "on-click": "alacritty -e btop"
+    "on-click": "omadora-launch-system-monitor"
   },
   "clock": {
     "format": "{:L%A %H:%M}",
@@ -86,7 +86,7 @@
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "spacing": 1,
-    "on-click": "alacritty --class=Impala -e impala"
+    "on-click": "omadora-launch-wifi"
   },
   "battery": {
     "format": "{capacity}% {icon}",
@@ -134,11 +134,11 @@
     "format-disabled": "󰂲",
     "format-connected": "",
     "tooltip-format": "Devices connected: {num_connections}",
-    "on-click": "alacritty --class=Bluetui -e bluetui"
+    "on-click": "omadora-launch-bluetooth"
   },
   "pulseaudio": {
     "format": "{icon}",
-    "on-click": "alacritty --class=Wiremix -e wiremix",
+    "on-click": "omadora-launch-audio",
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,

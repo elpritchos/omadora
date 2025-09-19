@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# omadora-theme-set: Set a theme, specified by its name.
-# Usage: omadora-theme-set <theme-name>
-
 if [[ -z "$1" && "$1" != "CNCLD" ]]; then
   echo "Usage: omadora-theme-set <theme-name>" >&2
   exit 1
@@ -23,37 +20,16 @@ fi
 # Update theme symlinks
 ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
 
-# Change gnome modes
-if [[ -f ~/.config/omadora/current/theme/light.mode ]]; then
-  gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
-  gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"
-else
-  gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-  gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
-fi
-
-# Change gnome icon theme color
-if [[ -f ~/.config/omadora/current/theme/icons.theme ]]; then
-  gsettings set org.gnome.desktop.interface icon-theme "$(<~/.config/omadora/current/theme/icons.theme)"
-else
-  gsettings set org.gnome.desktop.interface icon-theme "Yaru-blue"
-fi
-
-# Trigger alacritty config reload
-touch "$HOME/.config/alacritty/alacritty.toml"
-
-# Reload ghostty config if version >= 1.2
-if command -v ghostty >/dev/null; then
-  v=$(ghostty --version | awk '/^Ghostty/{print $2}' | cut -d- -f1)
-  [[ $(printf '%s\n' 1.2.0 "$v" | sort -V | head -n1) == 1.2.0 ]] && pkill -SIGUSR2 ghostty
-fi
+# Change background with theme
+omadora-theme-bg-next
 
 # Restart components to apply new theme
-pkill -SIGUSR2 btop
 omadora-restart-waybar
 #omadora-restart-swayosd
-makoctl reload
 hyprctl reload
+pkill -SIGUSR2 btop
+makoctl reload
 
-# Set new background
-omadora-theme-bg-next
+# Change gnome, terminal, etc. themes
+omadora-theme-set-terminal
+omadora-theme-set-gnome

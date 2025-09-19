@@ -16,5 +16,5 @@ omadora-update-system-pkgs
 omadora-update-fw
 omadora-update-restart
 
-# Refresh waybar update available indicator
+# Ensure Waybar available update function is refreshed
 pkill -RTMIN+7 waybar

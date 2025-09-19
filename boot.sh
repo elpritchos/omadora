@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Set install mode to online since boot.sh is used for curl installations
+export OMADORA_ONLINE_INSTALL=true
+
 ansi_art='
 ▄██████▄    ▄▄▄▄███▄▄▄▄      ▄████████ ████████▄   ▄██████▄     ▄████████    ▄████████
 ███    ███ ▄██▀▀▀███▀▀▀██▄   ███    ███ ███   ▀███ ███    ███   ███    ███   ███    ███
@@ -26,7 +29,7 @@ git clone "https://github.com/${OMADORA_REPO}.git" ~/.local/share/omadora >/dev/
 # Use custom branch if instructed, otherwise default to master
 OMADORA_REF="${OMADORA_REF:-master}"
 if [[ $OMADORA_REF != "master" ]]; then
-  echo -e "\eUsing branch: $OMADORA_REF"
+  echo -e "\e[32mUsing branch: $OMADORA_REF\e[0m"
   cd ~/.local/share/omadora
   git fetch origin "${OMADORA_REF}" && git checkout "${OMADORA_REF}"
   cd -

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Give people a chance to retry running the installation
 catch_errors() {
   echo -e "\n\e[31mOmadora installation failed!\e[0m"

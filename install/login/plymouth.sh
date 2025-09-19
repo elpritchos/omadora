@@ -1,6 +1,4 @@
-#!/bin/bash
-
-if [ "$(plymouth-set-default-theme)" != "details" ]; then
-  echo "Setting plymouth theme..."
-  sudo plymouth-set-default-theme -R details
+# Add a default plymouth theme from https://github.com/adi1090x/plymouth-themes
+if [ "$(plymouth-set-default-theme)" != "sliced" ]; then
+  omadora-refresh-plymouth 
 fi

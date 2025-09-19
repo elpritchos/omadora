@@ -48,6 +48,8 @@ Third-party themes may still load the LazyVim plugin and would need to be modifi
 Ghostty config and themes have been included but requires Ghostty 1.2+ for automatic config reload and themes to work properly.
 To use an older version, some of the Ghostty config files within the `themes` directory will need to be modified back to the old Ghostty theme names, and the config needs to be reloaded manually using `Ctrl-Shift-,` after each theme change.
 
+A plymouth theme from the great collection at [adi1090x/plymouth-themes](https://github.com/adi1090x/plymouth-themes) has been included as the default.
+
 ## Contribution
 
 Feel free to submit issues and PRs for improvement, I will do my best but cannot guarantee timely updates.

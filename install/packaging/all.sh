@@ -1,0 +1,6 @@
+source "$OMADORA_INSTALL/packaging/base.sh"
+source "$OMADORA_INSTALL/packaging/cargo.sh"
+source "$OMADORA_INSTALL/packaging/fonts.sh"
+source "$OMADORA_INSTALL/packaging/lazyvim.sh"
+source "$OMADORA_INSTALL/packaging/icons.sh"
+source "$OMADORA_INSTALL/packaging/tuis.sh"

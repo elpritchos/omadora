@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Alacritty
+touch ~/.config/alacritty/alacritty.toml
+
+# Ghostty
+if command -v ghostty >/dev/null; then
+  v=$(ghostty --version | awk '/^Ghostty/{print $2}' | cut -d- -f1)
+  [[ $(printf '%s\n' 1.2.0 "$v" | sort -V | head -n1) == 1.2.0 ]] && killall -SIGUSR2 ghostty
+fi

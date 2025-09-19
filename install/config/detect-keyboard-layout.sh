@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Copy Fedora X11 keyboard layout to Hyprland config
 hyprconf="$HOME/.config/hypr/input.conf"
 

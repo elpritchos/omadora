@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Ensure networkd handles wired and wifi dhcp
 sudo tee /etc/systemd/network/20-wired.network >/dev/null <<'EOF'
 [Match]

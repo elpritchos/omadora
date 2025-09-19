@@ -1,7 +1,14 @@
+# Changes require a relaunch of Hyprland to take effect.
+
+# Ensure Omadora bins are in the path
 export OMADORA_PATH=$HOME/.local/share/omadora
 export PATH=$OMADORA_PATH/bin/:$PATH
-export TERMINAL=alacritty
 
-if command -v mise &> /dev/null; then
-  eval "$(mise activate bash)"
-fi
+# Set default terminal and editor
+source ~/.config/uwsm/default
+
+# Update user dirs
+omadora-cmd-present xdg-user-dirs-update && xdg-user-dirs-update --quiet
+
+# Activate mise if present on the system
+omadora-cmd-present mise && eval "$(mise activate bash)"

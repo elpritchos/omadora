@@ -1,10 +1,5 @@
-#!/bin/bash
-
-# Packages for cargo builds 
-sudo dnf install -y \
-  cargo \
-  clang \
-  pipewire-devel
+# NOTE: Packages added for cargo builds 
+# cargo, clang, pipewire-devel
 
 # Build cargo bins
 cargo install \
