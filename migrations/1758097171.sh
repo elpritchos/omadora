@@ -27,3 +27,7 @@ sudo dnf install -y gnome-calculator
 
 echo "Remove Ruby build options to force GCC14 now that GCC15 is compatible"
 mise settings unset ruby.ruby_build_opts
+
+echo "Add new default plymouth theme"
+sudo dnf install -y plymouth-plugin-*
+omadora-refresh-plymouth
