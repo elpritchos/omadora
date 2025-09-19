@@ -47,6 +47,8 @@ pipewire-devel
 pipx
 playerctl
 plocate
+plymouth
+plymouth-plugin-*
 power-profiles-daemon
 ripgrep
 satty
