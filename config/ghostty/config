@@ -7,7 +7,7 @@ font-feature = -calt, -liga, -dlig
 font-size = 9
 
 # Theme
-config-file = ?../omadora/current/theme/ghostty.theme
+config-file = ?../omadora/current/theme/ghostty.conf
 
 # Mouse
 mouse-hide-while-typing = true
