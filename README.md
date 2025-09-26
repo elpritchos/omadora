@@ -4,8 +4,8 @@ This is my minimal functional install of Hyprland on Fedora, based on the Omarch
 It provides a more stable release cycle with tested and curated packages.
 
 Omadora purposely does not include all the apps and features included with Omarchy.
-It is intended to be a minimal install that matches the base functionality to allow users to build from.
-However, as the implementation closely matches Omarchy, adding features from Omarchy should be simple.
+It is intended to be a minimal install that provides core desktop functionality to allow users to build from.
+However, as the implementation closely matches Omarchy, adding extra features is simple if you wish to do so.
 
 Read more about Omarchy itself at [omarchy.org](https://omarchy.org).
 
@@ -16,7 +16,7 @@ These are provided by the [solopasha/hyprland](https://copr.fedorainfracloud.org
 
 ## Installation
 
-Install the Fedora Custom Operating System base install using the [Everything Network Installer](https://alt.fedoraproject.org/).
+Install the Fedora 42 Custom Operating System base install using the [Everything Network Installer](https://alt.fedoraproject.org/).
 Similar to Omarchy, it is recommended to use drive encryption, disable root, and add a privileged user.
 
 Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
@@ -45,16 +45,16 @@ Stop Omadora by using the power menu or executing the bash command `uwsm stop`.
 Neovim theme config files have been modified to not include the LazyVim plugin and therefore any Neovim configuration that uses the Lazy plugin manager can symlink in the theme plugin from `~/.config/omadora/current/theme/neovim.lua`.
 Third-party themes may still load the LazyVim plugin and would need to be modified manually after the theme install.
 
-Ghostty config and themes have been included but requires Ghostty 1.2+ for automatic config reload and themes to work properly.
+[Ghostty](https://ghostty.org/) config and themes have been included but requires Ghostty 1.2+ for automatic config reload and themes to work properly.
 To use an older version, some of the Ghostty config files within the `themes` directory will need to be modified back to the old Ghostty theme names, and the config needs to be reloaded manually using `Ctrl-Shift-,` after each theme change.
 
 A plymouth theme from the great collection at [adi1090x/plymouth-themes](https://github.com/adi1090x/plymouth-themes) has been included as the default.
 
 ## Contribution
 
-Feel free to submit issues and PRs for improvement, I will do my best but cannot guarantee timely updates.
+Feel free to submit issues and PRs for improvement, I will do my best to address them.
 
-If you like this project, then please also feel free to...
+If you like this project, then please also feel free to help me out and...
 
 [![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/elpritchos)
 
