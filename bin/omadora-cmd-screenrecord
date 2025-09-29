@@ -15,10 +15,10 @@ SCOPE="$1"
 AUDIO=$([[ $2 == "audio" ]] && echo "--audio")
 
 start_screenrecording() {
-  filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
+  local filename="$OUTPUT_DIR/screenrecording-$(date +'%Y-%m-%d_%H-%M-%S').mp4"
 
   wf-recorder "$AUDIO" -f "$filename" "$@" &>/dev/null &
-  wf_pid=$!
+  local wf_pid=$!
 
   if ps -p $wf_pid > /dev/null; then
     toggle_screenrecording_indicator
