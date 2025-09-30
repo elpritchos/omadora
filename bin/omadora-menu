@@ -297,9 +297,9 @@ show_system_menu() {
   *Lock*) omadora-lock-screen ;;
   *Screensaver*) omadora-launch-screensaver force ;;
   *Suspend*) systemctl suspend ;;
-  *Stop*) uwsm stop ;;
-  *Reboot*) systemctl reboot ;;
-  *Shutdown*) systemctl poweroff ;;
+  *Stop*) omadora-state clear relaunch-required && uwsm stop ;;
+  *Reboot*) omadora-state clear re*-required && systemctl reboot ;;
+  *Shutdown*) omadora-state clear re*-required && systemctl poweroff ;;
   *) back_to show_main_menu ;;
   esac
 }
