@@ -8,7 +8,7 @@ DHCP=yes
 EOF
 sudo tee /etc/systemd/network/25-wifi.network >/dev/null <<'EOF'
 [Match]
-Name=wlan*
+Name=wl*
 
 [Network]
 DHCP=yes

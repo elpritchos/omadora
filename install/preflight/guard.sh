@@ -15,8 +15,8 @@ abort() {
 # Must not be running as root
 [ "$EUID" -eq 0 ] && abort "Running as user (not root)"
 
-# Must be x86 only to fully work
-[ "$(uname -m)" != "x86_64" ] && abort "x86_64 CPU"
+# x86_64 or ARM64 (mac)
+[ "$(uname -m)" == "x86_64" || "$(uname -m)" == "aarch64" ] || abort "x86_64 CPU"
 
 # Should be a core only install
 groups=$(dnf group list --installed --hidden -q | awk 'NR>1 {print $1}')
