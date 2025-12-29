@@ -6,7 +6,7 @@ if ! command -v tte &>/dev/null; then
 fi
 
 # Exit early if screensave is already running
-pgrep -f "alacritty --class Screensaver" && exit 0
+pgrep -f org.omadora.screensaver && exit 0
 
 # Allow screensaver to be turned off but also force started
 if [[ -f ~/.local/state/omadora/toggles/screensaver-off ]] && [[ $1 != "force" ]]; then
@@ -19,7 +19,7 @@ for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
   hyprctl dispatch focusmonitor $m
 
   hyprctl dispatch exec -- \
-    alacritty --class Screensaver \
+    alacritty --class=org.omadora.screensaver \
     --config-file ~/.local/share/omadora/default/alacritty/screensaver.toml \
     -e omadora-cmd-screensaver
 done
