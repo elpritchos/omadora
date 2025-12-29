@@ -27,4 +27,4 @@ mkdir -p ~/.config/mako
 ln -snf ~/.config/omadora/current/theme/mako.ini ~/.config/mako/config
 
 # Screensaver
-pipx install terminaltexteffects
+pipx install terminaltexteffects==0.14.2
