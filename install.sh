@@ -4,8 +4,8 @@
 set -eEo pipefail
 
 # Define paths
-OMADORA_PATH="$HOME/.local/share/omadora"
-OMADORA_INSTALL="$OMADORA_PATH/install"
+export OMADORA_PATH="$HOME/.local/share/omadora"
+export OMADORA_INSTALL="$OMADORA_PATH/install"
 export PATH="$OMADORA_PATH/bin:$PATH"
 
 # Install
