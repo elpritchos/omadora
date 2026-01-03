@@ -1,3 +1,4 @@
 #!/bin/bash
 
-exec setsid uwsm app -- alacritty --class=Bluetui -e bluetui "$@"
+rfkill unblock bluetooth
+exec omadora-launch-or-focus-tui bluetui
