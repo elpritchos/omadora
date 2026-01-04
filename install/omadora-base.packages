@@ -69,6 +69,7 @@ wl-clipboard
 wofi
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
+xdg-terminal-exec
 xdg-user-dirs
 xmlstarlet
 yaru-icon-theme

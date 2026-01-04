@@ -38,7 +38,7 @@ else
   APP_CLASS="TUI.tile"
 fi
 
-# NOTE: Using alacritty for TUIs instead of $TERMINAL
+# NOTE: Using alacritty for TUIs for consistency
 cat >"$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Version=1.0

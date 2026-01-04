@@ -1,4 +1,13 @@
-# Changes require a relaunch of Hyprland to take effect.
+# Changes require a restart to take effect.
 
-export TERMINAL=alacritty
+# Set default TERMINAL env var
+export TERMINAL=xdg-terminal-exec
+
+# Set default EDITOR env var
 export EDITOR=nvim
+
+# Use a custom directory for screenshots (remember to make the directory!)
+# export OMADORA_SCREENSHOT_DIR="$HOME/Pictures/Screenshots"
+
+# Use a custom directory for screenrecordings (remember to make the directory!)
+# export OMADORA_SCREENRECORD_DIR="$HOME/Videos/Screencasts"
