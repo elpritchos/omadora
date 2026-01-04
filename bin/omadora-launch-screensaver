@@ -16,7 +16,7 @@ fi
 focused=$(hyprctl monitors -j | jq -r '.[] | select(.focused == true).name')
 
 for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
-  hyprctl dispatch focusmonitor $m
+  hyprctl dispatch focusmonitor "$m"
 
   hyprctl dispatch exec -- \
     alacritty --class=org.omadora.screensaver \
@@ -24,4 +24,4 @@ for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
     -e omadora-cmd-screensaver
 done
 
-hyprctl dispatch focusmonitor $focused
+hyprctl dispatch focusmonitor "$focused"

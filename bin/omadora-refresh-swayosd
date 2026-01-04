@@ -1,5 +1,0 @@
-#!/bin/bash
-
-omadora-refresh-config swayosd/config.toml
-omadora-refresh-config swayosd/style.css
-omadora-restart-swayosd

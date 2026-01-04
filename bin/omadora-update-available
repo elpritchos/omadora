@@ -17,7 +17,7 @@ if [[ -z "$latest_tag" ]]; then
 fi
 
 # Get local tag
-current_tag=$(git -C "$OMADORA_PATH" describe --tags $(git -C "$OMADORA_PATH" rev-list --tags --max-count=1))
+current_tag=$(git -C "$OMADORA_PATH" describe --tags "$(git -C "$OMADORA_PATH" rev-list --tags --max-count=1)")
 if [[ -z "$current_tag" ]]; then
   echo "Error: Could not retrieve current tag."
   exit 1
@@ -31,7 +31,7 @@ else
 fi
 
 # Fedora system updates via dnf
-if command -v dnf >/dev/null 2>&1; then
+if omadora-cmd-present dnf; then
   # Refresh metadata quietly
   dnf -q makecache --refresh >/dev/null 2>&1 || true
   dnf -q check-upgrade >/dev/null 2>&1
@@ -45,7 +45,7 @@ if command -v dnf >/dev/null 2>&1; then
 fi
 
 # Firmware updates via fwupdmgr
-if command -v fwupdmgr >/dev/null 2>&1; then
+if omadora-cmd-present fwupdmgr; then
   fwupdmgr refresh --force >/dev/null 2>&1 || true
   if fwupdmgr get-updates 2>/dev/null | grep -qiE 'update available|upgrade available'; then
     messages+=("Firmware updates available via fwupdmgr")
@@ -54,7 +54,7 @@ if command -v fwupdmgr >/dev/null 2>&1; then
 fi
 
 # Flatpak updates
-if command -v flatpak >/dev/null 2>&1; then
+if omadora-cmd-present flatpak; then
   flatpak update --appstream -y >/dev/null 2>&1 || true
   if flatpak remote-ls --updates --app --runtime --columns=application 2>/dev/null | grep -q .; then
     messages+=("Flatpak updates available")
@@ -63,7 +63,7 @@ if command -v flatpak >/dev/null 2>&1; then
 fi
 
 # Cargo built binaries (via cargo-update)
-if command -v cargo >/dev/null 2>&1 && cargo install-update --version >/dev/null 2>&1; then
+if omadora-cmd-present cargo && cargo install-update --version >/dev/null 2>&1; then
   if cargo install-update --list 2>/dev/null \
        | awk 'NR>1 && $NF=="Yes"{found=1} END{exit !found}'; then
     messages+=("Cargo-installed binaries updates available via cargo install-update")

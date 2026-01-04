@@ -10,4 +10,8 @@ mkdir -p ~/.local/share/applications
 cp ~/.local/share/omadora/applications/*.desktop ~/.local/share/applications/
 cp ~/.local/share/omadora/applications/hidden/*.desktop ~/.local/share/applications/
 
+# Refresh the webapps
+bash "$OMADORA_PATH/install/packaging/icons.sh"
+bash "$OMADORA_PATH/install/packaging/webapps.sh"
+
 update-desktop-database ~/.local/share/applications

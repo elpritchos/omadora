@@ -1,6 +1,3 @@
 #!/bin/bash
 
-cd ~/.local/share/omadora
-migration_file="$HOME/.local/share/omadora/migrations/$(git log -1 --format=%cd --date=unix).sh"
-touch $migration_file
-nvim $migration_file
+cd ~/.local/share/omadora && nvim "$HOME/.local/share/omadora/migrations/$(git log -1 --format=%cd --date=unix).sh"

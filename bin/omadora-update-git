@@ -1,6 +1,8 @@
 #!/bin/bash
 
+set -e
+
 echo -e "\e[32mUpdate Omadora\e[0m"
 
-git -C $OMADORA_PATH pull --autostash
-git -C $OMADORA_PATH diff --check || git -C $OMADORA_PATH reset --merge
+git -C "$OMADORA_PATH" pull --autostash
+git -C "$OMADORA_PATH" --no-pager diff --check || git -C "$OMADORA_PATH" reset --merge
