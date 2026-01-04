@@ -5,11 +5,13 @@ set -e
 echo -e "\e[32mUpdate Firmware\e[0m"
 
 if omadora-cmd-present fwupdmgr; then
-  fwupdmgr refresh --force
+  fwupdmgr refresh --force &>/dev/null
   if fwupdmgr get-updates 2>/dev/null | grep -qiE 'update available|upgrade available'; then
     sudo fwupdmgr update --assume-yes --no-reboot-check
     # Assume a reboot is required after firmware updates
     touch "$HOME/.local/state/omadora/reboot-required"
+  else
+    echo -e "Nothing to do.\n"
   fi
 else
   echo "fwupdmgr not found, skipping"
