@@ -5,7 +5,8 @@
 The default font is the _Cascadia Mono NF_ font which is the only Nerd Font included within the offical Fedora repositories.
 The glyphs in this font are the same width as the rest of the font which makes them appear small in comparison to other [Nerd Fonts](https://www.nerdfonts.com/font-downloads).
 
-If larger glyphs are desired, then install the [CaskaydiaMono Nerd Font](https://www.nerdfonts.com/font-downloads#:~:text=CaskaydiaMono) or similar Nerd Fonts.
+If larger glyphs are desired, then install the [CaskaydiaMono Nerd Font](https://www.nerdfonts.com/font-downloads#:~:text=CaskaydiaMono) or similar Nerd Fonts to the `~/.local/share/fonts` directory and rebuild the cache with `fc-cache -f`.
+The fonts should now be available for selection via the Omadora style menu.
 
 ## Where are all the apps that are provided by default in Omarchy?
 
