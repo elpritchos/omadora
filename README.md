@@ -22,7 +22,7 @@ Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/sha
 
 Run `~/.local/share/omadora/install.sh` to install.
 
-For a WiFi only install, see the (FAQ)[FAQ.md] for help.
+For a WiFi only install, see the [FAQ](FAQ.md) for help.
 
 ## Usage
 
@@ -32,7 +32,7 @@ Stop Omadora by using the power menu or executing `omadora-cmd-stop` or `uwsm st
 
 ## Frequently Asked Questions
 
-Check out the (FAQ.md)[FAQ.md].
+Check out the [FAQ.md](FAQ.md).
 
 ## Contribution
 
