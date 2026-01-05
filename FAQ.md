@@ -26,7 +26,7 @@ The glyphs in this font are the same width as the rest of the font which makes t
 If larger glyphs are desired, then install the [CaskaydiaMono Nerd Font](https://www.nerdfonts.com/font-downloads#:~:text=CaskaydiaMono) or similar Nerd Fonts to the `~/.local/share/fonts` directory and rebuild the cache with `fc-cache -f`.
 The fonts should now be available for selection via the Omadora style menu.
 
-## Why have the Omarchy themes been modified?
+## Why have the default Omarchy themes been modified?
 
 Neovim theme config files have been modified to load without the LazyVim plugin so that any Neovim configuration that uses the Lazy plugin manager can use the themes simply by symlinking in the theme plugin from `~/.config/omadora/current/theme/neovim.lua`.
 However, third-party themes may still load the LazyVim plugin and would need to be modified manually after the theme install to work in the same manner.
