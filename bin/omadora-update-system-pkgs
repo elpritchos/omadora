@@ -9,5 +9,5 @@ sudo dnf upgrade -y
 # Fedora: use dnf needs-restarting to detect if a reboot is recommended/required.
 # Non-zero exit status indicates a reboot is needed.
 if ! sudo dnf needs-restarting >/dev/null 2>&1; then
-  touch "$HOME/.local/state/omadora/reboot-required"
+  omadora-state set reboot-required
 fi
