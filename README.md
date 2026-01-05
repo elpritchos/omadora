@@ -15,7 +15,7 @@ These are provided by the [solopasha/hyprland](https://copr.fedorainfracloud.org
 
 ## Installation
 
-Install the Fedora 42 Custom Operating System base install using the [Everything Network Installer](https://alt.fedoraproject.org/).
+Install the Fedora 42 Custom Operating System base install using the [Everything Network Installer](https://download.fedoraproject.org/pub/fedora/linux/releases/42/Everything).
 Similar to Omarchy, it is recommended to use drive encryption, disable root, and add a privileged user.
 
 Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
