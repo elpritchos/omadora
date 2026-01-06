@@ -7,3 +7,6 @@ insensitive=true
 parse_search=true
 no_actions=true
 normal_window=true
+key_forward=Ctrl-j
+key_backward=Ctrl-k
+key_submit=Ctrl-Return
