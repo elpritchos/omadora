@@ -25,6 +25,7 @@ omadora-refresh-hyprsunset
 omadora-refresh-config hypr/windows.conf
 omadora-refresh-fastfetch
 omadora-refresh-waybar
+omadora-refresh-wofi
 
 echo "Update other configs"
 omadora-refresh-config alacritty/alacritty.toml

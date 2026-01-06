@@ -16,7 +16,7 @@ omadora-update-confirm() {
     "  • Firmware" \
     "" \
     "• You should not stop the update once you start!" \
-    "• Make sure you're connected to power or have a full battery" \
+    "• Make sure you're connected to power or have a full battery." \
     ""
 
   echo

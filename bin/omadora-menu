@@ -33,8 +33,7 @@ menu() {
     fi
   fi
 
-  #echo -e "$options" | walker --dmenu --theme dmenu_250 -p "$prompt…" "${args[@]}"
-  echo -e "$options" | wofi --dmenu -p "$prompt…" "${args[@]}"
+  echo -e "$options" | wofi --dmenu --width 320 --lines 12 -p "$prompt…" "${args[@]}"
 }
 
 terminal() {
@@ -281,8 +280,7 @@ show_main_menu() {
 
 go_to_menu() {
   case "${1,,}" in
-  #*apps*) walker -p "Launch…" ;;
-  *apps*) wofi --show drun -p "Launch…" ;;
+  *apps*) wofi --show drun --lines 8 -p "Launch…" ;;
   *learn*) show_learn_menu ;;
   *trigger*) show_trigger_menu ;;
   *style*) show_style_menu ;;
