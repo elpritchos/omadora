@@ -61,7 +61,7 @@ window {
 }
 
 #entry:selected #text {
-  color: @text;
+  color: @selected-text;
 }
 
 @import ".config/omadora/current/theme/walker.css";
