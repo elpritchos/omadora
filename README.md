@@ -20,6 +20,10 @@ Similar to Omarchy, it is recommended to use drive encryption, disable root, and
 
 Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
 
+```
+git clone https://github.com/elpritchos/omadora ~/.local/share/omadora
+```
+
 Run `~/.local/share/omadora/install.sh` to install.
 
 For a WiFi only install, see the [FAQ](FAQ.md) for help.
