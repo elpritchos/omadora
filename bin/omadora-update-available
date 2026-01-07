@@ -1,22 +1,14 @@
 #!/bin/bash
 
-updates_found=0
-messages=()
+set -euo pipefail
 
-# Ensure remote is reachable
-if ! git -C "$OMADORA_PATH" ls-remote &>/dev/null; then
-  echo "Error: Unable to reach remote repository."
-  exit 1
-fi
-
-# Get remote tag
+# Omadora updates via git
 latest_tag=$(git -C "$OMADORA_PATH" ls-remote --tags origin | grep -v "{}" | awk '{print $2}' | sed 's#refs/tags/##' | sort -V | tail -n 1)
 if [[ -z "$latest_tag" ]]; then
   echo "Error: Could not retrieve latest tag."
   exit 1
 fi
 
-# Get local tag
 current_tag=$(git -C "$OMADORA_PATH" describe --tags "$(git -C "$OMADORA_PATH" rev-list --tags --max-count=1)")
 if [[ -z "$current_tag" ]]; then
   echo "Error: Could not retrieve current tag."
@@ -24,60 +16,38 @@ if [[ -z "$current_tag" ]]; then
 fi
 
 if [[ "$current_tag" != "$latest_tag" ]]; then
-  messages+=("Omadora update available ($latest_tag)")
-  updates_found=1
-else
-  messages+=("Omadora is up to date ($current_tag)")
+  echo "Omadora update available ($latest_tag) via git"
 fi
 
-# Fedora system updates via dnf
+# Fedora system package updates via dnf
 if omadora-cmd-present dnf; then
-  # Refresh metadata quietly
-  dnf -q makecache --refresh >/dev/null 2>&1 || true
-  dnf -q check-upgrade >/dev/null 2>&1
+  output=$(dnf check-upgrade 2>/dev/null)
   rc=$?
   if [[ $rc -eq 100 ]]; then
-    messages+=("Fedora system updates available")
-    updates_found=1
-  elif [[ $rc -ne 0 ]]; then
-    messages+=("Warning: dnf check-upgrade failed")
+    echo "Fedora system package updates available via dnf"
+    echo "$output"
   fi
 fi
 
 # Firmware updates via fwupdmgr
 if omadora-cmd-present fwupdmgr; then
-  fwupdmgr refresh --force >/dev/null 2>&1 || true
+  fwupdmgr refresh --force >/dev/null 2>&1
   if fwupdmgr get-updates 2>/dev/null | grep -qiE 'update available|upgrade available'; then
-    messages+=("Firmware updates available via fwupdmgr")
-    updates_found=1
+    echo "Firmware updates available via fwupdmgr"
   fi
 fi
 
 # Flatpak updates
 if omadora-cmd-present flatpak; then
-  flatpak update --appstream -y >/dev/null 2>&1 || true
+  flatpak update --appstream -y >/dev/null 2>&1
   if flatpak remote-ls --updates --app --runtime --columns=application 2>/dev/null | grep -q .; then
-    messages+=("Flatpak updates available")
-    updates_found=1
+    echo "Flatpak updates available via flatpak"
   fi
 fi
 
 # Cargo built binaries (via cargo-update)
 if omadora-cmd-present cargo && cargo install-update --version >/dev/null 2>&1; then
-  if cargo install-update --list 2>/dev/null \
-       | awk 'NR>1 && $NF=="Yes"{found=1} END{exit !found}'; then
-    messages+=("Cargo-installed binaries updates available via cargo install-update")
-    updates_found=1
+  if cargo install-update --list 2>/dev/null | awk 'NR>1 && $NF=="Yes"{found=1} END{exit !found}'; then
+    echo "Cargo-installed binaries updates available via cargo install-update"
   fi
-fi
-
-# Print messages
-for m in "${messages[@]}"; do
-  echo "$m"
-done
-
-if [[ $updates_found -eq 1 ]]; then
-  exit 0
-else
-  exit 1
 fi
