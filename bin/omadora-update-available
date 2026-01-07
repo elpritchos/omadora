@@ -21,6 +21,7 @@ fi
 
 # Fedora system package updates via dnf
 if omadora-cmd-present dnf; then
+  dnf -q makecache --refresh >/dev/null 2>&1
   output=$(dnf check-upgrade 2>/dev/null)
   rc=$?
   if [[ $rc -eq 100 ]]; then
