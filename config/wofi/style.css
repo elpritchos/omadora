@@ -9,7 +9,6 @@ window {
   margin: 0;
   padding: 0;
   background-color: @base;
-  opacity: 0.95;
 }
 
 #inner-box {
@@ -24,7 +23,6 @@ window {
   padding: 10px 20px;
   border: none;
   background-color: @base;
-  border: 1px solid @border;
 }
 
 #scroll {
@@ -36,6 +34,7 @@ window {
 
 #input {
   margin: 0;
+  margin-bottom: 2px;
   padding: 3px;
   border: none;
   background-color: @base;
@@ -49,26 +48,20 @@ window {
 }
 
 #text {
-  margin: 3px;
+  margin: 0;
+  padding: 0px 5px;
   border: none;
   color: @text;
-}
-
-#entry {
-  background-color: @base;
 }
 
 #entry:selected {
   outline: none;
   border: none;
+  background-color: alpha(@selected-text, 0.2);
 }
 
 #entry:selected #text {
   color: @selected-text;
-}
-
-#entry image {
-  -gtk-icon-transform: scale(0.6);
 }
 
 @import ".config/omadora/current/theme/walker.css";

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+APP_ID="org.omadora.$(basename "$1")"
+LAUNCH_COMMAND="omadora-launch-tui $@"
+
+exec omadora-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"

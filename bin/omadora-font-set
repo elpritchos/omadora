@@ -13,6 +13,7 @@ if [[ -n "$font_name" && "$font_name" != "CNCLD" ]]; then
       pkill -SIGUSR2 ghostty
     fi
 
+    sed -i "s/font_family = .*/font_family = $font_name/g" ~/.config/hypr/hyprlock.conf
     sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/waybar/style.css
     sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/swayosd/style.css
     xmlstarlet ed -L \
@@ -22,8 +23,13 @@ if [[ -n "$font_name" && "$font_name" != "CNCLD" ]]; then
 
     omadora-restart-waybar
     #omadora-restart-swayosd
-    #omadora-restart-walker
     omadora-restart-wofi
+
+    if pgrep -x ghostty; then
+      notify-send "    You must restart Ghostty to see font change"
+    fi
+
+    omadora-hook font-set "$font_name"
   else
     echo "Font '$font_name' not found."
     exit 1

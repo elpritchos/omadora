@@ -1,0 +1,17 @@
+#!/bin/bash
+
+timezone=$(timedatectl list-timezones | gum filter --height 20 --header "Set timezone" --placeholder "") || exit 1
+
+if [[ -z "$timezone" ]]; then
+  echo "No timezone selected"
+  exit 1
+fi
+
+echo "Setting timezone to $timezone..."
+
+if sudo timedatectl set-timezone "$timezone"; then
+  omadora-restart-waybar
+else
+  echo "Failed to set time zone to $timezone"
+  exit 1
+fi

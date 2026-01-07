@@ -1,0 +1,4 @@
+#!/bin/bash
+
+omadora-state clear relaunch-required
+uwsm stop

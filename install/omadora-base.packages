@@ -20,6 +20,7 @@ fd-find
 fontawesome-fonts-all
 fzf
 gnome-calculator
+gnome-keyring
 gnome-themes-extra
 google-noto-fonts-common
 gum
@@ -64,10 +65,12 @@ waybar
 wf-recorder
 wget
 whois
+wiremix
 wl-clipboard
 wofi
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
+xdg-terminal-exec
 xdg-user-dirs
 xmlstarlet
 yaru-icon-theme

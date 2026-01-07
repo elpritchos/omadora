@@ -24,8 +24,9 @@ ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
 omadora-theme-bg-next
 
 # Restart components to apply new theme
-omadora-restart-waybar
-#omadora-restart-swayosd
+if pgrep -x waybar >/dev/null; then
+  omadora-restart-waybar
+fi
 hyprctl reload
 pkill -SIGUSR2 btop
 makoctl reload

@@ -48,6 +48,7 @@
   "custom/omadora": {
     "format": "",
     "on-click": "omadora-menu",
+    "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "Omadora Menu\n\nSuper + Alt + Space"
   },
   "custom/update": {
@@ -56,7 +57,7 @@
     "on-click": "omadora-launch-floating-terminal-with-presentation omadora-update",
     "tooltip-format": "System update available",
     "signal": 7,
-    "interval": 3600
+    "interval": 21600
   },
   "cpu": {
     "interval": 5,
@@ -67,7 +68,7 @@
     "format": "{:L%A %H:%M}",
     "format-alt": "{:L%d %B W%V %Y}",
     "tooltip-format": "{:%Z:%Ez}",
-    "on-click-right": "omadora-launch-floating-terminal-with-presentation omadora-cmd-tzupdate"
+    "on-click-right": "omadora-launch-floating-terminal-with-presentation omadora-tz-select"
   },
   "network": {
     "format-icons": [
@@ -80,7 +81,7 @@
     "format": "{icon}",
     "format-wifi": "{icon}",
     "format-ethernet": "󰀂",
-    "format-disconnected": "󰖪",
+    "format-disconnected": "󰤮",
     "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
@@ -131,8 +132,10 @@
   },
   "bluetooth": {
     "format": "",
+    "format-off": "󰂲",
     "format-disabled": "󰂲",
-    "format-connected": "",
+    "format-connected": "󰂱",
+    "format-no-controller": "",
     "tooltip-format": "Devices connected: {num_connections}",
     "on-click": "omadora-launch-bluetooth"
   },
@@ -163,12 +166,16 @@
     ]
   },
   "custom/expand-icon": {
-    "format": " ",
-    "tooltip": false
+    "format": "",
+    "tooltip": false,
+    "on-scroll-up": "",
+    "on-scroll-down": "",
+    "on-scroll-left": "",
+    "on-scroll-right": ""
   },
   "custom/screenrecording-indicator": {
     "on-click": "omadora-cmd-screenrecord",
-    "exec": "/home/misfit/.local/share/omadora/default/waybar/indicators/screen-recording.sh",
+    "exec": "$OMADORA_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
     "return-type": "json"
   },

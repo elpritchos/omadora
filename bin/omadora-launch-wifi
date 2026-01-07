@@ -1,3 +1,4 @@
 #!/bin/bash
 
-exec setsid uwsm app -- alacritty --class=Impala -e impala "$@"
+rfkill unblock wifi
+omadora-launch-or-focus-tui impala

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+omadora-state clear re*-required
+systemctl --no-wall poweroff

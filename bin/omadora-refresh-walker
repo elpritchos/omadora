@@ -1,4 +1,0 @@
-#!/bin/bash
-
-omadora-refresh-config walker/config.toml
-omadora-restart-walker

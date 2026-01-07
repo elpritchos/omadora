@@ -1,4 +1,4 @@
 #!/bin/bash
 
 cmd="$*"
-exec setsid uwsm app -- alacritty --class=Omadora --title=Omadora -e bash -c "omadora-show-logo; $cmd; omadora-show-done"
+exec setsid uwsm-app -- alacritty --class=org.omadora.terminal --title=Omadora -e bash -c "omadora-show-logo; $cmd; omadora-show-done"

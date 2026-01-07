@@ -2,19 +2,58 @@
 
 set -e
 
-# Sudo keep-alive
-if ! sudo -n true 2>/dev/null; then
-  sudo -v
+trap 'echo -e "\n\033[0;31mSomething went wrong during the update!\n\nPlease review the output above carefully, correct the error, and retry the update.\n\033[0m"' ERR
+
+omadora-update-confirm() {
+  gum style --border normal --border-foreground 6 --padding "1 2" \
+    "Ready to update?" \
+    "" \
+    "The following updates will occur:" \
+    "  • Omadora" \
+    "  • System packages" \
+    "  • Flatpaks" \
+    "  • Cargo-installed binaries" \
+    "  • Firmware" \
+    "" \
+    "• You should not stop the update once you start!" \
+    "• Make sure you're connected to power or have a full battery." \
+    ""
+
+  echo
+
+  if ! gum confirm "Continue with update?"; then
+    echo "Update cancelled"
+    exit 1
+  fi
+}
+
+sudo-keep-alive() {
+  if ! sudo -n true 2>/dev/null; then
+    sudo -v
+  fi
+  while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+}
+
+omadora-update-perform() {
+  # Ensure screensaver/sleep doesn't set in during updates
+  hyprctl dispatch tagwindow +noidle &> /dev/null || true
+
+  # Perform all update steps
+  omadora-update-git
+  omadora-migrate
+  omadora-update-system-pkgs
+  omadora-update-flatpak
+  omadora-update-cargo
+  omadora-update-firmware
+  omadora-hook post-update
+
+  # Re-enable screensaver/sleep after updates
+  hyprctl dispatch tagwindow -- -noidle &> /dev/null || true
+}
+
+if [[ $1 == "-y" ]] || omadora-update-confirm; then
+  sudo-keep-alive
+  omadora-update-perform
+  omadora-update-restart
+  omadora-update-available-reset
 fi
-while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-
-omadora-update-git
-omadora-migrate
-omadora-update-cargo
-omadora-update-flatpak
-omadora-update-system-pkgs
-omadora-update-fw
-omadora-update-restart
-
-# Ensure Waybar available update function is refreshed
-pkill -RTMIN+7 waybar
