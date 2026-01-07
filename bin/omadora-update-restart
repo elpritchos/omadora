@@ -3,9 +3,9 @@
 STATE_DIR=$HOME/.local/state/omadora
 
 if [ -f "$STATE_DIR/reboot-required" ]; then
-  gum confirm "Updates require reboot. Ready?" && setsid omadora-cmd-reboot
+  gum confirm "Updates require reboot. Ready?" && omadora-cmd-reboot
 elif [ -f "$STATE_DIR/relaunch-required" ]; then
-  gum confirm "Updates require Hyprland relaunch. Ready?" && setsid omadora-cmd-stop
+  gum confirm "Updates require Hyprland relaunch. Ready?" && omadora-cmd-stop
 fi
 
 for file in "$HOME"/.local/state/omadora/restart-*-required; do

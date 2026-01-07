@@ -1,6 +1,4 @@
 #!/bin/bash
 
 omadora-state clear re*-required
-omadora-hyprland-window-close-all
-sleep 1 # Allow apps like Chrome to shutdown correctly
-systemctl reboot --no-wall
+systemctl --no-wall reboot

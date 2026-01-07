@@ -1,6 +1,4 @@
 #!/bin/bash
 
 omadora-state clear relaunch-required
-omadora-hyprland-window-close-all
-sleep 1 # Allow apps like Chrome to shutdown correctly
 uwsm stop
