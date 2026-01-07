@@ -1,5 +1,8 @@
-echo "Add required packages"
-sudo dnf install -y gnome-keyring xdg-terminal-exec
+echo "Remove uneeded wiremix cargo binary"
+cargo uninstall wiremix
+
+echo "Install required packages"
+sudo dnf install -y wiremix gnome-keyring xdg-terminal-exec
 
 echo "Update theme symlinks"
 for f in ~/.local/share/omadora/themes/*; do ln -nfs "$f" ~/.config/omadora/themes/; done
