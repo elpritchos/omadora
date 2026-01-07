@@ -33,7 +33,7 @@ menu() {
     fi
   fi
 
-  echo -e "$options" | wofi --dmenu --width 320 --lines 12 -p "$prompt…" "${args[@]}"
+  echo -e "$options" | wofi --dmenu --width 320 --lines 16 -p "$prompt…" "${args[@]}"
 }
 
 terminal() {
