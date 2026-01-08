@@ -195,7 +195,7 @@ show_install_menu() {
 show_install_style_menu() {
   case $(menu "Install" "󰸌  Theme\n  Background") in
   *Theme*) present_terminal omadora-theme-install ;;
-  *Background*) nautilus ~/.config/omadora/current/theme/backgrounds ;;
+  *Background*) omadora-theme-bg-install ;;
   *) show_install_menu ;;
   esac
 }

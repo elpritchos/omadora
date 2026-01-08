@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Reload hyprland configuration.
+
+hyprctl reload >/dev/null

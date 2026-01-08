@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Reload btop configuration.
+
+pkill -SIGUSR2 btop

@@ -1,24 +1,42 @@
 #!/bin/bash
 
-if [[ -z "$1" && "$1" != "CNCLD" ]]; then
-  echo "Usage: omadora-theme-set <theme-name>" >&2
+if [[ -z $1 ]]; then
+  echo "Usage: omadora-theme-set <theme-name>"
   exit 1
 fi
 
-THEMES_DIR="$HOME/.config/omadora/themes/"
-CURRENT_THEME_DIR="$HOME/.config/omadora/current/theme"
+CURRENT_THEME_PATH="$HOME/.config/omadora/current/theme"
+NEXT_THEME_PATH="$HOME/.config/omadora/current/next-theme"
+USER_THEMES_PATH="$HOME/.config/omadora/themes"
+OMADORA_THEMES_PATH="$OMADORA_PATH/themes"
 
 THEME_NAME=$(echo "$1" | sed -E 's/<[^>]+>//g' | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-THEME_PATH="$THEMES_DIR/$THEME_NAME"
 
-# Check if the theme entered exists
-if [[ ! -d "$THEME_PATH" ]]; then
-  echo "Theme '$THEME_NAME' does not exist in $THEMES_DIR" >&2
-  exit 2
+if [[ -d "$USER_THEMES_PATH/$THEME_NAME" ]]; then
+  THEME_PATH="$USER_THEMES_PATH/$THEME_NAME"
+elif [[ -d "$OMADORA_THEMES_PATH/$THEME_NAME" ]]; then
+  THEME_PATH="$OMADORA_THEMES_PATH/$THEME_NAME"
+else
+  echo "Theme '$THEME_NAME' does not exist"
+  exit 1
 fi
 
-# Update theme symlinks
-ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
+# Setup clean next theme directory (for atomic theme config swapping)
+rm -rf "$NEXT_THEME_PATH"
+mkdir -p "$NEXT_THEME_PATH"
+
+# Copy static configs
+cp -r "$THEME_PATH/"* "$NEXT_THEME_PATH/" 2>/dev/null
+
+# Generate dynamic configs
+omadora-theme-set-templates
+
+# Swap next theme in as current
+rm -rf "$CURRENT_THEME_PATH"
+mv "$NEXT_THEME_PATH" "$CURRENT_THEME_PATH"
+
+# Store theme name for reference
+echo "$THEME_NAME" > "$HOME/.config/omadora/current/theme.name"
 
 # Change background with theme
 omadora-theme-bg-next
@@ -27,10 +45,13 @@ omadora-theme-bg-next
 if pgrep -x waybar >/dev/null; then
   omadora-restart-waybar
 fi
-hyprctl reload
-pkill -SIGUSR2 btop
-makoctl reload
+omadora-restart-terminal
+omadora-restart-hyprctl
+omadora-restart-btop
+omadora-restart-mako
 
-# Change gnome, terminal, etc. themes
-omadora-theme-set-terminal
+# Change app-specific themes
 omadora-theme-set-gnome
+
+# Call hook on theme set
+omadora-hook theme-set "$THEME_NAME"
