@@ -1,6 +1,10 @@
 echo "Migrate to new theme setup"
 
+# Install required packages
 sudo dnf install -y yq
+
+# Copy in user theme template example
+cp -r "$OMADORA_PATH/config/omadora/themed" "$HOME/.config/omadora/themed"
 
 # Move user-added backgrounds from omadora theme folders to user config
 OMADORA_DIR="$HOME/.local/share/omadora"
