@@ -63,4 +63,7 @@ find "$THEMES_DIR" -mindepth 1 -maxdepth 1 -type l -delete
 # Re-apply the current theme with the new system
 if [[ -n $CURRENT_THEME_NAME ]]; then
   omadora-theme-set "$CURRENT_THEME_NAME"
+else
+  # Backup to ensure a theme is set if we can't deduce the name
+  omadora-theme-set "Rose Pine Darker"
 fi

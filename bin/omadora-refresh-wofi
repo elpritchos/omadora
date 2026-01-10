@@ -1,4 +1,6 @@
 #!/bin/bash
 
+# Overwrite the user configs for Wofi with the defaults.
+
 omadora-refresh-config wofi/config
 omadora-refresh-config wofi/style.css

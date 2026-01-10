@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Sets the power profile of the system.
+# Used by the Omadora Menu under Setup > Power Profile.
+
 profile="$1"
 
 if powerprofilesctl set "$profile"; then

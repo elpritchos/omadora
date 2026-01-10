@@ -30,13 +30,13 @@ if [[ $pinned == "true" ]]; then
     "dispatch togglefloating address:$addr;" \
     "dispatch tagwindow -pop address:$addr;"
 elif [[ -n $addr ]]; then
-  hyprctl dispatch togglefloating address:$addr
-  hyprctl dispatch resizeactive exact $width $height address:$addr
+  hyprctl dispatch togglefloating "address:$addr"
+  hyprctl dispatch resizeactive exact "$width" "$height" "address:$addr"
 
   if [[ -n $x && -n $y ]]; then
-    hyprctl dispatch moveactive $x $y address:$addr
+    hyprctl dispatch moveactive "$x" "$y" "address:$addr"
   else
-    hyprctl dispatch centerwindow address:$addr
+    hyprctl dispatch centerwindow "address:$addr"
   fi
 
   hyprctl -q --batch \

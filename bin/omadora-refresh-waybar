@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Overwrite the user configs for the Waybar menu bar with the defaults and restart the service.
+
 omadora-refresh-config waybar/config.jsonc
 omadora-refresh-config waybar/style.css
 omadora-restart-waybar
