@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Start Omadora desktop environment using uwsm.
-#
-uwsm check may-start -v && uwsm start hyprland-uwsm.desktop
