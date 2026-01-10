@@ -59,6 +59,10 @@ tooltip {
   margin-left: 8.75px;
 }
 
+.hidden {
+  opacity: 0;
+}
+
 #custom-screenrecording-indicator {
   min-width: 12px;
   margin-left: 8.75px;
@@ -69,6 +73,3 @@ tooltip {
   color: #a55555;
 }
 
-.hidden {
-  opacity: 0;
-}

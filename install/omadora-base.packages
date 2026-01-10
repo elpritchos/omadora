@@ -38,6 +38,7 @@ imv
 iputils
 iwd
 kvantum-qt5
+libxkbcommon-utils
 mako
 mise
 mpv
@@ -74,4 +75,5 @@ xdg-terminal-exec
 xdg-user-dirs
 xmlstarlet
 yaru-icon-theme
+yq
 zoxide

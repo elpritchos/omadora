@@ -1,11 +1,13 @@
 #!/bin/bash
 
+# Run the Omadora screensaver using random effects from TTE.
+
 screensaver_in_focus() {
   hyprctl activewindow -j | jq -e '.class == "org.omadora.screensaver"' >/dev/null 2>&1
 }
 
 exit_screensaver() {
-  hyprctl keyword cursor:invisible false
+  hyprctl keyword cursor:invisible false &>/dev/null || true
   pkill -x tte 2>/dev/null
   pkill -f org.omadora.screensaver 2>/dev/null
   exit 0

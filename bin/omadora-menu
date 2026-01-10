@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Launch the Omadora Menu or takes a parameter to jump straight to a submenu.
+
 export PATH="$HOME/.local/share/omadora/bin:$PATH"
 
 # Set to true when going directly to a submenu, so we can exit directly
@@ -142,7 +144,7 @@ show_setup_menu() {
   local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
   [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
   [ -f ~/.config/hypr/input.conf ] && options="$options\n󰍽  Input"
-  options="$options\n  Defaults\n󰱔  DNS\n  Config"
+  options="$options\n󰱔  DNS\n  Config"
 
   case $(menu "Setup" "$options") in
   *Audio*) omadora-launch-audio ;;
@@ -152,7 +154,6 @@ show_setup_menu() {
   *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
   *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
   *Input*) open_in_editor ~/.config/hypr/input.conf ;;
-  *Defaults*) open_in_editor ~/.config/uwsm/default ;;
   *DNS*) present_terminal omadora-setup-dns ;;
   *Config*) show_setup_config_menu ;;
   *) show_main_menu ;;
@@ -175,10 +176,10 @@ show_setup_config_menu() {
   *Hypridle*) open_in_editor ~/.config/hypr/hypridle.conf && omadora-restart-hypridle ;;
   *Hyprlock*) open_in_editor ~/.config/hypr/hyprlock.conf ;;
   *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && omadora-restart-hyprsunset ;;
-  *Wofi*) open_in_editor ~/.config/wofi/config && omadora-restart-wofi ;;
+  *Wofi*) open_in_editor ~/.config/wofi/config ;;
   *Waybar*) open_in_editor ~/.config/waybar/config.jsonc && omadora-restart-waybar ;;
   *XCompose*) open_in_editor ~/.XCompose && omadora-restart-xcompose ;;
-  *) show_main_menu ;;
+  *) show_setup_menu ;;
   esac
 }
 
@@ -195,7 +196,7 @@ show_install_menu() {
 show_install_style_menu() {
   case $(menu "Install" "󰸌  Theme\n  Background") in
   *Theme*) present_terminal omadora-theme-install ;;
-  *Background*) nautilus ~/.config/omadora/current/theme/backgrounds ;;
+  *Background*) omadora-theme-bg-install ;;
   *) show_install_menu ;;
   esac
 }
@@ -224,10 +225,9 @@ show_update_menu() {
 }
 
 show_update_process_menu() {
-  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n󰌧  Wofi\n󰍜  Waybar") in
+  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n󰍜  Waybar") in
   *Hypridle*) omadora-restart-hypridle ;;
   *Hyprsunset*) omadora-restart-hyprsunset ;;
-  *Wofi*) omadora-restart-wofi ;;
   *Waybar*) omadora-restart-waybar ;;
   *) show_update_menu ;;
   esac
@@ -296,6 +296,10 @@ go_to_menu() {
   *system*) show_system_menu ;;
   esac
 }
+
+# Allow user extensions and overrides
+USER_EXTENSIONS="$HOME/.config/omadora/extensions/menu.sh"
+[[ -f $USER_EXTENSIONS ]] && source "$USER_EXTENSIONS"
 
 if [[ -n "$1" ]]; then
   BACK_TO_EXIT=true

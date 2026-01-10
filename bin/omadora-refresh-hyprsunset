@@ -1,4 +1,6 @@
 #!/bin/bash
 
+# Overwrite the user config for hyprsunset with the default and restart the service.
+
 omadora-refresh-config hypr/hyprsunset.conf
 omadora-restart-hyprsunset

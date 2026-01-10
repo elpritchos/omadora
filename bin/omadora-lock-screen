@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# Small wait for window closing animations to finish
-sleep 0.1
-
-# Lock the screen
-pidof hyprlock || hyprlock &
+# Locks the system using hyprlock, but not before ensuring 1password has also been locked, and the screensaver stopped.
 
 # Set keyboard layout to default (first layout)
 hyprctl switchxkblayout all 0 > /dev/null 2>&1
@@ -16,3 +12,9 @@ fi
 
 # Avoid running screensaver when locked
 pkill -f org.omadora.screensaver
+
+# Small wait for window closing animations to finish
+sleep 0.1
+
+# Lock the screen
+pidof hyprlock || hyprlock &

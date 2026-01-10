@@ -1,3 +1,5 @@
 #!/bin/bash
 
+# Launch the audio controls TUI (provided by wiremix).
+
 omadora-launch-or-focus-tui wiremix

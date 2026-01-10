@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Overwrite all the user configs in ~/.config/hypr with the defaults.
+
 omadora-refresh-config hypr/autostart.conf
 omadora-refresh-config hypr/bindings.conf
 omadora-refresh-config hypr/input.conf
