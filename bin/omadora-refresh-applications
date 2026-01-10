@@ -15,6 +15,6 @@ cp ~/.local/share/omadora/applications/hidden/*.desktop ~/.local/share/applicati
 # Refresh the webapps and TUIs
 bash "$OMADORA_PATH/install/packaging/icons.sh"
 bash "$OMADORA_PATH/install/packaging/webapps.sh"
-bash "$OMARCHY_PATH/install/packaging/tuis.sh"
+bash "$OMADORA_PATH/install/packaging/tuis.sh"
 
 update-desktop-database ~/.local/share/applications
