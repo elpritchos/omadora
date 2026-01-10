@@ -1,5 +1,5 @@
 # Start
-alias omadora='omadora-cmd-start'
+alias omadora='$HOME/.local/share/omadora/bin/omadora-cmd-start'
 
 # File system
 alias lso='/usr/bin/ls'
