@@ -1,5 +1,5 @@
 # Start
-alias omadora='uwsm check may-start -v && uwsm start hyprland-uwsm.desktop'
+alias omadora='omadora-cmd-start'
 
 # File system
 alias lso='/usr/bin/ls'
