@@ -22,11 +22,10 @@ fi
 # Fedora system package updates via dnf
 if omadora-cmd-present dnf; then
   dnf -q makecache --refresh >/dev/null 2>&1
-  output=$(dnf check-upgrade 2>/dev/null)
-  rc=$?
-  if [[ $rc -eq 100 ]]; then
+  if dnf -q check-upgrade >/dev/null 2>&1; then
+    :
+  elif [[ $? -eq 100 ]]; then
     echo "Fedora system package updates available via dnf"
-    echo "$output"
   fi
 fi
 
@@ -49,6 +48,6 @@ fi
 # Cargo built binaries (via cargo-update)
 if omadora-cmd-present cargo && cargo install-update --version >/dev/null 2>&1; then
   if cargo install-update --list 2>/dev/null | awk 'NR>1 && $NF=="Yes"{found=1} END{exit !found}'; then
-    echo "Cargo-installed binaries updates available via cargo install-update"
+    echo "Cargo-installed binary updates available via cargo install-update"
   fi
 fi
