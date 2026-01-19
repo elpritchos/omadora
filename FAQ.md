@@ -12,6 +12,19 @@ After installation, use `iwctl` or the Wiremix TUI to reconnect to your WiFi net
 
 > **NOTE:** There is also a chance you may be missing the correct WiFi device drivers after the initial Fedora installation, in this case, you can use the bootable media to boot into Recovery Mode and get a shell, then `chroot /mnt/sysimage`, and from there connect and install the Hardware Support package group  `sudo dnf group install -y hardware-support`, or determine and install the specific drivers needed.
 
+## Where is the documentation for Omadora?
+
+In general, Omadora reimplements much of the same functionality, keybindings, etc., that is in Omarchy, and therefore the [The Omarchy Manual](https://learn.omacom.io/) can be used as a guide for Omadora.
+
+The [Hyprland Wiki](https://wiki.hypr.land) is also great reference documentation for the configuration of Hyprland.
+
+However, the best resource for understanding Omadora is to read and understand the scripts within this repository with which you are executing.
+
+## How do I keep Omadora updated?
+
+There is an update indicator which appears in Waybar next to the date when an update is available; clicking this will pop a terminal and execute `omadora-update`.
+The `omadora-update` script can also be run manually, and in both cases will update Omadora to the latest version, along with system packages, firmware, flatpaks, and cargo-installed binaries.
+
 ## Where are all the apps that are provided by default in Omarchy?
 
 This is a conscious decision not to include all the applications and configuration options provided by Omarchy to minimise bloat and only install functionality that would be expected of a minimal desktop environment, leaving software installation choices to the user.
