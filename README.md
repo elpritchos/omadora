@@ -1,6 +1,6 @@
 # Omadora
 
-This is a minimal functional install of Hyprland for Fedora 42, based on the Omarchy implementation and patterns.
+This is a minimal functional install of Hyprland for Fedora 43, based on the Omarchy implementation and patterns.
 It provides a more stable release cycle with tested and curated packages.
 
 Omadora purposely does not include all the apps and features included with Omarchy, as it's intended to be a minimal install that provides core desktop functionality to allow users to build from.
@@ -15,7 +15,7 @@ These are provided by the [sdegler/hyprland](https://copr.fedorainfracloud.org/c
 
 ## Installation
 
-Install the Fedora 42 Custom Operating System base install using the [Everything Network Installer](https://download.fedoraproject.org/pub/fedora/linux/releases/42/Everything).
+Install the Fedora 43 Custom Operating System base install using the [Everything Network Installer](https://download.fedoraproject.org/pub/fedora/linux/releases/43/Everything).
 Similar to Omarchy, it is recommended to use drive encryption, disable root, and add a privileged user.
 
 Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
