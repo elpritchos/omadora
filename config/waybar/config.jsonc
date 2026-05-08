@@ -53,7 +53,7 @@
   },
   "custom/update": {
     "format": "",
-    "exec": "omadora-update-available",
+    "exec": "timeout 300 omadora-update-available",
     "on-click": "omadora-launch-floating-terminal-with-presentation omadora-update",
     "tooltip-format": "System update available",
     "signal": 7,
