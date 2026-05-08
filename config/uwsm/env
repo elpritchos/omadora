@@ -7,8 +7,5 @@ export PATH=$OMADORA_PATH/bin/:$PATH
 # Set default terminal and editor
 source ~/.config/uwsm/default
 
-# Activate mise if present on the system
-omadora-cmd-present mise && eval "$(mise activate bash)"
-
 # Update user dirs
 omadora-cmd-present xdg-user-dirs-update && xdg-user-dirs-update --quiet

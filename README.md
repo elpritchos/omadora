@@ -10,8 +10,8 @@ Read more about Omarchy itself at [omarchy.org](https://omarchy.org).
 
 ## Important
 
-Omadora attempts to install only packages from the official Fedora repositories, currently with the exception of a few Hyprland related packages, and mise.
-These are provided by the [lionheartp/Hyprland](https://copr.fedorainfracloud.org/coprs/lionheartp/Hyprland) and [jdxcode/mise](https://copr.fedorainfracloud.org/coprs/jdxcode/mise/) COPRs respectively, and as such, users should perform their own due diligence to ensure these are safe to install.
+Omadora attempts to install only packages from the official Fedora repositories, currently with the exception of Hyprland related packages provided by the [lionheartp/Hyprland](https://copr.fedorainfracloud.org/coprs/lionheartp/Hyprland) COPR.
+Users should perform their own due diligence with regard to accepting the risk of installing packages from this third-party repository.
 
 ## Installation
 
