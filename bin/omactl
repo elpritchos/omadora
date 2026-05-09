@@ -1,0 +1,224 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+PROGRAM="${0##*/}"
+PREFIX="omadora"
+
+COMMANDS=()
+
+while IFS= read -r -d '' file; do
+  COMMANDS+=("$file")
+done < <(
+  find "$ROOT" \
+    -maxdepth 1 \
+    -type f \
+    -perm -111 \
+    -name "${PREFIX}-*" \
+    -print0
+)
+
+require() {
+  command -v "$1" >/dev/null 2>&1 || {
+    printf '%s: missing dependency: %s\n' "$PROGRAM" "$1" >&2
+    return 1
+  }
+}
+
+valid_stem() {
+  [[ "$1" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]]
+}
+
+list_groups() {
+  local file stem
+
+  for file in "${COMMANDS[@]}"; do
+    stem="${file##*/}"
+    stem="${stem#"${PREFIX}"-}"
+
+    valid_stem "$stem" || continue
+
+    printf '%s\n' "${stem%%-*}"
+  done | sort -u
+}
+
+list_group_commands() {
+  local group="$1"
+  local file stem
+
+  for file in "${COMMANDS[@]}"; do
+    stem="${file##*/}"
+    stem="${stem#"${PREFIX}"-}"
+
+    valid_stem "$stem" || continue
+    [[ "$stem" == "${group}-"* ]] || continue
+
+    stem="${stem#"${group}"-}"
+
+    printf '%s\n' "${stem//-/ }"
+  done
+}
+
+usage() {
+  cat <<EOF
+usage: ${PROGRAM} COMMAND [ARGS...]
+       ${PROGRAM} commands [--json]
+
+Commands:
+EOF
+
+  while read -r group; do
+    printf '  %s\n' "$group"
+  done < <(list_groups)
+
+  cat <<EOF
+
+See '${PROGRAM} COMMAND help' for details.
+EOF
+}
+
+show_group_help() {
+  local group="$1"
+  local commands
+
+  commands="$(list_group_commands "$group")"
+
+  [[ -x "$ROOT/${PREFIX}-${group}" || -n "$commands" ]] || return 1
+
+  printf '%s commands:\n' "$group"
+
+  [[ -z "$commands" ]] || while read -r command; do
+    printf '  %s\n' "$command"
+  done <<< "$commands"
+}
+
+commands_table() {
+  {
+    printf 'COMMAND\tBINARY\n'
+
+    local file binary stem
+
+    for file in "${COMMANDS[@]}"; do
+      binary="${file##*/}"
+      stem="${binary#"${PREFIX}"-}"
+
+      valid_stem "$stem" || continue
+
+      printf '%s %s\t%s\n' \
+        "$PROGRAM" \
+        "${stem//-/ }" \
+        "$binary"
+    done
+  } | column -t -s $'\t'
+}
+
+commands_json() {
+  require jq || exit 1
+
+  printf '[\n'
+
+  local first=true
+  local file binary stem
+
+  for file in "${COMMANDS[@]}"; do
+    binary="${file##*/}"
+    stem="${binary#"${PREFIX}"-}"
+
+    valid_stem "$stem" || continue
+
+    $first || printf ',\n'
+    first=false
+
+    jq -cn \
+      --arg binary "$binary" \
+      --arg route "$PROGRAM ${stem//-/ }" \
+      '{
+        binary: $binary,
+        route: $route
+      }'
+  done
+
+  printf '\n]\n'
+}
+
+dispatch() {
+  local parts=("$@")
+  local slice
+  local i candidate file
+
+  for (( i=${#parts[@]}; i>0; i-- )); do
+    slice=("${parts[@]:0:i}")
+
+    local IFS=-
+    candidate="${PREFIX}-${slice[*]}"
+
+    file="$ROOT/$candidate"
+
+    if [[ -x "$file" ]]; then
+      exec "$file" "${parts[@]:i}"
+    fi
+  done
+
+  return 1
+}
+
+case "${1:-}" in
+  ""|-h|--help)
+    usage
+    ;;
+
+  commands)
+    case "${2:-}" in
+      "")
+        commands_table
+        ;;
+
+      --json)
+        commands_json
+        ;;
+
+      *)
+        printf '%s: unknown option: %s\n' \
+          "$PROGRAM" \
+          "${2}" \
+          >&2
+
+        exit 1
+        ;;
+    esac
+    ;;
+
+  *)
+    if [[ "${*: -1}" == "help" ]]; then
+      if ! show_group_help "${1:-}"; then
+        printf '%s: unknown command group: %s\n' \
+          "$PROGRAM" \
+          "${1:-}" \
+          >&2
+
+        exit 1
+      fi
+
+      exit 0
+    fi
+
+    if dispatch "$@"; then
+      exit 0
+    fi
+
+    printf '%s: unknown command: %s\n' \
+      "$PROGRAM" \
+      "$*" \
+      >&2
+
+    printf '\n' >&2
+
+    if ! show_group_help "${1:-}" >&2; then
+      usage >&2
+    fi
+
+    exit 1
+    ;;
+esac
