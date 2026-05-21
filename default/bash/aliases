@@ -6,7 +6,7 @@ alias lso='/usr/bin/ls'
 alias ls='eza --icons=auto'
 alias ll='ls -l --group --group-directories-first'
 alias la='ll -a'
-alias lt='ll --tree --level=2 --git'
+alias lt='ll --tree --git'
 alias lta='lt -a'
 
 alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
