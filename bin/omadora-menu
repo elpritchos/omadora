@@ -265,7 +265,7 @@ show_update_password_menu() {
 
 show_system_menu() {
   case $(menu "System" "  Lock\n󱄄  Screensaver\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
-  *Lock*) omadora-lock-screen ;;
+  *Lock*) loginctl lock-session ;;
   *Screensaver*) omadora-launch-screensaver force ;;
   *Stop*) omadora-cmd-stop ;;
   *Reboot*) omadora-cmd-reboot ;;
