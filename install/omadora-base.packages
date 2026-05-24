@@ -43,6 +43,7 @@ mpv
 nautilus
 neovim
 pciutils
+pipewire
 pipewire-devel
 pipx
 playerctl
@@ -50,6 +51,8 @@ plocate
 plymouth
 plymouth-plugin-*
 power-profiles-daemon
+qt5-qtwayland
+qt6-qtwayland
 ripgrep
 satty
 slurp
@@ -65,8 +68,10 @@ wf-recorder
 wget
 whois
 wiremix
+wireplumber
 wl-clipboard
 wofi
+xdg-desktop-portal
 xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xdg-terminal-exec
