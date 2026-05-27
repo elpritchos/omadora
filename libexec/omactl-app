@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# App: launch/focus/webapps/TUIs/install
+
+set -euo pipefail
+
+# ----------------------------
+# Core actions
+# ----------------------------
+test() {
+  echo "test"
+}
+
+# ----------------------------
+# Completion
+# ----------------------------
+__complete() {
+  local comp_words=("$@")
+  local cmd="${comp_words[0]:-}"
+  local cur="${comp_words[-1]:-}"
+
+  case "$cmd" in
+  test)
+    ;;
+
+  *)
+    compgen -W "test" -- "$cmd"
+    ;;
+  esac
+}
+
+# ----------------------------
+# Dispatcher
+# ----------------------------
+case "${1:-}" in
+test)
+  test
+  ;;
+
+__complete)
+  shift
+  __complete "$@"
+  ;;
+
+*)
+  echo "usage: app test" >&2
+  exit 1
+  ;;
+esac

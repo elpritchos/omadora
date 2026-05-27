@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$OMADORA_ROOT/lib/theme.sh"
+
+THEME_NAME="$(theme_name_normalize "${1:-}")"
+
+if [[ -d "$OMADORA_USER_THEMES_DIR/$THEME_NAME" ]]; then
+  THEME_PATH="$OMADORA_USER_THEMES_DIR/$THEME_NAME"
+elif [[ -d "$OMADORA_THEMES_DIR/$THEME_NAME" ]]; then
+  THEME_PATH="$OMADORA_THEMES_DIR/$THEME_NAME"
+else
+  echo "Error: Theme '$THEME_NAME' does not exist."
+  exit 1
+fi
+
+# Setup clean next theme directory (for atomic theme config swapping)
+rm -rf "$OMADORA_NEXT_THEME_DIR"
+mkdir -p "$OMADORA_NEXT_THEME_DIR"
+
+# Copy static configs
+cp -r "$THEME_PATH/." "$OMADORA_NEXT_THEME_DIR/" 2>/dev/null
+
+# Generate dynamic configs
+theme_set_templates
+
+# Swap next theme in as current
+rm -rf "$OMADORA_CURRENT_THEME_DIR"
+mv "$OMADORA_NEXT_THEME_DIR" "$OMADORA_CURRENT_THEME_DIR"
+
+# Store theme name for reference
+# Theme component configs reloaded by omadora-theme.service watching this file
+echo "$THEME_NAME" >"${OMADORA_THEME_NAME_FILE}"
+
+# Change background with theme
+"$OMADORA_ROOT/libexec/omadora-theme-bg-next"
+
+# Change app-specific themes
+theme_set_gnome
+
+# Call hook on theme set
+omadora-hook theme-set "$THEME_NAME" # TODO: Move to libexec

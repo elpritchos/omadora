@@ -1,8 +1,0 @@
-#!/bin/bash
-
-for dir in ~/.config/omadora/themes/*/; do
-  if [[ -d $dir ]] && [[ ! -L "${dir%/}" ]] && [[ -d "$dir/.git" ]]; then
-    echo "Updating: $(basename "$dir")"
-    git -C "$dir" pull
-  fi
-done

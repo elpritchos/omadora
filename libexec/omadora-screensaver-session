@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+STATE_DIR="$HOME/.local/state/omadora/toggles"
+
+# Exit early if disabled
+if [[ -f "$STATE_DIR/screensaver-off" ]] && [[ "${1:-}" != force ]]; then
+  exit 0
+fi
+
+# Ensure required programs exist
+command -v tte >/dev/null
+command -v alacritty >/dev/null
+command -v hyprctl >/dev/null
+command -v jq >/dev/null
+
+focused_monitor="$({
+  hyprctl monitors -j | jq -r '.[] | select(.focused == true).name'
+} || true)"
+
+cleanup() {
+  hyprctl keyword cursor:invisible false >/dev/null 2>&1 || true
+}
+
+trap cleanup EXIT SIGINT SIGTERM
+
+# Hide cursor once globally
+hyprctl keyword cursor:invisible true >/dev/null 2>&1 || true
+
+pids=()
+
+while IFS= read -r monitor; do
+  (
+    hyprctl dispatch focusmonitor "$monitor"
+
+    exec alacritty \
+      --class=org.omadora.screensaver \
+      --config-file "$HOME/.local/share/omadora/default/alacritty/screensaver.toml" \
+      -e "$HOME/.local/share/omadora/libexec/omadora-screensaver-window"
+  ) &
+
+  pids+=("$!")
+done < <(hyprctl monitors -j | jq -r '.[].name')
+
+if [[ -n "$focused_monitor" ]]; then
+  hyprctl dispatch focusmonitor "$focused_monitor" >/dev/null 2>&1 || true
+fi
+
+wait

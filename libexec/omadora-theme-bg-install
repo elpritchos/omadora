@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$OMADORA_ROOT/lib/theme.sh"
+
+IMAGE_PATH="${1:-}"
+CURRENT_THEME_NAME=$(theme_current) || exit 1
+
+[[ -n "$IMAGE_PATH" ]] || {
+  echo "Error: Missing image path." >&2
+  exit 1
+}
+
+[[ -f "$IMAGE_PATH" ]] || {
+  echo "Error: Invalid image path: $IMAGE_PATH" >&2
+  exit 1
+}
+
+DEST_DIR="${OMADORA_USER_BACKGROUNDS_DIR}/${CURRENT_THEME_NAME}"
+mkdir -p "$DEST_DIR"
+
+cp "$IMAGE_PATH" "$DEST_DIR/"
+
+ln -nsf "$DEST_DIR/$(basename "$IMAGE_PATH")" "$OMADORA_CURRENT_BACKGROUND_LINK"

@@ -1,3 +1,5 @@
+source ~/.local/share/omadora/bin/omactl-completion.bash
+
 if command -v mise &> /dev/null; then
   eval "$(mise activate bash)"
 fi

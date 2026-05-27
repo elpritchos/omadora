@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$OMADORA_ROOT/lib/theme.sh"
+
+# ----------------------------
+# Usage
+# ----------------------------
+usage() {
+  cat >&2 <<'EOF'
+Usage:
+  omactl theme <command>
+
+Commands:
+  list                 List all themes
+  list-user            List user-installed themes
+  current              Show current theme
+  set <name>           Apply a theme
+  add <repo-url>       Install a theme from git
+  remove <name>        Remove a user-installed theme
+  update <name>        Update an installed theme
+  bg-next              Cycle to next background
+  bg-add <image-path>  Add a background image
+EOF
+}
+
+# ----------------------------
+# Completion
+# ----------------------------
+__complete() {
+  local comp_words=("$@")
+  local cmd="${comp_words[0]:-}"
+  local cur="${comp_words[-1]:-}"
+
+  case "$cmd" in
+  list | list-user | current | add | bg-next)
+    ;;
+
+  set | remove | update)
+    if [[ ${#comp_words[@]} -eq 2 ]]; then
+      local fn="theme_list_user"
+      [[ "$cmd" == "set" ]] && fn="theme_list_all"
+
+      mapfile -t themes < <("$fn")
+
+      compgen -W "$(printf '%s\n' "${themes[@]}")" -- "$cur"
+    fi
+    ;;
+
+  bg-add)
+    if [[ ${#comp_words[@]} -eq 2 ]]; then
+      compgen -f -- "$cur"
+    fi
+    ;;
+
+  *)
+    compgen -W "list list-user current set add remove update bg-next bg-add" -- "$cmd"
+    ;;
+  esac
+}
+
+# ----------------------------
+# Dispatcher
+# ----------------------------
+case "${1:-}" in
+list)
+  theme_list_all
+  ;;
+
+list-user)
+  theme_list_user
+  ;;
+
+current)
+  theme_current
+  ;;
+
+set)
+  shift
+  exec "$OMADORA_ROOT/libexec/omadora-theme-set" "$@"
+  ;;
+
+add)
+  shift
+  exec "$OMADORA_ROOT/libexec/omadora-theme-install" "$@"
+  ;;
+
+remove)
+  shift
+  exec "$OMADORA_ROOT/libexec/omadora-theme-remove" "$@"
+  ;;
+
+update)
+  shift
+  exec "$OMADORA_ROOT/libexec/omadora-theme-update" "$@"
+  ;;
+
+bg-next)
+  shift
+  exec "$OMADORA_ROOT/libexec/omadora-theme-bg-next" "$@"
+  ;;
+
+bg-add)
+  shift
+  exec "$OMADORA_ROOT/libexec/omadora-theme-bg-install" "$@"
+  ;;
+
+__complete)
+  shift || true
+  __complete "$@"
+  ;;
+
+*)
+  echo "omactl theme: unknown or missing command" >&2
+  echo >&2
+  usage
+  exit 1
+  ;;
+esac

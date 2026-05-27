@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# Workspace: workspace/window behavior
+
+set -euo pipefail
+
+ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$ROOT/lib/workspace.sh"
+
+# ----------------------------
+# Usage
+# ----------------------------
+usage() {
+  cat >&2 <<'EOF'
+Usage:
+  omactl workspace <command>
+
+Commands:
+  toggle-waybar        Toggle Waybar visibility
+EOF
+}
+
+# ----------------------------
+# Completion
+# ----------------------------
+__complete() {
+  local comp_words=("$@")
+  local cmd="${comp_words[0]:-}"
+  local cur="${comp_words[-1]:-}"
+
+  case "$cmd" in
+  toggle-waybar)
+    ;;
+
+  *)
+    compgen -W "toggle-waybar" -- "$cmd"
+    ;;
+  esac
+}
+
+# ----------------------------
+# Dispatcher
+# ----------------------------
+case "${1:-}" in
+toggle-waybar) # TODO: Change to toggle submenu
+  workspace_toggle_waybar
+  ;;
+
+__complete)
+  shift
+  __complete "$@"
+  ;;
+
+*)
+  echo "omactl workspace: unknown or missing command" >&2
+  echo >&2
+  usage
+  exit 1
+  ;;
+esac

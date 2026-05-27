@@ -1,0 +1,7 @@
+[Unit]
+Description=Omadora Session
+PartOf=wayland-session@hyprland.desktop.target
+After=wayland-session@hyprland.desktop.target
+
+[Install]
+WantedBy=wayland-session@hyprland.desktop.target

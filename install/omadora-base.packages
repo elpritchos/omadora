@@ -29,6 +29,7 @@ gvfs-smb
 hypridle
 hyprland
 hyprlock
+hyprpaper
 hyprpicker
 hyprpolkitagent
 hyprshot
@@ -57,7 +58,6 @@ ripgrep
 satty
 slurp
 sushi
-swaybg
 tar
 tldr
 unzip

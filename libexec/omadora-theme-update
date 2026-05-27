@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$OMADORA_ROOT/lib/theme.sh"
+
+THEME_NAME="${1:-}"
+
+[[ -n "$THEME_NAME" ]] || {
+  echo "Error: Missing theme name." >&2
+  exit 1
+}
+
+THEME_PATH="${OMADORA_USER_THEMES_DIR}/$THEME_NAME"
+
+if [ ! -d "$THEME_PATH" ]; then
+  echo "Error: Theme '$THEME_NAME' not found." >&2
+  exit 1
+fi
+
+if [ ! -d "$THEME_PATH/.git" ]; then
+  echo "Error: Failed to update theme '$THEME_NAME'. Not a git repository." >&2
+  exit 1
+fi
+
+if ! git -C "$THEME_PATH" pull --ff-only; then
+  echo "Error: Failed to update theme '$THEME_NAME'. Please resolve any conflicts manually." >&2
+  exit 1
+fi

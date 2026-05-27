@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$OMADORA_ROOT/lib/workspace.sh"
+
+WINDOW_CLOSE_TIMEOUT=8
+POLL_INTERVAL=0.1
+
+# ----------------------------------------
+# Clear reboot-required state
+# ----------------------------------------
+
+omadora-state clear re*-required || true
+
+# ----------------------------------------
+# Gracefully close windows
+# ----------------------------------------
+
+workspace_windows_close_all
+
+# ----------------------------------------
+# Reset workspace state
+# ----------------------------------------
+
+workspace_reset
+
+# ----------------------------------------
+# Wait for windows to disappear
+# ----------------------------------------
+
+deadline=$((SECONDS + WINDOW_CLOSE_TIMEOUT))
+
+while ((SECONDS < deadline)); do
+  window_count="$(
+    hyprctl clients -j |
+      jq '[.[] | select(.mapped == true)] | length'
+  )"
+
+  ((window_count == 0)) && break
+
+  sleep "$POLL_INTERVAL"
+done
+
+# ----------------------------------------
+# Small compositor stabilization delay
+# ----------------------------------------
+
+sleep 1
+
+# ----------------------------------------
+# Reboot
+# ----------------------------------------
+
+systemctl reboot --no-wall

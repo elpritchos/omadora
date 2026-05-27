@@ -105,7 +105,7 @@ show_toggle_menu() {
   *Screensaver*) omadora-toggle-screensaver ;;
   *Nightlight*) omadora-toggle-nightlight ;;
   *Idle*) omadora-toggle-idle ;;
-  *Bar*) omadora-toggle-waybar ;;
+  *Bar*) omactl workspace toggle-waybar ;;
   *) show_trigger_menu ;;
   esac
 }
@@ -114,7 +114,7 @@ show_style_menu() {
   case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n󱄄  Screensaver\n  About") in
   *Theme*) show_theme_menu ;;
   *Font*) show_font_menu ;;
-  *Background*) omadora-theme-bg-next ;;
+  *Background*) omactl theme bg-next ;;
   *Hyprland*) open_in_editor ~/.config/hypr/looknfeel.conf ;;
   *Screensaver*) open_in_editor ~/.config/omadora/branding/screensaver.txt ;;
   *About*) open_in_editor ~/.config/omadora/branding/about.txt ;;
@@ -123,11 +123,11 @@ show_style_menu() {
 }
 
 show_theme_menu() {
-  theme=$(menu "Theme" "$(omadora-theme-list)" "" "$(omadora-theme-current)")
+  theme=$(menu "Theme" "$(omactl theme list)" "" "$(omactl theme current)")
   if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
     back_to show_style_menu
   else
-    omadora-theme-set "$theme"
+    omactl theme set "$theme"
   fi
 }
 
@@ -195,8 +195,16 @@ show_install_menu() {
 
 show_install_style_menu() {
   case $(menu "Install" "󰸌  Theme\n  Background") in
-  *Theme*) present_terminal omadora-theme-install ;;
-  *Background*) omadora-theme-bg-install ;;
+  *Theme*) present_terminal 'omactl theme add "$(gum input --placeholder="https://github.com/..." --header="Install user theme from repo URL:")"' ;;
+  *Background*)
+    theme="$(omactl theme current)"
+    if [ -z "$theme" ]; then
+      notify-send "No active theme" "Set a theme before adding backgrounds"
+    else
+      dir="$HOME/.config/omadora/backgrounds/$theme"
+      mkdir -p "$dir" && nautilus "$dir"
+    fi
+    ;;
   *) show_install_menu ;;
   esac
 }
@@ -206,16 +214,16 @@ show_remove_menu() {
   *Package*) terminal omadora-pkg-remove ;;
   *Web*) present_terminal omadora-webapp-remove ;;
   *TUI*) present_terminal omadora-tui-remove ;;
-  *Theme*) present_terminal omadora-theme-remove ;;
+  *Theme*) present_terminal 'omactl theme remove "$(omactl theme list-user | gum choose --header="Remove user theme:")"' ;;
   *) show_main_menu ;;
   esac
 }
 
 show_update_menu() {
-  case $(menu "Update" "  Omadora\n  Config\n󰸌  Themes\n  Process\n󰇅  Hardware\n  Password\n  Timezone") in
+  case $(menu "Update" "  Omadora\n  Config\n󰸌  Theme\n  Process\n󰇅  Hardware\n  Password\n  Timezone") in
   *Omadora*) present_terminal omadora-update ;;
   *Config*) show_update_config_menu ;;
-  *Themes*) present_terminal omadora-theme-update ;;
+  *Theme*) present_terminal 'omactl theme update "$(omactl theme list-user | gum choose --header="Update user theme:")"' ;;
   *Process*) show_update_process_menu ;;
   *Hardware*) show_update_hardware_menu ;;
   *Timezone*) present_terminal omadora-tz-select ;;
@@ -266,7 +274,7 @@ show_update_password_menu() {
 show_system_menu() {
   case $(menu "System" "  Lock\n󱄄  Screensaver\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
   *Lock*) loginctl lock-session ;;
-  *Screensaver*) omadora-launch-screensaver force ;;
+  *Screensaver*) systemctl --user start omadora-screensaver.service ;;
   *Stop*) omadora-cmd-stop ;;
   *Reboot*) omadora-cmd-reboot ;;
   *Shutdown*) omadora-cmd-shutdown ;;

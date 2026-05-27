@@ -1,0 +1,9 @@
+[Unit]
+Description=Omadora battery monitor service
+PartOf=omadora-session.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/share/omadora/libexec/omadora-battery-monitor
+StandardOutput=journal
+StandardError=journal

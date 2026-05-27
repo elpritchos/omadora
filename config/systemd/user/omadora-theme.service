@@ -1,0 +1,9 @@
+[Unit]
+Description=Omadora theme service
+PartOf=omadora-session.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/share/omadora/libexec/omadora-theme-components-reload
+StandardOutput=journal
+StandardError=journal

@@ -1,0 +1,11 @@
+[Unit]
+Description=Omadora screensaver
+PartOf=omadora-session.target
+Conflicts=omadora-hyprlock.service
+ConditionPathExists=%h/.local/share/omadora/libexec/omadora-screensaver-session
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/omadora/libexec/omadora-screensaver-session
+KillMode=control-group
+Restart=no

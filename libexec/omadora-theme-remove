@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$OMADORA_ROOT/lib/theme.sh"
+
+THEME_NAME="${1:-}"
+
+[[ -n "$THEME_NAME" ]] || {
+  echo "Error: Missing theme name." >&2
+  exit 1
+}
+
+THEME_PATH="${OMADORA_USER_THEMES_DIR}/$THEME_NAME"
+
+# Check if theme exists before attempting removal
+if [ ! -d "$THEME_PATH" ]; then
+  echo "Error: Theme '$THEME_NAME' not found."
+  return 1
+fi
+
+# Now remove the theme directory for THEME_NAME
+rm -rf "$THEME_PATH"

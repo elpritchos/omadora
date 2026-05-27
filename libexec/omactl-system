@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+
+# System: reboot/shutdown/lock/power-profile/timezone/status   install/remove packages
+
+set -euo pipefail
+
+# ----------------------------
+# Core actions
+# ----------------------------
+system_lock() {
+  loginctl lock-session
+}
+
+system_screensaver() {
+  systemctl --user start omadora-screensaver.service >/dev/null 2>&1 &
+}
+
+# ----------------------------
+# Usage
+# ----------------------------
+usage() {
+  cat >&2 <<'EOF'
+Usage:
+  omactl system <command>
+
+Commands:
+  lock                 Start the screen lock
+  screensaver          Start the screensaver
+EOF
+}
+
+# ----------------------------
+# Completion
+# ----------------------------
+__complete() {
+  local comp_words=("$@")
+  local cmd="${comp_words[0]:-}"
+  local cur="${comp_words[-1]:-}"
+
+  case "$cmd" in
+  lock | screensaver)
+    ;;
+
+  *)
+    compgen -W "lock screensaver" -- "$cmd"
+    ;;
+  esac
+}
+
+# ----------------------------
+# Dispatcher
+# ----------------------------
+case "${1:-}" in
+lock)
+  system_lock
+  ;;
+
+screensaver)
+  system_screensaver
+  ;;
+
+__complete)
+  shift
+  __complete "$@"
+  ;;
+
+*)
+  echo "omactl system: unknown or missing command" >&2
+  echo >&2
+  usage
+  exit 1
+  ;;
+esac

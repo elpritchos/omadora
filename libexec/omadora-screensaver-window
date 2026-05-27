@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+screensaver_in_focus() {
+  hyprctl activewindow -j | jq -e '.class == "org.omadora.screensaver"' >/dev/null 2>&1
+}
+
+cleanup() {
+  [[ -n "${tte_pid:-}" ]] && kill "$tte_pid" >/dev/null 2>&1 || true
+}
+
+trap cleanup EXIT SIGINT SIGTERM SIGHUP SIGQUIT
+
+printf '\033]11;rgb:00/00/00\007'
+
+while true; do
+  tte \
+    -i "$HOME/.config/omadora/branding/screensaver.txt" \
+    --frame-rate 90 \
+    --canvas-width 0 \
+    --canvas-height 0 \
+    --reuse-canvas \
+    --anchor-canvas c \
+    --anchor-text c \
+    --exclude-effects bubbles colorshift highlight spotlights sweep \
+    --random-effect \
+    --no-eol \
+    --no-restore-cursor &
+
+  tte_pid=$!
+
+  while kill -0 "$tte_pid" >/dev/null 2>&1; do
+    if read -r -n1 -t1; then
+      exit 0
+    fi
+
+    if ! screensaver_in_focus; then
+      exit 0
+    fi
+  done
+
+  wait "$tte_pid" || true
+
+  sleep 0.5
+done

@@ -1,0 +1,14 @@
+[Unit]
+Description=Omadora hyprlock service
+PartOf=omadora-session.target
+
+[Service]
+Type=simple
+
+ExecStartPre=/usr/bin/hyprctl switchxkblayout all 0
+ExecStartPre=/usr/bin/systemctl --user start omadora-1password-lock.service
+
+ExecStart=/usr/bin/hyprlock
+
+KillMode=process
+Restart=no

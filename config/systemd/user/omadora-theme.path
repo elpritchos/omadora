@@ -1,0 +1,9 @@
+[Unit]
+Description=Omadora theme path monitor
+PartOf=omadora-session.target
+
+[Path]
+PathChanged=%h/.config/omadora/current/theme.name
+
+[Install]
+WantedBy=omadora-session.target

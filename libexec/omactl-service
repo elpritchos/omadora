@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+# Service: reboot/shutdown/lock/power-profile/timezone/status
+
+set -euo pipefail
+
+ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$ROOT/lib/service.sh"
+
+# ----------------------------
+# Usage
+# ----------------------------
+usage() {
+  cat >&2 <<'EOF'
+Usage:
+  omactl service <command>
+
+Commands:
+EOF
+}
+
+# ----------------------------
+# Completion
+# ----------------------------
+__complete() {
+  local comp_words=("$@")
+  local cmd="${comp_words[0]:-}"
+  local cur="${comp_words[-1]:-}"
+
+  case "$cmd" in
+  *)
+    compgen -W "" -- "$cmd"
+    ;;
+  esac
+}
+
+# ----------------------------
+# Dispatcher
+# ----------------------------
+case "${1:-}" in
+__complete)
+  shift
+  __complete "$@"
+  ;;
+
+*)
+  echo "omactl service: unknown or missing command" >&2
+  echo >&2
+  usage
+  exit 1
+  ;;
+esac

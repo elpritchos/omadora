@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Reload theme components. This is used after applying a new theme to ensure all components are using the new theme.
+
+set -euo pipefail
+
+OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
+source "$OMADORA_ROOT/lib/service.sh"
+
+service_reload_waybar || true
+service_reload_mako || true
+service_reload_hyprland || true
+service_reload_btop || true
+service_reload_alacritty || true
+service_reload_ghostty || true
+service_reload_kitty || true

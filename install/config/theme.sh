@@ -7,7 +7,7 @@ sudo gtk-update-icon-cache /usr/share/icons/Yaru
 mkdir -p ~/.config/omadora/themes
 
 # Set initial theme
-omadora-theme-set "Rose Pine Darker"
+omactl theme set "Rose Pine Darker"
 
 # Set specific app links for current theme
 ln -snf ~/.config/omadora/current/theme/neovim.lua ~/.config/nvim/lua/plugins/theme.lua
