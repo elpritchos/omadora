@@ -5,10 +5,11 @@ PartOf=omadora-session.target
 [Service]
 Type=simple
 
-ExecStartPre=/usr/bin/hyprctl switchxkblayout all 0
-ExecStartPre=/usr/bin/systemctl --user start omadora-1password-lock.service
+ExecStartPre=-/usr/bin/hyprctl switchxkblayout all 0
+ExecStartPre=-/usr/bin/playerctl pause
+ExecStartPre=-/usr/bin/systemctl --user stop omadora-screensaver.service
+ExecStartPre=-/usr/bin/systemctl --user start omadora-1password-lock.service
 
+ExecCondition=/usr/bin/sh -c '! pgrep -x hyprlock >/dev/null'
 ExecStart=/usr/bin/hyprlock
-
-KillMode=process
 Restart=no
