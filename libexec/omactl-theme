@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-source "$OMADORA_ROOT/lib/theme.sh"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+# shellcheck source=../lib/theme.sh
+source "$DATA_DIR/lib/theme.sh"
 
 # ----------------------------
 # Usage
@@ -79,32 +80,32 @@ current)
 
 set)
   shift
-  exec "$OMADORA_ROOT/libexec/omadora-theme-set" "$@"
+  exec "$DATA_DIR/libexec/omadora-theme-set" "$@"
   ;;
 
 add)
   shift
-  exec "$OMADORA_ROOT/libexec/omadora-theme-install" "$@"
+  exec "$DATA_DIR/libexec/omadora-theme-install" "$@"
   ;;
 
 remove)
   shift
-  exec "$OMADORA_ROOT/libexec/omadora-theme-remove" "$@"
+  exec "$DATA_DIR/libexec/omadora-theme-remove" "$@"
   ;;
 
 update)
   shift
-  exec "$OMADORA_ROOT/libexec/omadora-theme-update" "$@"
+  exec "$DATA_DIR/libexec/omadora-theme-update" "$@"
   ;;
 
 bg-next)
   shift
-  exec "$OMADORA_ROOT/libexec/omadora-theme-bg-next" "$@"
+  exec "$DATA_DIR/libexec/omadora-theme-bg-next" "$@"
   ;;
 
 bg-add)
   shift
-  exec "$OMADORA_ROOT/libexec/omadora-theme-bg-install" "$@"
+  exec "$DATA_DIR/libexec/omadora-theme-bg-install" "$@"
   ;;
 
 __complete)

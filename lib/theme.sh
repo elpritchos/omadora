@@ -1,13 +1,13 @@
-OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-OMADORA_THEMES_DIR="${OMADORA_ROOT}/themes"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+OMADORA_THEMES_DIR="${DATA_DIR}/themes"
 
-OMADORA_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/omadora"
-OMADORA_USER_THEMES_DIR="${OMADORA_CONFIG_DIR}/themes"
-OMADORA_CURRENT_THEME_DIR="${OMADORA_CONFIG_DIR}/current/theme"
-OMADORA_NEXT_THEME_DIR="${OMADORA_CONFIG_DIR}/current/next-theme"
-OMADORA_THEME_NAME_FILE="${OMADORA_CONFIG_DIR}/current/theme.name"
-OMADORA_USER_BACKGROUNDS_DIR="${OMADORA_CONFIG_DIR}/backgrounds"
-OMADORA_CURRENT_BACKGROUND_LINK="${OMADORA_CONFIG_DIR}/current/background"
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/omadora"
+OMADORA_USER_THEMES_DIR="${CONFIG_DIR}/themes"
+OMADORA_CURRENT_THEME_DIR="${CONFIG_DIR}/current/theme"
+OMADORA_NEXT_THEME_DIR="${CONFIG_DIR}/current/next-theme"
+OMADORA_THEME_NAME_FILE="${CONFIG_DIR}/current/theme.name"
+OMADORA_USER_BACKGROUNDS_DIR="${CONFIG_DIR}/backgrounds"
+OMADORA_CURRENT_BACKGROUND_LINK="${CONFIG_DIR}/current/background"
 
 theme_name_normalize() {
   echo "$1" |
@@ -74,7 +74,7 @@ theme_set_templates() {
     shopt -s nullglob
 
     # Process user templates first, then built-in templates (user overrides built-in)
-    for tpl in "${OMADORA_CONFIG_DIR}"/themed/*.tpl "${OMADORA_ROOT}"/default/themed/*.tpl; do
+    for tpl in "${CONFIG_DIR}"/themed/*.tpl "${DATA_DIR}"/default/themed/*.tpl; do
       filename=$(basename "$tpl" .tpl)
       output_path="$OMADORA_NEXT_THEME_DIR/$filename"
 

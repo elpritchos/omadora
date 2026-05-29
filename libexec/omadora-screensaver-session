@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-STATE_DIR="$HOME/.local/state/omadora/toggles"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/omadora"
 
 # Exit early if disabled
-if [[ -f "$STATE_DIR/screensaver-off" ]] && [[ "${1:-}" != force ]]; then
+if [[ -f "$STATE_DIR/toggles/screensaver-off" ]] && [[ "${1:-}" != force ]]; then
   exit 0
 fi
 

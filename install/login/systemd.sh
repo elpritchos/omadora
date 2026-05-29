@@ -14,6 +14,7 @@ systemctl --user enable omadora-session.target
 # Enable omadora-session services
 systemctl --user enable \
   omadora-battery.timer \
+  omadora-update-check.timer \
   omadora-fcitx5.service \
   omadora-mako.service \
   omadora-theme.path

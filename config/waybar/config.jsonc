@@ -10,7 +10,6 @@
   ],
   "modules-center": [
     "clock",
-    "custom/update",
     "custom/screenrecording-indicator"
   ],
   "modules-right": [
@@ -19,7 +18,8 @@
     "network",
     "pulseaudio",
     "cpu",
-    "battery"
+    "battery",
+    "custom/updates"
   ],
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -51,13 +51,20 @@
     "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "Omadora Menu\n\nSuper + Alt + Space"
   },
-  "custom/update": {
-    "format": "",
-    "exec": "timeout 300 omadora-update-available",
+  "custom/updates": {
+    "exec": "~/.local/share/omadora/libexec/omadora-waybar-updates",
+    "return-type": "json",
+    "interval": 10,
     "on-click": "omadora-launch-floating-terminal-with-presentation omadora-update",
-    "tooltip-format": "System update available",
-    "signal": 7,
-    "interval": 21600
+    "format": "{icon} {text}",
+    "format-icons": {
+      "updated": "󰏗",
+      "updates": "󰏕",
+      "security": "󰏭",
+      "restart-required": "󰜉",
+      "unknown": "󰞋"
+    },
+    "tooltip": true
   },
   "cpu": {
     "interval": 5,

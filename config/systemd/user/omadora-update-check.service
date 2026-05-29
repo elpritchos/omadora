@@ -1,0 +1,9 @@
+[Unit]
+Description=Omadora update check
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/share/omadora/libexec/omadora-update-check
+
+Nice=10
+IOSchedulingClass=best-effort

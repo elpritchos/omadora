@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-source "$OMADORA_ROOT/lib/workspace.sh"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+# shellcheck source=../lib/workspace.sh
+source "$DATA_DIR/lib/workspace.sh"
 
 WINDOW_CLOSE_TIMEOUT=8
 POLL_INTERVAL=0.1

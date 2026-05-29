@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/omadora/update/state.json"
+
+if ! jq empty "$STATE_FILE" >/dev/null 2>&1; then
+  exit 0
+fi
+
+jq -c '
+def dnf_section:
+  [
+    "DNF",
+    (.updates.dnf.advisories.security | tostring + " security"),
+    (.updates.dnf.advisories.bugfix | tostring + " bugfix"),
+    (.updates.dnf.advisories.enhancement | tostring + " enhancement"),
+    (.updates.dnf.advisories.other | tostring + " other"),
+    ""
+  ];
+
+def other_section:
+  [
+    "Other",
+    (.updates.flatpak.count | tostring + " flatpak"),
+    (.updates.cargo.count | tostring + " cargo"),
+    (.updates.firmware.count | tostring + " firmware"),
+    ""
+  ];
+
+def full_summary:
+  (dnf_section + other_section)
+  | join("\n");
+
+if .restart_required then
+  {
+    text: (.total_updates | tostring),
+    alt: "restart-required",
+    tooltip: "Restart required\n\n" + full_summary,
+    class: ["restart-required"]
+  }
+
+elif .total_updates > 0 then
+  {
+    text: (.total_updates | tostring),
+
+    alt:
+      (if .updates.dnf.advisories.security > 0
+       then "security"
+       else "updates"
+       end),
+
+    tooltip:
+      (.total_updates | tostring)
+      + " updates available\n\n"
+      + full_summary,
+
+    class:
+      (if .updates.dnf.advisories.security > 0
+       then ["updates", "security"]
+       else ["updates"]
+       end)
+  }
+
+else
+  {
+    text: "",
+    alt: "updated",
+    tooltip: "System fully updated",
+    class: ["updated"]
+  }
+
+end
+' "$STATE_FILE"

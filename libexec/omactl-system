@@ -35,7 +35,6 @@ EOF
 __complete() {
   local comp_words=("$@")
   local cmd="${comp_words[0]:-}"
-  local cur="${comp_words[-1]:-}"
 
   case "$cmd" in
   lock | screensaver)

@@ -4,8 +4,9 @@
 
 set -euo pipefail
 
-ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-source "$ROOT/lib/service.sh"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+# shellcheck source=../lib/service.sh
+source "$DATA_DIR/lib/service.sh"
 
 # ----------------------------
 # Usage
@@ -25,7 +26,6 @@ EOF
 __complete() {
   local comp_words=("$@")
   local cmd="${comp_words[0]:-}"
-  local cur="${comp_words[-1]:-}"
 
   case "$cmd" in
   *)

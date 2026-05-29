@@ -4,8 +4,9 @@
 
 set -euo pipefail
 
-OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-source "$OMADORA_ROOT/lib/service.sh"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+# shellcheck source=../lib/service.sh
+source "$DATA_DIR/lib/service.sh"
 
 service_reload_waybar || true
 service_reload_mako || true

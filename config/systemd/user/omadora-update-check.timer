@@ -1,0 +1,11 @@
+[Unit]
+Description=Omadora update check timer
+
+[Timer]
+OnBootSec=15m
+OnUnitActiveSec=2h
+RandomizedDelaySec=30m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

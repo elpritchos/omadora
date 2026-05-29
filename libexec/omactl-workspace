@@ -4,8 +4,9 @@
 
 set -euo pipefail
 
-ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-source "$ROOT/lib/workspace.sh"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+# shellcheck source=../lib/workspace.sh
+source "$DATA_DIR/lib/workspace.sh"
 
 # ----------------------------
 # Usage
@@ -26,7 +27,6 @@ EOF
 __complete() {
   local comp_words=("$@")
   local cmd="${comp_words[0]:-}"
-  local cur="${comp_words[-1]:-}"
 
   case "$cmd" in
   toggle-waybar)

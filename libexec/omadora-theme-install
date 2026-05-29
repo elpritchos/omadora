@@ -2,30 +2,31 @@
 
 set -euo pipefail
 
-OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-source "$OMADORA_ROOT/lib/theme.sh"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+# shellcheck source=../lib/theme.sh
+source "$DATA_DIR/lib/theme.sh"
 
-REPO_URL="${1:-}"
+url="${1:-}"
 
-[[ -n "$REPO_URL" ]] || {
+[[ -n "$url" ]] || {
   echo "Error: Missing theme repo URL." >&2
   echo -e "See \e[32mhttps://manuals.omamix.org/2/the-omarchy-manual/90/extra-themes\e[0m for themes." >&2
   exit 1
 }
 
-THEME_NAME=$(basename "$REPO_URL" .git | sed -E 's/^(omarchy|omadora)-//; s/-theme$//')
-THEME_PATH="$OMADORA_USER_THEMES_DIR/$THEME_NAME"
+theme_name=$(basename "$url" .git | sed -E 's/^(omarchy|omadora)-//; s/-theme$//')
+theme_path="$OMADORA_USER_THEMES_DIR/$theme_name"
 
 # Remove existing theme if present
-if [ -d "$THEME_PATH" ]; then
-  rm -rf "$THEME_PATH"
+if [ -d "$theme_path" ]; then
+  rm -rf "$theme_path"
 fi
 
 # Clone the repo directly to ~/.config/omadora/themes
-if ! git clone "$REPO_URL" "$THEME_PATH"; then
+if ! git clone "$url" "$theme_path"; then
   echo "Error: Failed to clone theme repo." >&2
   exit 1
 fi
 
 # Apply the new theme
-"$OMADORA_ROOT/libexec/omadora-theme-set" "$THEME_NAME"
+"$DATA_DIR/libexec/omadora-theme-set" "$theme_name"

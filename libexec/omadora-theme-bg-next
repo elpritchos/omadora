@@ -2,46 +2,47 @@
 
 set -euo pipefail
 
-OMADORA_ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-source "$OMADORA_ROOT/lib/theme.sh"
+DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
+# shellcheck source=../lib/theme.sh
+source "$DATA_DIR/lib/theme.sh"
 
-THEME_NAME=$(theme_current) || exit 1
+current_theme_name=$(theme_current) || exit 1
 
-mapfile -d '' -t BACKGROUNDS < <(find -L "${OMADORA_USER_BACKGROUNDS_DIR}/${THEME_NAME}/" "${OMADORA_CURRENT_THEME_DIR}/backgrounds" -maxdepth 1 -type f -print0 2>/dev/null | sort -z)
-TOTAL=${#BACKGROUNDS[@]}
+mapfile -d '' -t backgrounds < <(find -L "${OMADORA_USER_BACKGROUNDS_DIR}/${current_theme_name}/" "${OMADORA_CURRENT_THEME_DIR}/backgrounds" -maxdepth 1 -type f -print0 2>/dev/null | sort -z)
+total=${#backgrounds[@]}
 
-if [[ $TOTAL -eq 0 ]]; then
+if [[ $total -eq 0 ]]; then
   rm -f "$OMADORA_CURRENT_BACKGROUND_LINK"
   systemctl --user restart hyprpaper.service
 else
   # Get current background from symlink
   if [[ -L "$OMADORA_CURRENT_BACKGROUND_LINK" ]]; then
-    CURRENT_BACKGROUND=$(readlink "$OMADORA_CURRENT_BACKGROUND_LINK")
+    current_background=$(readlink "$OMADORA_CURRENT_BACKGROUND_LINK")
   else
     # Default to first background if no symlink exists
-    CURRENT_BACKGROUND=""
+    current_background=""
   fi
 
   # Find current background index
-  INDEX=-1
-  for i in "${!BACKGROUNDS[@]}"; do
-    if [[ "${BACKGROUNDS[$i]}" == "$CURRENT_BACKGROUND" ]]; then
-      INDEX=$i
+  index=-1
+  for i in "${!backgrounds[@]}"; do
+    if [[ "${backgrounds[$i]}" == "$current_background" ]]; then
+      index=$i
       break
     fi
   done
 
   # Get next background (wrap around)
-  if [[ $INDEX -eq -1 ]]; then
+  if [[ $index -eq -1 ]]; then
     # Use the first background when no match was found
-    NEW_BACKGROUND="${BACKGROUNDS[0]}"
+    new_background="${backgrounds[0]}"
   else
-    NEXT_INDEX=$(((INDEX + 1) % TOTAL))
-    NEW_BACKGROUND="${BACKGROUNDS[$NEXT_INDEX]}"
+    next_index=$(((index + 1) % total))
+    new_background="${backgrounds[$next_index]}"
   fi
 
   # Set new background symlink
-  ln -nsf "$NEW_BACKGROUND" "$OMADORA_CURRENT_BACKGROUND_LINK"
+  ln -nsf "$new_background" "$OMADORA_CURRENT_BACKGROUND_LINK"
 
   # Update the background
   hyprctl hyprpaper wallpaper ,"$OMADORA_CURRENT_BACKGROUND_LINK"
