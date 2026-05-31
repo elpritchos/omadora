@@ -1,31 +1,26 @@
 #!/usr/bin/env bash
-
-# System: reboot/shutdown/lock/power-profile/timezone/status   install/remove packages
-
 set -euo pipefail
 
-# ----------------------------
-# Core actions
-# ----------------------------
-system_lock() {
-  loginctl lock-session
-}
+readonly OMADORA_LOG_TAG="omadora-system"
 
-system_screensaver() {
-  systemctl --user start omadora-screensaver.service >/dev/null 2>&1 &
-}
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# TODO: Remove this comment
+# System: reboot/shutdown/lock/power-profile/timezone/status   install/remove packages
 
 # ----------------------------
 # Usage
 # ----------------------------
 usage() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage:
   omactl system <command>
 
 Commands:
   lock                 Start the screen lock
   screensaver          Start the screensaver
+
 EOF
 }
 
@@ -49,13 +44,19 @@ __complete() {
 # ----------------------------
 # Dispatcher
 # ----------------------------
-case "${1:-}" in
+cmd="${1:-}"
+
+case "$cmd" in
+"" | -h | --help | help)
+  usage
+  ;;
+
 lock)
-  system_lock
+  loginctl lock-session
   ;;
 
 screensaver)
-  system_screensaver
+  systemctl --user start omadora-screensaver.service >/dev/null 2>&1 &
   ;;
 
 __complete)
@@ -64,9 +65,7 @@ __complete)
   ;;
 
 *)
-  echo "omactl system: unknown or missing command" >&2
-  echo >&2
-  usage
-  exit 1
+  usage >&2
+  fatal "unknown command: $cmd"
   ;;
 esac

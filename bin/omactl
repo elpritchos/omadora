@@ -1,35 +1,49 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-ROOT="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-LIBEXEC="$ROOT/libexec"
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
-die() {
-  printf 'omactl: %s\n' "$*" >&2
-  exit 1
+# ----------------------------
+# Usage
+# ----------------------------
+usage() {
+  local f
+
+  cat <<'EOF'
+Usage:
+  omactl <command>
+
+Commands:
+EOF
+
+  for f in "$OMADORA_LIBEXEC_DIR"/omactl-*; do
+    [[ -x "$f" ]] || continue
+    printf '  %s\n' "${f##*/omactl-}"
+  done
+
+  printf '\n'
 }
 
+# ----------------------------
+# Dispatcher
+# ----------------------------
 cmd="${1:-}"
 
 case "$cmd" in
 "" | -h | --help | help)
-  echo "usage: omactl <command> [args]"
-  echo
-  echo "commands:"
-
-  for f in "$LIBEXEC"/omactl-*; do
-    [[ -x "$f" ]] || continue
-    echo "  ${f##*/omactl-}"
-  done
+  usage
   ;;
 
 *)
-  shift || true
+  shift
 
-  subcommand="$LIBEXEC/omactl-$cmd"
+  readonly subcommand="$OMADORA_LIBEXEC_DIR/omactl-$cmd"
 
-  [[ -x "$subcommand" ]] || die "unknown command: $cmd"
+  if [[ ! -x "$subcommand" ]]; then
+    usage >&2
+    fatal "unknown command: $cmd"
+  fi
 
   exec "$subcommand" "$@"
   ;;

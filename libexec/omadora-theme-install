@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
-# shellcheck source=../lib/theme.sh
-source "$DATA_DIR/lib/theme.sh"
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
 
 url="${1:-}"
 
@@ -29,4 +30,4 @@ if ! git clone "$url" "$theme_path"; then
 fi
 
 # Apply the new theme
-"$DATA_DIR/libexec/omadora-theme-set" "$theme_name"
+"$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$theme_name"

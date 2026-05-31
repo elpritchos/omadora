@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
-# shellcheck source=../lib/theme.sh
-source "$DATA_DIR/lib/theme.sh"
+readonly OMADORA_LOG_TAG="omadora-theme"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
+
+# Theme
 
 # ----------------------------
 # Usage
 # ----------------------------
 usage() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage:
   omactl theme <command>
 
@@ -24,6 +29,7 @@ Commands:
   update <name>        Update an installed theme
   bg-next              Cycle to next background
   bg-add <image-path>  Add a background image
+
 EOF
 }
 
@@ -32,8 +38,13 @@ EOF
 # ----------------------------
 __complete() {
   local comp_words=("$@")
+
   local cmd="${comp_words[0]:-}"
-  local cur="${comp_words[-1]:-}"
+  local cur=""
+
+  if ((${#comp_words[@]})); then
+    cur="${comp_words[${#comp_words[@]} - 1]}"
+  fi
 
   case "$cmd" in
   list | list-user | current | add | bg-next)
@@ -65,7 +76,13 @@ __complete() {
 # ----------------------------
 # Dispatcher
 # ----------------------------
-case "${1:-}" in
+cmd="${1:-}"
+
+case "$cmd" in
+"" | -h | --help | help)
+  usage
+  ;;
+
 list)
   theme_list_all
   ;;
@@ -80,43 +97,41 @@ current)
 
 set)
   shift
-  exec "$DATA_DIR/libexec/omadora-theme-set" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$@"
   ;;
 
 add)
   shift
-  exec "$DATA_DIR/libexec/omadora-theme-install" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-install" "$@"
   ;;
 
 remove)
   shift
-  exec "$DATA_DIR/libexec/omadora-theme-remove" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-remove" "$@"
   ;;
 
 update)
   shift
-  exec "$DATA_DIR/libexec/omadora-theme-update" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-update" "$@"
   ;;
 
 bg-next)
   shift
-  exec "$DATA_DIR/libexec/omadora-theme-bg-next" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" "$@"
   ;;
 
 bg-add)
   shift
-  exec "$DATA_DIR/libexec/omadora-theme-bg-install" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-install" "$@"
   ;;
 
 __complete)
-  shift || true
+  shift
   __complete "$@"
   ;;
 
 *)
-  echo "omactl theme: unknown or missing command" >&2
-  echo >&2
-  usage
-  exit 1
+  usage >&2
+  fatal "unknown command: $cmd"
   ;;
 esac

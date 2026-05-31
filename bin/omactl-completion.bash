@@ -1,13 +1,16 @@
+OMADORA_ROOT="$(
+  cd "$(dirname "${BASH_SOURCE[0]}")/.." &&
+    pwd
+)"
+OMADORA_LIBEXEC_DIR="$OMADORA_ROOT/libexec"
+
 _omactl_completion() {
-  local cur cmd root libexec
+  local cur cmd
 
   cur="${COMP_WORDS[COMP_CWORD]}"
   cmd="${COMP_WORDS[1]:-}"
 
-  root="${OMADORA_PATH:-$HOME/.local/share/omadora}"
-  libexec="$root/libexec"
-
-  [[ -d "$libexec" ]] || return
+  [[ -d "$OMADORA_LIBEXEC_DIR" ]] || return
 
   # ----------------------------------------
   # Top-level completion
@@ -17,7 +20,7 @@ _omactl_completion() {
     local -a subcmds=()
     local f
 
-    for f in "$libexec"/omactl-*; do
+    for f in "$OMADORA_LIBEXEC_DIR"/omactl-*; do
       [[ -x "$f" ]] || continue
       subcmds+=("${f##*/omactl-}")
     done
@@ -33,7 +36,7 @@ _omactl_completion() {
   # Delegate to subcommand
   # ----------------------------------------
 
-  local subcommand="$libexec/omactl-$cmd"
+  local subcommand="$OMADORA_LIBEXEC_DIR/omactl-$cmd"
 
   if [[ -x "$subcommand" ]]; then
     mapfile -t COMPREPLY < <(

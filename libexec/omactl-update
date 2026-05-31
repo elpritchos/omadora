@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
-
-# Update: system-wide update orchestration
-
 set -euo pipefail
 
+readonly OMADORA_LOG_TAG="omadora-update"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # ----------------------------
-# Core actions
+# Usage
 # ----------------------------
-test() {
-  echo "test"
+usage() {
+  cat <<'EOF'
+Usage:
+  omactl update <command>
+
+Commands:
+
+EOF
 }
 
 # ----------------------------
@@ -19,11 +27,8 @@ __complete() {
   local cmd="${comp_words[0]:-}"
 
   case "$cmd" in
-  test)
-    ;;
-
   *)
-    compgen -W "test" -- "$cmd"
+    compgen -W "" -- "$cmd"
     ;;
   esac
 }
@@ -31,9 +36,11 @@ __complete() {
 # ----------------------------
 # Dispatcher
 # ----------------------------
-case "${1:-}" in
-test)
-  test
+cmd="${1:-}"
+
+case "$cmd" in
+"" | -h | --help | help)
+  usage
   ;;
 
 __complete)
@@ -42,7 +49,7 @@ __complete)
   ;;
 
 *)
-  echo "usage: update test" >&2
-  exit 1
+  usage >&2
+  fatal "unknown command: $cmd"
   ;;
 esac

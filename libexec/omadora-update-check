@@ -1,23 +1,21 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -Eeuo pipefail
-
-STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/omadora/update"
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/omadora/update"
-RUNTIME_DIR="${XDG_RUNTIME_DIR:?}/omadora/update"
-
-STATE_FILE="$STATE_DIR/state.json"
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 mkdir -p \
-  "$STATE_DIR" \
-  "$CACHE_DIR" \
-  "$RUNTIME_DIR"
+  "$OMADORA_STATE_HOME" \
+  "$OMADORA_CACHE_HOME" \
+  "$OMADORA_RUNTIME_DIR"
+
+STATE_FILE="$OMADORA_STATE_HOME/state.json"
 
 # -----------------------------------------------------------------------------
 # Locking
 # -----------------------------------------------------------------------------
 
-exec 9>"$RUNTIME_DIR/update.lock"
+exec 9>"$OMADORA_RUNTIME_DIR/update.lock"
 
 # Exit silently if another check/update is already running
 flock -n 9 || exit 0
@@ -64,14 +62,25 @@ restart_required=false
 # DNF Updates
 # -----------------------------------------------------------------------------
 
-DNF_JSON="$CACHE_DIR/dnf-update-advisories.json"
+DNF_UPGRADES_LIST="$OMADORA_CACHE_HOME/dnf-upgrades.txt"
 
-if dnf5 advisory info --updates --json \
-  >"$DNF_JSON" 2>/dev/null; then
+if dnf5 repoquery \
+  --upgrades \
+  >"$DNF_UPGRADES_LIST" 2>/dev/null; then
+
+  dnf_package_total="$(
+    wc -l <"$DNF_UPGRADES_LIST"
+  )"
+fi
+
+DNF_ADVISORIES_JSON="$OMADORA_CACHE_HOME/dnf-advisories.json"
+
+if dnf5 advisory info --json \
+  >"$DNF_ADVISORIES_JSON" 2>/dev/null; then
 
   # Total advisories
   dnf_advisory_total="$(
-    jq 'keys | length' "$DNF_JSON"
+    jq 'keys | length' "$DNF_ADVISORIES_JSON"
   )"
 
   # Security advisories
@@ -81,7 +90,7 @@ if dnf5 advisory info --updates --json \
         .[]
         | select(.Type == "security")
       ] | length
-    ' "$DNF_JSON"
+    ' "$DNF_ADVISORIES_JSON"
   )"
 
   # Bugfix advisories
@@ -91,7 +100,7 @@ if dnf5 advisory info --updates --json \
         .[]
         | select(.Type == "bugfix")
       ] | length
-    ' "$DNF_JSON"
+    ' "$DNF_ADVISORIES_JSON"
   )"
 
   # Enhancement advisories
@@ -101,9 +110,10 @@ if dnf5 advisory info --updates --json \
         .[]
         | select(.Type == "enhancement")
       ] | length
-    ' "$DNF_JSON"
+    ' "$DNF_ADVISORIES_JSON"
   )"
 
+  # Other advisories
   dnf_other_total="$(
     jq '
       [
@@ -115,21 +125,7 @@ if dnf5 advisory info --updates --json \
           )
       ]
       | length
-    ' "$DNF_JSON"
-  )"
-
-  # Meaningful package update count
-  dnf_package_total="$(
-    jq '
-      [
-        .[]
-        | .Title
-        | capture("^(?<name>.+)-[0-9]")
-        | .name
-      ]
-      | unique
-      | length
-    ' "$DNF_JSON"
+    ' "$DNF_ADVISORIES_JSON"
   )"
 fi
 
@@ -147,31 +143,31 @@ if command -v flatpak >/dev/null 2>&1; then
   )"
 fi
 
-## -----------------------------------------------------------------------------
-## Firmware Updates
-## -----------------------------------------------------------------------------
-#
-#FWUPD_JSON="$CACHE_DIR/fwupd.json"
-#
-#if command -v fwupdmgr >/dev/null 2>&1; then
-#  if fwupdmgr get-updates --json \
-#    > "$FWUPD_JSON" 2>/dev/null; then
-#
-#    firmware_total="$(
-#      jq '
-#        [
-#          .Devices[]?
-#          | select(
-#              .Updates != null and
-#              (.Updates | length > 0)
-#            )
-#        ]
-#        | length
-#      ' "$FWUPD_JSON"
-#    )"
-#  fi
-#fi
-#
+# -----------------------------------------------------------------------------
+# Firmware Updates
+# -----------------------------------------------------------------------------
+
+FWUPD_JSON="$OMADORA_CACHE_HOME/fwupd.json"
+
+if command -v fwupdmgr >/dev/null 2>&1; then
+  if fwupdmgr get-updates --json \
+    >"$FWUPD_JSON" 2>/dev/null; then
+
+    firmware_total="$(
+      jq '
+        [
+          .Devices[]?
+          | select(
+              .Updates != null and
+              (.Updates | length > 0)
+            )
+        ]
+        | length
+      ' "$FWUPD_JSON"
+    )"
+  fi
+fi
+
 ## -----------------------------------------------------------------------------
 ## Cargo Updates
 ## -----------------------------------------------------------------------------
@@ -214,17 +210,17 @@ total_updates=$((\
 
 jq -n \
   --argjson timestamp "$now" \
+  --argjson total_updates "$total_updates" \
+  --argjson restart_required "$restart_required" \
+  --argjson dnf_package_total "$dnf_package_total" \
+  --argjson flatpak_total "$flatpak_total" \
+  --argjson cargo_total "$cargo_total" \
+  --argjson firmware_total "$firmware_total" \
   --argjson dnf_advisory_total "$dnf_advisory_total" \
   --argjson dnf_security_total "$dnf_security_total" \
   --argjson dnf_bugfix_total "$dnf_bugfix_total" \
   --argjson dnf_enhancement_total "$dnf_enhancement_total" \
   --argjson dnf_other_total "$dnf_other_total" \
-  --argjson dnf_package_total "$dnf_package_total" \
-  --argjson flatpak_total "$flatpak_total" \
-  --argjson firmware_total "$firmware_total" \
-  --argjson cargo_total "$cargo_total" \
-  --argjson total_updates "$total_updates" \
-  --argjson restart_required "$restart_required" \
   '
 {
   schema_version: 1,
@@ -232,35 +228,39 @@ jq -n \
   timestamp: $timestamp,
 
   updates: {
-    dnf: {
-      advisories: {
-        total: $dnf_advisory_total,
-        security: $dnf_security_total,
-        bugfix: $dnf_bugfix_total,
-        enhancement: $dnf_enhancement_total,
-        other: $dnf_other_total
-      },
 
-      packages: {
-        total: $dnf_package_total
-      }
+    total: $total_updates,
+
+    dnf: {
+      count: $dnf_package_total
     },
 
     flatpak: {
       count: $flatpak_total
     },
 
-    firmware: {
-      count: $firmware_total
-    },
-
     cargo: {
       count: $cargo_total
+    },
+
+    firmware: {
+      count: $firmware_total
     }
   },
 
-  total_updates: $total_updates,
+  advisories: {
+    dnf: {
+      total: $dnf_advisory_total,
+      security: $dnf_security_total,
+      bugfix: $dnf_bugfix_total,
+      enhancement: $dnf_enhancement_total,
+      other: $dnf_other_total
+    },
+  },
 
   restart_required: $restart_required
+
 }
 ' | write_json_atomic "$STATE_FILE"
+
+cat <"$STATE_FILE"

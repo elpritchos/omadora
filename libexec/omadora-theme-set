@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
-# shellcheck source=../lib/theme.sh
-source "$DATA_DIR/lib/theme.sh"
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
 
 theme_name="$(theme_name_normalize "${1:-}")"
 
@@ -36,7 +37,7 @@ mv "$OMADORA_NEXT_THEME_DIR" "$OMADORA_CURRENT_THEME_DIR"
 echo "$theme_name" >"${OMADORA_THEME_NAME_FILE}"
 
 # Change background with theme
-"$DATA_DIR/libexec/omadora-theme-bg-next"
+"$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next"
 
 # Change app-specific themes
 theme_set_gnome

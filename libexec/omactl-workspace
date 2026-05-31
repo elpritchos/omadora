@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
-
-# Workspace: workspace/window behavior
-
 set -euo pipefail
 
-DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
-# shellcheck source=../lib/workspace.sh
-source "$DATA_DIR/lib/workspace.sh"
+readonly OMADORA_LOG_TAG="omadora-workspace"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/workspace.sh
+source "$OMADORA_LIB_DIR/workspace.sh"
+
+# Workspace
 
 # ----------------------------
 # Usage
 # ----------------------------
 usage() {
-  cat >&2 <<'EOF'
+  cat <<'EOF'
 Usage:
   omactl workspace <command>
 
 Commands:
   toggle-waybar        Toggle Waybar visibility
+
 EOF
 }
 
@@ -41,7 +45,13 @@ __complete() {
 # ----------------------------
 # Dispatcher
 # ----------------------------
-case "${1:-}" in
+cmd="${1:-}"
+
+case "$cmd" in
+"" | -h | --help | help)
+  usage
+  ;;
+
 toggle-waybar) # TODO: Change to toggle submenu
   workspace_toggle_waybar
   ;;
@@ -52,9 +62,7 @@ __complete)
   ;;
 
 *)
-  echo "omactl workspace: unknown or missing command" >&2
-  echo >&2
-  usage
-  exit 1
+  usage >&2
+  fatal "unknown command: $cmd"
   ;;
 esac

@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
-# shellcheck source=../lib/theme.sh
-source "$DATA_DIR/lib/theme.sh"
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
 
 image_path="${1:-}"
 current_theme_name=$(theme_current) || exit 1

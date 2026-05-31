@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/omadora"
-# shellcheck source=../lib/workspace.sh
-source "$DATA_DIR/lib/workspace.sh"
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/workspace.sh
+source "$OMADORA_LIB_DIR/workspace.sh"
 
 WINDOW_CLOSE_TIMEOUT=8
 POLL_INTERVAL=0.1

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-app"
+readonly OMADORA_LOG_TAG="omadora-doctor"
 
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
@@ -12,9 +12,12 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 usage() {
   cat <<'EOF'
 Usage:
-  omactl app <command>
+  omactl doctor <command>
 
 Commands:
+  boot
+  recent
+  follow
 
 EOF
 }
@@ -24,11 +27,20 @@ EOF
 # ----------------------------
 __complete() {
   local comp_words=("$@")
+
   local cmd="${comp_words[0]:-}"
+  #local cur=""
+
+  #if ((${#comp_words[@]})); then
+  #  cur="${comp_words[${#comp_words[@]} - 1]}"
+  #fi
 
   case "$cmd" in
+  boot | recent | follow)
+    ;;
+
   *)
-    compgen -W "" -- "$cmd"
+    compgen -W "boot recent follow" -- "$cmd"
     ;;
   esac
 }
@@ -41,6 +53,18 @@ cmd="${1:-}"
 case "$cmd" in
 "" | -h | --help | help)
   usage
+  ;;
+
+boot)
+  journalctl --user -p err -b
+  ;;
+
+recent)
+  journalctl --user -p err -n 50
+  ;;
+
+follow)
+  journalctl --user -fu omadora-*
   ;;
 
 __complete)

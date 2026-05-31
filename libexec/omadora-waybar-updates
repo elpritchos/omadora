@@ -1,62 +1,65 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -Eeuo pipefail
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
-STATE_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/omadora/update/state.json"
+STATE_FILE="${OMADORA_STATE_HOME}/update/state.json"
 
 if ! jq empty "$STATE_FILE" >/dev/null 2>&1; then
   exit 0
 fi
 
 jq -c '
-def dnf_section:
+def update_section:
   [
-    "DNF",
-    (.updates.dnf.advisories.security | tostring + " security"),
-    (.updates.dnf.advisories.bugfix | tostring + " bugfix"),
-    (.updates.dnf.advisories.enhancement | tostring + " enhancement"),
-    (.updates.dnf.advisories.other | tostring + " other"),
-    ""
-  ];
-
-def other_section:
-  [
-    "Other",
+    "Updates:",
+    (.updates.dnf.count | tostring + " dnf"),
     (.updates.flatpak.count | tostring + " flatpak"),
     (.updates.cargo.count | tostring + " cargo"),
     (.updates.firmware.count | tostring + " firmware"),
     ""
   ];
 
+def advisory_section:
+  [
+    "DNF Advisories:",
+    (.advisories.dnf.security | tostring + " security"),
+    (.advisories.dnf.bugfix | tostring + " bugfix"),
+    (.advisories.dnf.enhancement | tostring + " enhancement"),
+    (.advisories.dnf.other | tostring + " other"),
+    ""
+  ];
+
 def full_summary:
-  (dnf_section + other_section)
+  (update_section + advisory_section)
   | join("\n");
 
 if .restart_required then
   {
-    text: (.total_updates | tostring),
+    text: (.updates.total | tostring),
     alt: "restart-required",
     tooltip: "Restart required\n\n" + full_summary,
     class: ["restart-required"]
   }
 
-elif .total_updates > 0 then
+elif .updates.total > 0 then
   {
-    text: (.total_updates | tostring),
+    text: (.updates.total | tostring),
 
     alt:
-      (if .updates.dnf.advisories.security > 0
+      (if .advisories.dnf.security > 0
        then "security"
        else "updates"
        end),
 
     tooltip:
-      (.total_updates | tostring)
-      + " updates available\n\n"
+      (.updates.total | tostring)
+      + " Updates Available\n\n"
       + full_summary,
 
     class:
-      (if .updates.dnf.advisories.security > 0
+      (if .advisories.dnf.security > 0
        then ["updates", "security"]
        else ["updates"]
        end)

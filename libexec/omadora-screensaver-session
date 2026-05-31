@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
-STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/omadora"
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # Exit early if disabled
-if [[ -f "$STATE_DIR/toggles/screensaver-off" ]] && [[ "${1:-}" != force ]]; then
+if [[ -f "$OMADORA_STATE_HOME/toggles/screensaver-off" ]] && [[ "${1:-}" != force ]]; then
   exit 0
 fi
 

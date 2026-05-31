@@ -1,5 +1,6 @@
 [Unit]
 Description=Omadora update check
+PartOf=omadora-session.target
 
 [Service]
 Type=oneshot
