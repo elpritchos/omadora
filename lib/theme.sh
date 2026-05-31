@@ -1,9 +1,9 @@
-OMADORA_USER_THEMES_DIR="${OMADORA_CONFIG_HOME}/themes"
-OMADORA_CURRENT_THEME_DIR="${OMADORA_CONFIG_HOME}/current/theme"
-OMADORA_NEXT_THEME_DIR="${OMADORA_CONFIG_HOME}/current/next-theme"
-OMADORA_THEME_NAME_FILE="${OMADORA_CONFIG_HOME}/current/theme.name"
-OMADORA_USER_BACKGROUNDS_DIR="${OMADORA_CONFIG_HOME}/backgrounds"
-OMADORA_CURRENT_BACKGROUND_LINK="${OMADORA_CONFIG_HOME}/current/background"
+readonly OMADORA_USER_THEMES_DIR="${OMADORA_CONFIG_HOME}/themes"
+readonly OMADORA_CURRENT_THEME_DIR="${OMADORA_CONFIG_HOME}/current/theme"
+readonly OMADORA_NEXT_THEME_DIR="${OMADORA_CONFIG_HOME}/current/next-theme"
+readonly OMADORA_THEME_NAME_FILE="${OMADORA_CONFIG_HOME}/current/theme.name"
+readonly OMADORA_USER_BACKGROUNDS_DIR="${OMADORA_CONFIG_HOME}/backgrounds"
+readonly OMADORA_CURRENT_BACKGROUND_LINK="${OMADORA_CONFIG_HOME}/current/background"
 
 theme_name_normalize() {
   echo "$1" |
@@ -13,23 +13,36 @@ theme_name_normalize() {
 }
 
 theme_exists() {
-  theme_list_all | grep -qx -- "$1"
+  local theme="$1"
+
+  theme_list_all | grep -qxF -- "$theme"
 }
 
 theme_current() {
-  [[ -f "${OMADORA_THEME_NAME_FILE}" ]] || {
-    echo "no current theme set" >&2
-    return 1
-  }
+  [[ -f "${OMADORA_THEME_NAME_FILE}" ]] || return 1
   cat "$OMADORA_THEME_NAME_FILE"
 }
 
 theme_list_user() {
-  [[ -d "$OMADORA_USER_THEMES_DIR" ]] && find "$OMADORA_USER_THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort || true
+  [[ -d "$OMADORA_USER_THEMES_DIR" ]] || return 0
+
+  find "$OMADORA_USER_THEMES_DIR" \
+    -mindepth 1 \
+    -maxdepth 1 \
+    -type d \
+    -printf '%f\n' |
+    sort
 }
 
 theme_list_system() {
-  [[ -d "$OMADORA_THEMES_DIR" ]] && find "$OMADORA_THEMES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort || true
+  [[ -d "$OMADORA_THEMES_DIR" ]] || return 0
+
+  find "$OMADORA_THEMES_DIR" \
+    -mindepth 1 \
+    -maxdepth 1 \
+    -type d \
+    -printf '%f\n' |
+    sort
 }
 
 theme_list_all() {
@@ -37,6 +50,20 @@ theme_list_all() {
     theme_list_user
     theme_list_system
   } | sort -u
+}
+
+theme_list_backgrounds() {
+  local theme_name="$1"
+
+  local backgrounds_dir="${OMADORA_USER_BACKGROUNDS_DIR}/${theme_name}"
+
+  [[ -d "$backgrounds_dir" ]] || return 0
+
+  find "$backgrounds_dir" \
+    -maxdepth 1 \
+    -type f \
+    -printf '%f\n' |
+    sort
 }
 
 # Convert hex color to decimal RGB (e.g., "#1e1e2e" -> "30,30,46")
@@ -48,57 +75,82 @@ hex_to_rgb() {
 theme_set_templates() {
   local colors_file="${OMADORA_NEXT_THEME_DIR}/colors.toml"
 
-  # Only generate dynamic templates for themes with a colors.toml definition
-  if [[ -f $colors_file ]]; then
-    sed_script=$(mktemp)
+  [[ -f "$colors_file" ]] || return 0
 
-    while IFS='=' read -r key value; do
-      key="${key//[\"\' ]/}"                # strip quotes and spaces from key
-      [[ $key && $key != \#* ]] || continue # skip empty lines and comments
-      value="${value#*[\"\']}"
-      value="${value%%[\"\']*}" # extract value between quotes (ignores inline comments)
+  local sed_script
+  sed_script="$(mktemp)" || return 1
 
-      printf 's|{{ %s }}|%s|g\n' "$key" "$value"            # {{ key }} -> value
-      printf 's|{{ %s_strip }}|%s|g\n' "$key" "${value#\#}" # {{ key_strip }} -> value without leading #
-      if [[ $value =~ ^# ]]; then
-        rgb=$(hex_to_rgb "$value")
-        echo "s|{{ ${key}_rgb }}|${rgb}|g"
-      fi
-    done <"$colors_file" >"$sed_script"
+  trap 'rm -f "$sed_script"' RETURN
 
-    # TODO: check this
-    shopt -s nullglob
+  local key value rgb
 
-    # Process user templates first, then built-in templates (user overrides built-in)
-    for tpl in "${OMADORA_CONFIG_HOME}"/themed/*.tpl "${OMADORA_ROOT}"/default/themed/*.tpl; do
-      filename=$(basename "$tpl" .tpl)
-      output_path="$OMADORA_NEXT_THEME_DIR/$filename"
+  while IFS='=' read -r key value; do
+    key="${key//[\"\' ]/}"
 
-      # Don't overwrite configs already exists in the output directory (copied from theme specific folder)
-      if [[ ! -f $output_path ]]; then
-        sed -f "$sed_script" "$tpl" >"$output_path"
-      fi
-    done
+    [[ -n "$key" && $key != \#* ]] || continue
 
-    rm "$sed_script"
-  fi
+    value="${value#*[\"\']}"
+    value="${value%%[\"\']*}"
+
+    printf 's|{{ %s }}|%s|g\n' "$key" "$value"
+    printf 's|{{ %s_strip }}|%s|g\n' "$key" "${value#\#}"
+
+    if [[ $value == \#* ]]; then
+      rgb="$(hex_to_rgb "$value")" || return 1
+      printf 's|{{ %s_rgb }}|%s|g\n' "$key" "$rgb"
+    fi
+  done <"$colors_file" >"$sed_script"
+
+  local tpl filename output_path
+
+  shopt -s nullglob
+
+  for tpl in \
+    "${OMADORA_CONFIG_HOME}/themed"/*.tpl \
+    "${OMADORA_ROOT}/default/themed"/*.tpl; do
+
+    filename="${tpl##*/}"
+    filename="${filename%.tpl}"
+
+    output_path="${OMADORA_NEXT_THEME_DIR}/${filename}"
+
+    [[ -f "$output_path" ]] && continue
+
+    sed -f "$sed_script" "$tpl" >"$output_path" || return 1
+  done
+
+  shopt -u nullglob
 }
 
 theme_set_gnome() {
-  # Change gnome modes
-  if [[ -f "${OMADORA_CURRENT_THEME_DIR}/light.mode" ]]; then
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-light"
-    gsettings set org.gnome.desktop.interface gtk-theme "Adwaita"
+  command -v gsettings >/dev/null 2>&1 || return 1
+
+  local light_mode_file="${OMADORA_CURRENT_THEME_DIR}/light.mode"
+  local icons_file="${OMADORA_CURRENT_THEME_DIR}/icons.theme"
+
+  local color_scheme
+  local gtk_theme
+
+  if [[ -f "$light_mode_file" ]]; then
+    color_scheme="prefer-light"
+    gtk_theme="Adwaita"
   else
-    gsettings set org.gnome.desktop.interface color-scheme "prefer-dark"
-    gsettings set org.gnome.desktop.interface gtk-theme "Adwaita-dark"
+    color_scheme="prefer-dark"
+    gtk_theme="Adwaita-dark"
   fi
 
-  # Change gnome icon theme color
-  local icons_file="${OMADORA_CURRENT_THEME_DIR}/icons.theme"
+  gsettings set org.gnome.desktop.interface color-scheme "$color_scheme"
+  gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme"
+
+  local icon_theme="Yaru-blue"
+
   if [[ -f "$icons_file" ]]; then
-    gsettings set org.gnome.desktop.interface icon-theme "$(<"$icons_file")"
-  else
-    gsettings set org.gnome.desktop.interface icon-theme "Yaru-blue"
+    icon_theme="$(<"$icons_file")"
   fi
+
+  gsettings set org.gnome.desktop.interface icon-theme "$icon_theme"
+}
+
+theme_apply_background() {
+  hyprctl hyprpaper wallpaper ,"$OMADORA_CURRENT_BACKGROUND_LINK"
 }

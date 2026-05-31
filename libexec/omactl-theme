@@ -61,14 +61,26 @@ __complete() {
     fi
     ;;
 
-  bg-add)
+  bg-install)
     if [[ ${#comp_words[@]} -eq 2 ]]; then
       compgen -f -- "$cur"
     fi
     ;;
 
+  bg-remove)
+    if [[ ${#comp_words[@]} -eq 2 ]]; then
+      current_theme_name="$(theme_current)" || return
+
+      mapfile -t backgrounds < <(
+        theme_list_backgrounds "$current_theme_name"
+      )
+
+      compgen -W "$(printf '%s\n' "${backgrounds[@]}")" -- "$cur"
+    fi
+    ;;
+
   *)
-    compgen -W "list list-user current set add remove update bg-next bg-add" -- "$cmd"
+    compgen -W "list list-user current set add remove update bg-next bg-install bg-remove" -- "$cmd"
     ;;
   esac
 }
@@ -92,7 +104,7 @@ list-user)
   ;;
 
 current)
-  theme_current
+  theme_current || fatal "no current theme set"
   ;;
 
 set)
@@ -120,9 +132,14 @@ bg-next)
   exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" "$@"
   ;;
 
-bg-add)
+bg-install)
   shift
   exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-install" "$@"
+  ;;
+
+bg-remove)
+  shift
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-remove" "$@"
   ;;
 
 __complete)

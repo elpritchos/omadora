@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+readonly OMADORA_LOG_TAG="omadora-theme"
+
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -8,21 +10,29 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 source "$OMADORA_LIB_DIR/theme.sh"
 
 image_path="${1:-}"
-current_theme_name=$(theme_current) || exit 1
 
-[[ -n "$image_path" ]] || {
-  echo "Error: Missing image path." >&2
-  exit 1
-}
+[[ -n "$image_path" ]] ||
+  fatal "missing image path"
 
-[[ -f "$image_path" ]] || {
-  echo "Error: Invalid image path: $image_path" >&2
-  exit 1
-}
+[[ -f "$image_path" ]] ||
+  fatal "invalid image path: $image_path"
+
+current_theme_name="$(theme_current)" ||
+  fatal "no current theme set"
 
 dest_dir="${OMADORA_USER_BACKGROUNDS_DIR}/${current_theme_name}"
+
 mkdir -p "$dest_dir"
 
 cp "$image_path" "$dest_dir/"
 
-ln -nsf "$dest_dir/$(basename "$image_path")" "$OMADORA_CURRENT_BACKGROUND_LINK"
+background_file="${image_path##*/}"
+
+ln -nsf \
+  "$dest_dir/$background_file" \
+  "$OMADORA_CURRENT_BACKGROUND_LINK"
+
+theme_apply_background ||
+  fatal "failed to apply background"
+
+log_info "Installed background: $background_file"

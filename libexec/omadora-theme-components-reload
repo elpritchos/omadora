@@ -1,18 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+readonly OMADORA_LOG_TAG="omadora-theme"
+
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # shellcheck source=lib/service.sh
 source "$OMADORA_LIB_DIR/service.sh"
 
-# Reload theme components. This is used after applying a new theme to ensure all components are using the new theme.
-#
-service_reload_waybar || true
-service_reload_mako || true
-service_reload_hyprland || true
-service_reload_btop || true
-service_reload_alacritty || true
-service_reload_ghostty || true
-service_reload_kitty || true
+# Best effort reload of theme components.
+reload_component() {
+  local name="$1"
+  local fn="$2"
+
+  if ! "$fn"; then
+    log_warn "Failed to reload ${name}"
+  fi
+}
+
+log_info "Reloading theme components"
+
+reload_component "Waybar" service_reload_waybar
+reload_component "Mako" service_reload_mako
+reload_component "Hyprland" service_reload_hyprland
+reload_component "btop" service_reload_btop
+reload_component "Alacritty" service_reload_alacritty
+reload_component "Ghostty" service_reload_ghostty
+reload_component "Kitty" service_reload_kitty
+
+log_info "Theme component reload completed"

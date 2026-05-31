@@ -1,32 +1,41 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+readonly OMADORA_LOG_TAG="omadora-theme"
+
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # shellcheck source=lib/theme.sh
 source "$OMADORA_LIB_DIR/theme.sh"
 
-theme_name="$(theme_name_normalize "${1:-}")"
+[[ $# -eq 1 ]] || fatal "missing theme name"
 
-if [[ -d "$OMADORA_USER_THEMES_DIR/$theme_name" ]]; then
-  theme_path="$OMADORA_USER_THEMES_DIR/$theme_name"
-elif [[ -d "$OMADORA_THEMES_DIR/$theme_name" ]]; then
-  theme_path="$OMADORA_THEMES_DIR/$theme_name"
+theme_name="$(theme_name_normalize "$1")"
+
+local_theme="${OMADORA_USER_THEMES_DIR}/${theme_name}"
+system_theme="${OMADORA_THEMES_DIR}/${theme_name}"
+
+if [[ -d "$local_theme" ]]; then
+  theme_path="$local_theme"
+elif [[ -d "$system_theme" ]]; then
+  theme_path="$system_theme"
 else
-  echo "Error: Theme '$theme_name' does not exist."
-  exit 1
+  fatal "theme not found: $theme_name"
 fi
+
+log_info "Applying theme: $theme_name"
 
 # Setup clean next theme directory (for atomic theme config swapping)
 rm -rf "$OMADORA_NEXT_THEME_DIR"
 mkdir -p "$OMADORA_NEXT_THEME_DIR"
 
 # Copy static configs
-cp -r "$theme_path/." "$OMADORA_NEXT_THEME_DIR/" 2>/dev/null
+cp -r "$theme_path/." "$OMADORA_NEXT_THEME_DIR/"
 
 # Generate dynamic configs
-theme_set_templates
+theme_set_templates ||
+  fatal "failed to generate themed templates"
 
 # Swap next theme in as current
 rm -rf "$OMADORA_CURRENT_THEME_DIR"
@@ -34,13 +43,20 @@ mv "$OMADORA_NEXT_THEME_DIR" "$OMADORA_CURRENT_THEME_DIR"
 
 # Store theme name for reference
 # Theme component configs reloaded by omadora-theme.service watching this file
-echo "$theme_name" >"${OMADORA_THEME_NAME_FILE}"
+printf '%s\n' "$theme_name" >"$OMADORA_THEME_NAME_FILE"
 
 # Change background with theme
-"$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next"
+"$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" ||
+  fatal "failed to apply theme background"
 
 # Change app-specific themes
-theme_set_gnome
+theme_set_gnome ||
+  log_warn "failed to apply GNOME theme settings"
 
+# TODO: move the omadora-hook to libexec
 # Call hook on theme set
-omadora-hook theme-set "$theme_name" # TODO: Move to libexec
+if ! omadora-hook theme-set "$theme_name"; then
+  log_warn "theme-set hook failed"
+fi
+
+log_info "Theme applied: $theme_name"

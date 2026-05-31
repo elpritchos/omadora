@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+readonly OMADORA_LOG_TAG="omadora-theme"
+
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -9,18 +11,23 @@ source "$OMADORA_LIB_DIR/theme.sh"
 
 theme_name="${1:-}"
 
-[[ -n "$theme_name" ]] || {
-  echo "Error: Missing theme name." >&2
-  exit 1
-}
+[[ -n "$theme_name" ]] ||
+  fatal "missing theme name"
 
 theme_path="${OMADORA_USER_THEMES_DIR}/$theme_name"
 
-# Check if theme exists before attempting removal
-if [ ! -d "$theme_path" ]; then
-  echo "Error: Theme '$theme_name' not found."
-  return 1
+[[ -d "$theme_path" ]] ||
+  fatal "theme not found: $theme_name"
+
+current_theme_name="$(theme_current)" ||
+  fatal "no current theme set"
+
+if [[ "$current_theme_name" == "$theme_name" ]]; then
+  fatal "cannot remove active theme"
 fi
 
-# Now remove the theme directory for THEME_NAME
+log_info "Removing theme: $theme_name"
+
 rm -rf "$theme_path"
+
+log_info "Removed theme: $theme_name"
