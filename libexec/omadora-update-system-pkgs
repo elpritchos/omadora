@@ -11,8 +11,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 echo -e "\e[32m\nUpdate system packages\e[0m"
 
 #sudo dnf -q makecache --refresh
-#sudo dnf upgrade -y
-sudo dnf upgrade -y --security
+sudo dnf upgrade -y
 
 # Fedora: use dnf needs-restarting to detect if a reboot is recommended/required.
 # Non-zero exit status indicates a reboot is needed.
