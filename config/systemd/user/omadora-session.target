@@ -1,7 +1,13 @@
 [Unit]
 Description=Omadora Session
+Documentation=man:systemd.special(7)
+
 PartOf=wayland-session@hyprland.desktop.target
 After=wayland-session@hyprland.desktop.target
+
+BindsTo=wayland-session@hyprland.desktop.target
+
+Wants=omadora-session.service
 
 [Install]
 WantedBy=wayland-session@hyprland.desktop.target

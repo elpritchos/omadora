@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-update"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# TODO: error logging etc.
+
+require_cmd fwupdmgr
+
+echo -e "\e[32mUpdate Firmware\e[0m"
+
+fwupdmgr refresh --force &>/dev/null
+
+if fwupdmgr get-updates 2>/dev/null | grep -qiE '^ *New version:'; then
+  sudo fwupdmgr update --assume-yes --no-reboot-check
+
+  # Assume a reboot is required after firmware updates
+  #omadora-state set reboot-required
+else
+  echo -e "Nothing to do.\n"
+fi

@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-update"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/state.sh
+source "$OMADORA_LIB_DIR/state.sh"
+
+# TODO: check stop/reboot correctness
+
+if [[ -f "/run/reboot-required" ]]; then
+  gum confirm "Updates require reboot. Ready?" && systemctl reboot --no-wall
+  exit 0
+fi
+
+if state_exists "relaunch-required"; then
+  gum confirm "Updates require Hyprland relaunch. Ready?" && uwsm stop
+  exit 0
+fi

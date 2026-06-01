@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-update"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/update.sh
+source "$OMADORA_LIB_DIR/update.sh"
+
+require_cmd dnf5
+require_cmd jq
+
+update_init
+
+# -----------------------------------------------------------------------------
+# Locking
+# -----------------------------------------------------------------------------
+exec 9>"$OMADORA_UPDATE_LOCK_FILE"
+
+# Exit silently if another check/update is already running
+flock -n 9 || exit 0
+
+# -----------------------------------------------------------------------------
+# Update Check Workflow
+# -----------------------------------------------------------------------------
+
+log_debug "Starting update check"
+
+update_collect_dnf ||
+  log_warn "Failed to query DNF updates"
+
+update_collect_advisories ||
+  log_warn "Failed to query DNF advisories"
+
+update_collect_flatpak
+
+update_collect_cargo
+
+update_collect_firmware ||
+  log_warn "Failed to query firmware updates"
+
+update_write_state
+
+log_debug "Update check complete"

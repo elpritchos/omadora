@@ -4,4 +4,4 @@ PartOf=omadora-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/share/omadora/libexec/omadora-battery-monitor
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-battery-monitor

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # shellcheck source=lib/common/init.sh
-source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 
 # Exit early if disabled
 if [[ -f "$OMADORA_STATE_HOME/toggles/screensaver-off" ]] && [[ "${1:-}" != force ]]; then
@@ -37,7 +37,7 @@ while IFS= read -r monitor; do
     exec alacritty \
       --class=org.omadora.screensaver \
       --config-file "$HOME/.local/share/omadora/default/alacritty/screensaver.toml" \
-      -e "$HOME/.local/share/omadora/libexec/omadora-screensaver-window"
+      -e "$HOME/.local/share/omadora/libexec/systemd/omadora-screensaver-window"
   ) &
 
   pids+=("$!")

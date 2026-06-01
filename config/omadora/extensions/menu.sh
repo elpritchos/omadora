@@ -7,8 +7,8 @@
 #
 # show_system_menu() {
 #   case $(menu "System" "  Lock\n󰐥  Shutdown") in
-#   *Lock*) loginctl lock-session ;;
-#   *Shutdown*) omadora-cmd-shutdown ;;
+#   *Lock*) omactl system lock ;;
+#   *Shutdown*) omactl system shutdown ;;
 #   *) back_to show_main_menu ;;
 #   esac
 # }

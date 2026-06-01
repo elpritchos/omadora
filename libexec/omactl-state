@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-state"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/state.sh
+source "$OMADORA_LIB_DIR/state.sh"
+
+# ----------------------------
+# Usage
+# ----------------------------
+usage() {
+  cat <<'EOF'
+Usage:
+  omactl state <command>
+
+Commands:
+  list                 List all states
+  set <state-name>     Set a state
+  exists <state-name>  Check if a state is set
+  clear <state-name>   Clear a state
+EOF
+}
+
+# ----------------------------
+# Completion
+# ----------------------------
+__complete() {
+  local comp_words=("$@")
+  local cmd="${comp_words[0]:-}"
+
+  case "$cmd" in
+  list | set | exists)
+    ;;
+
+  clear)
+    if [[ ${#comp_words[@]} -eq 2 ]]; then
+      mapfile -t states < <(state_list)
+
+      compgen -W "$(printf '%s\n' "${states[@]}")" -- "${comp_words[1]}"
+    fi
+    ;;
+
+  *)
+    compgen -W "list set exists clear" -- "$cmd"
+    ;;
+  esac
+}
+
+# ----------------------------
+# Dispatcher
+# ----------------------------
+cmd="${1:-}"
+
+case "$cmd" in
+"" | -h | --help | help)
+  usage
+  ;;
+
+list)
+  state_list || fatal "failed to list states"
+  ;;
+
+set)
+  shift
+
+  [[ $# -eq 1 ]] || fatal "state name is required"
+
+  state_set "$1" || fatal "failed to set state: $1"
+  ;;
+
+exists)
+  shift
+
+  [[ $# -eq 1 ]] || fatal "state name is required"
+
+  state_exists "$1"
+  ;;
+
+clear)
+  shift
+
+  [[ $# -eq 1 ]] || fatal "state name is required"
+
+  state_clear "$1" || fatal "failed to clear state: $1"
+  ;;
+
+__complete)
+  shift
+  __complete "$@"
+  ;;
+
+*)
+  usage >&2
+  fatal "unknown command: $cmd"
+  ;;
+esac

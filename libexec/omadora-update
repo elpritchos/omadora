@@ -1,0 +1,173 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-update"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/update.sh
+source "$OMADORA_LIB_DIR/update.sh"
+
+# shellcheck source=lib/state.sh
+source "$OMADORA_LIB_DIR/state.sh"
+
+# -----------------------------------------------------------------------------
+# Confirmation
+# -----------------------------------------------------------------------------
+
+update_confirm() {
+  require_cmd gum
+
+  gum style \
+    --border normal \
+    --border-foreground 6 \
+    --padding "1 2" \
+    "Ready to update?" \
+    "" \
+    "The following updates will occur:" \
+    "  • Omadora" \
+    "  • System packages" \
+    "  • Flatpaks" \
+    "  • Cargo-installed binaries" \
+    "  • Firmware" \
+    "" \
+    "• Do not interrupt the update once it starts." \
+    "• Ensure you are connected to power or have sufficient battery." \
+    ""
+
+  echo
+
+  gum confirm "Continue with update?"
+}
+
+# -----------------------------------------------------------------------------
+# Sudo
+# -----------------------------------------------------------------------------
+
+sudo_keepalive() {
+  if ! sudo -n true 2>/dev/null; then
+    sudo -v
+  fi
+
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2>/dev/null &
+}
+
+# -----------------------------------------------------------------------------
+# Cleanup
+# -----------------------------------------------------------------------------
+
+cleanup() {
+  local exit_code=$?
+
+  if [[ -n "${sudo_pid:-}" ]]; then
+    kill "$sudo_pid" 2>/dev/null || true
+  fi
+
+  hyprctl dispatch tagwindow -- -noidle >/dev/null 2>&1 || true
+
+  state_clear "update-running" || true
+
+  return "$exit_code"
+}
+
+# -----------------------------------------------------------------------------
+# State Refresh
+# -----------------------------------------------------------------------------
+
+update_refresh_state() {
+
+  log_debug "Starting update check"
+
+  update_collect_dnf ||
+    log_warn "Failed to query DNF updates"
+
+  update_collect_advisories ||
+    log_warn "Failed to query DNF advisories"
+
+  update_collect_flatpak
+
+  update_collect_cargo
+
+  update_collect_firmware ||
+    log_warn "Failed to query firmware updates"
+
+  update_write_state
+
+  log_debug "Update check complete"
+
+}
+
+# -----------------------------------------------------------------------------
+# Update
+# -----------------------------------------------------------------------------
+
+update_perform() {
+  log_info "Starting update"
+
+  state_set "update-running"
+
+  hyprctl dispatch tagwindow +noidle >/dev/null 2>&1 || true
+
+  log_info "Updating Omadora"
+  "$OMADORA_LIBEXEC_DIR/omadora-update-git"
+
+  log_info "Running migrations"
+  #omadora-migrate
+  sleep 1
+
+  log_info "Updating system packages"
+  #omadora-update-system-pkgs
+  "$OMADORA_LIBEXEC_DIR/omadora-update-system-pkgs"
+
+  log_info "Updating Flatpaks"
+  #omadora-update-flatpak
+  "$OMADORA_LIBEXEC_DIR/omadora-update-flatpak" || true
+
+  log_info "Updating cargo packages"
+  #omadora-update-cargo
+  "$OMADORA_LIBEXEC_DIR/omadora-update-cargo" || true
+
+  log_info "Updating firmware"
+  #omadora-update-firmware
+  "$OMADORA_LIBEXEC_DIR/omadora-update-firmware" || true
+
+  log_info "Running post-update hooks"
+  #omadora-hook post-update
+  sleep 1
+
+  update_refresh_state
+
+  log_info "Update complete"
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+trap cleanup EXIT
+
+if [[ "${1:-}" != "-y" ]]; then
+  update_confirm || {
+    log_info "Update cancelled by user"
+    exit 0
+  }
+fi
+
+sudo_keepalive
+sudo_pid=$!
+
+update_init
+
+exec 9>"$OMADORA_UPDATE_LOCK_FILE"
+
+flock -n 9 ||
+  fatal "another update operation is already running"
+
+update_perform
+update_waybar_module
+omadora-update-restart

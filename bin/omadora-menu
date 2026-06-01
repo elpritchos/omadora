@@ -221,7 +221,7 @@ show_remove_menu() {
 
 show_update_menu() {
   case $(menu "Update" "  Omadora\n  Config\n󰸌  Theme\n  Process\n󰇅  Hardware\n  Password\n  Timezone") in
-  *Omadora*) present_terminal omadora-update ;;
+  *Omadora*) present_terminal 'omactl update all' ;;
   *Config*) show_update_config_menu ;;
   *Theme*) present_terminal 'omactl theme update "$(omactl theme list-user | gum choose --header="Update user theme:")"' ;;
   *Process*) show_update_process_menu ;;
@@ -272,12 +272,12 @@ show_update_password_menu() {
 }
 
 show_system_menu() {
-  case $(menu "System" "  Lock\n󱄄  Screensaver\n  Stop\n󰜉  Reboot\n󰐥  Shutdown") in
-  *Lock*) loginctl lock-session ;;
-  *Screensaver*) systemctl --user start omadora-screensaver.service ;;
-  *Stop*) omadora-cmd-stop ;;
-  *Reboot*) omadora-cmd-reboot ;;
-  *Shutdown*) omadora-cmd-shutdown ;;
+  case $(menu "System" "  Lock\n󱄄  Screensaver\n  Logout\n󰜉  Reboot\n󰐥  Shutdown") in
+  *Lock*) omactl system lock ;;
+  *Screensaver*) omactl system screensaver ;;
+  *Logout*) omactl system logout ;;
+  *Reboot*) omactl system reboot ;;
+  *Shutdown*) omactl system shutdown ;;
   *) back_to show_main_menu ;;
   esac
 }

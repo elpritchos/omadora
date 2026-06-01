@@ -32,7 +32,7 @@ For a WiFi only install, see the [FAQ](FAQ.md) for help.
 
 Omadora does not use the seamless login implemented in Omarchy, therefore once logged in, start Omadora using `omadora`.
 
-Stop Omadora by using the power menu or executing `omadora-cmd-stop` or `uwsm stop`.
+Stop Omadora by using the power menu or executing `omactl system stop`.
 
 ## Frequently Asked Questions
 

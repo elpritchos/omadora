@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-update"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# TODO: Rename to omadora-update-omadora? run migrations etc.?
+
+require_cmd git
+
+echo -e "\e[32mUpdate Omadora\e[0m"
+
+git -C "$OMADORA_ROOT" pull --autostash
+git -C "$OMADORA_ROOT" --no-pager diff --check || git -C "$OMADORA_ROOT" reset --merge

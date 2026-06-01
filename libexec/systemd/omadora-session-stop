@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+notify-send "Omadora" "Stopping session" || true
+
+sleep 1

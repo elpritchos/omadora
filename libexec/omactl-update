@@ -6,6 +6,9 @@ readonly OMADORA_LOG_TAG="omadora-update"
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
+# shellcheck source=lib/update.sh
+source "$OMADORA_LIB_DIR/update.sh"
+
 # ----------------------------
 # Usage
 # ----------------------------
@@ -15,6 +18,8 @@ Usage:
   omactl update <command>
 
 Commands:
+  all       Update everything (git, cargo, flatpak, etc.)
+  state     Show update state JSON
 
 EOF
 }
@@ -27,8 +32,10 @@ __complete() {
   local cmd="${comp_words[0]:-}"
 
   case "$cmd" in
+  all | state)
+    ;;
   *)
-    compgen -W "" -- "$cmd"
+    compgen -W "all state" -- "$cmd"
     ;;
   esac
 }
@@ -41,6 +48,14 @@ cmd="${1:-}"
 case "$cmd" in
 "" | -h | --help | help)
   usage
+  ;;
+
+all)
+  exec "$OMADORA_LIBEXEC_DIR/omadora-update"
+  ;;
+
+state)
+  cat "$OMADORA_UPDATE_STATE_FILE" 2>/dev/null || true
   ;;
 
 __complete)

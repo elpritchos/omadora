@@ -4,7 +4,7 @@ set -euo pipefail
 readonly OMADORA_LOG_TAG="omadora-theme"
 
 # shellcheck source=lib/common/init.sh
-source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 
 # shellcheck source=lib/service.sh
 source "$OMADORA_LIB_DIR/service.sh"

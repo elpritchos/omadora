@@ -1,11 +1,11 @@
 [Unit]
 Description=Omadora screensaver
 PartOf=omadora-session.target
-ConditionPathExists=%h/.local/share/omadora/libexec/omadora-screensaver-session
+ConditionPathExists=%h/.local/share/omadora/libexec/systemd/omadora-screensaver-session
 
 [Service]
 Type=simple
 ExecCondition=/usr/bin/sh -c '! pgrep -x hyprlock >/dev/null'
-ExecStart=%h/.local/share/omadora/libexec/omadora-screensaver-session
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-screensaver-session
 KillMode=control-group
 Restart=no

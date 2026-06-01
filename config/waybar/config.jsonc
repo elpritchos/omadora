@@ -52,16 +52,17 @@
     "tooltip-format": "Omadora Menu\n\nSuper + Alt + Space"
   },
   "custom/updates": {
-    "exec": "~/.local/share/omadora/libexec/omadora-waybar-updates",
+    "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-updates",
     "return-type": "json",
-    "interval": 10,
-    "on-click": "omadora-launch-floating-terminal-with-presentation omadora-update",
+    "interval": 30,
+    "signal": 7,
+    "on-click": "omadora-launch-floating-terminal-with-presentation omactl update all",
     "format": "{icon} {text}",
     "format-icons": {
       "updated": "󰏗",
       "updates": "󰏕",
       "security": "󰏭",
-      "restart-required": "󰜉",
+      "reboot-required": "󰜉",
       "unknown": "󰞋"
     },
     "tooltip": true

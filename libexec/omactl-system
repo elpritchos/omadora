@@ -19,6 +19,9 @@ Usage:
 
 Commands:
   lock                 Start the screen lock
+  logout               Logout of the current session
+  reboot               Reboot the system
+  shutdown             Shutdown the system
   screensaver          Start the screensaver
 
 EOF
@@ -32,11 +35,11 @@ __complete() {
   local cmd="${comp_words[0]:-}"
 
   case "$cmd" in
-  lock | screensaver)
+  lock | logout | reboot | shutdown | screensaver)
     ;;
 
   *)
-    compgen -W "lock screensaver" -- "$cmd"
+    compgen -W "lock logout reboot shutdown screensaver" -- "$cmd"
     ;;
   esac
 }
@@ -53,6 +56,18 @@ case "$cmd" in
 
 lock)
   loginctl lock-session
+  ;;
+
+logout)
+  uwsm stop
+  ;;
+
+reboot)
+  systemctl reboot --no-wall
+  ;;
+
+shutdown)
+  systemctl poweroff --no-wall
   ;;
 
 screensaver)
