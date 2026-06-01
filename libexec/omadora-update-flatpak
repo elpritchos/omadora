@@ -6,7 +6,7 @@ readonly OMADORA_LOG_TAG="omadora-update"
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
-# TODO: error logging etc.
+# TODO: Review
 
 require_cmd flatpak
 

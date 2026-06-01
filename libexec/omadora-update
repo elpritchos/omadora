@@ -76,6 +76,42 @@ cleanup() {
 }
 
 # -----------------------------------------------------------------------------
+# Update
+# -----------------------------------------------------------------------------
+
+update_perform() {
+  log_info "Starting update"
+
+  state_set "update-running"
+
+  hyprctl dispatch tagwindow +noidle >/dev/null 2>&1 || true
+
+  log_info "Updating Omadora git"
+  "$OMADORA_LIBEXEC_DIR/omadora-update-git"
+
+  # TODO: update migrate script
+  #log_info "Running migrations"
+  #omadora-migrate
+
+  log_info "Updating system packages"
+  "$OMADORA_LIBEXEC_DIR/omadora-update-system-pkgs"
+
+  log_info "Updating Flatpaks"
+  "$OMADORA_LIBEXEC_DIR/omadora-update-flatpak" || true
+
+  log_info "Updating cargo packages"
+  "$OMADORA_LIBEXEC_DIR/omadora-update-cargo" || true
+
+  log_info "Updating firmware"
+  "$OMADORA_LIBEXEC_DIR/omadora-update-firmware" || true
+
+  #log_info "Running post-update hooks"
+  #omadora-hook post-update
+
+  log_info "Update complete"
+}
+
+# -----------------------------------------------------------------------------
 # State Refresh
 # -----------------------------------------------------------------------------
 
@@ -103,46 +139,22 @@ update_refresh_state() {
 }
 
 # -----------------------------------------------------------------------------
-# Update
+# Restart Check
 # -----------------------------------------------------------------------------
 
-update_perform() {
-  log_info "Starting update"
+update_restart_check() {
 
-  state_set "update-running"
+  # TODO: check stop/reboot correctness
 
-  hyprctl dispatch tagwindow +noidle >/dev/null 2>&1 || true
+  if [[ -f "/run/reboot-required" ]]; then
+    gum confirm "Updates require reboot. Ready?" && systemctl reboot --no-wall
+    exit 0
+  fi
 
-  log_info "Updating Omadora"
-  "$OMADORA_LIBEXEC_DIR/omadora-update-git"
-
-  log_info "Running migrations"
-  #omadora-migrate
-  sleep 1
-
-  log_info "Updating system packages"
-  #omadora-update-system-pkgs
-  "$OMADORA_LIBEXEC_DIR/omadora-update-system-pkgs"
-
-  log_info "Updating Flatpaks"
-  #omadora-update-flatpak
-  "$OMADORA_LIBEXEC_DIR/omadora-update-flatpak" || true
-
-  log_info "Updating cargo packages"
-  #omadora-update-cargo
-  "$OMADORA_LIBEXEC_DIR/omadora-update-cargo" || true
-
-  log_info "Updating firmware"
-  #omadora-update-firmware
-  "$OMADORA_LIBEXEC_DIR/omadora-update-firmware" || true
-
-  log_info "Running post-update hooks"
-  #omadora-hook post-update
-  sleep 1
-
-  update_refresh_state
-
-  log_info "Update complete"
+  if state_exists "relaunch-required"; then
+    gum confirm "Updates require Hyprland relaunch. Ready?" && uwsm stop
+    exit 0
+  fi
 }
 
 # -----------------------------------------------------------------------------
@@ -169,5 +181,6 @@ flock -n 9 ||
   fatal "another update operation is already running"
 
 update_perform
+update_refresh_state
 update_waybar_module
-omadora-update-restart
+update_restart_check

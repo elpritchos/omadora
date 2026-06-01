@@ -83,7 +83,11 @@ def full_summary:
 
 if $reboot_required then
   {
-    text: (.updates.total | tostring),
+    text:
+      (if .updates.total > 0
+       then (.updates.total | tostring)
+       else ""
+       end),
     alt: "reboot-required",
     tooltip:
       "Reboot required\n\n"

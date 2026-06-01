@@ -18,8 +18,9 @@ Usage:
   omactl update <command>
 
 Commands:
-  all       Update everything (git, cargo, flatpak, etc.)
-  state     Show update state JSON
+  all (default)        Update everything (git, cargo, flatpak, etc.)
+  check                Check for updates and write state JSON
+  state                Show update state JSON
 
 EOF
 }
@@ -35,7 +36,7 @@ __complete() {
   all | state)
     ;;
   *)
-    compgen -W "all state" -- "$cmd"
+    compgen -W "all check state" -- "$cmd"
     ;;
   esac
 }
@@ -46,12 +47,17 @@ __complete() {
 cmd="${1:-}"
 
 case "$cmd" in
-"" | -h | --help | help)
+-h | --help | help)
   usage
   ;;
 
-all)
+"" | all)
   exec "$OMADORA_LIBEXEC_DIR/omadora-update"
+  ;;
+
+check)
+  # TODO: should update-check be a libexec script?
+  exec "$OMADORA_LIBEXEC_DIR/systemd/omadora-update-check"
   ;;
 
 state)
