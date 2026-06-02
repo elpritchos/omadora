@@ -36,6 +36,7 @@ update_collect_dnf() {
 
   dnf5 repoquery \
     --upgrades \
+    --refresh \
     >"$OMADORA_UPDATE_DNF_UPGRADES_LIST" 2>/dev/null ||
     return 1
 
@@ -53,6 +54,7 @@ update_collect_advisories() {
 
   dnf5 advisory list \
     --updates \
+    --refresh \
     --json \
     >"$OMADORA_UPDATE_DNF_ADVISORIES_JSON" 2>/dev/null ||
     return 1
@@ -127,6 +129,11 @@ update_collect_firmware() {
   command -v fwupdmgr >/dev/null 2>&1 ||
     return 0
 
+  fwupdmgr refresh \
+    --force \
+    >/dev/null 2>&1 ||
+    return 1
+
   fwupdmgr get-updates \
     --json \
     >"$OMADORA_UPDATE_FWUPD_JSON" 2>/dev/null ||
@@ -151,17 +158,6 @@ update_write_state() {
   local total_updates
 
   timestamp="$(date +%s)"
-
-  : "${dnf_package_total:=0}"
-  : "${flatpak_total:=0}"
-  : "${cargo_total:=0}"
-  : "${firmware_total:=0}"
-
-  : "${dnf_advisory_total:=0}"
-  : "${dnf_security_total:=0}"
-  : "${dnf_bugfix_total:=0}"
-  : "${dnf_enhancement_total:=0}"
-  : "${dnf_other_total:=0}"
 
   total_updates=$((\
     dnf_package_total + \
