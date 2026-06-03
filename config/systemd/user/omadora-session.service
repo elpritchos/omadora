@@ -1,11 +1,7 @@
 [Unit]
-Description=Omadora Session Lifecycle Anchor
-Documentation=man:systemd.service(5)
-
+Description=Omadora Session Service
 PartOf=omadora-session.target
-After=omadora-session.target
-
-BindsTo=omadora-session.target
+After=graphical-session.target
 
 [Service]
 Type=oneshot
@@ -14,8 +10,5 @@ RemainAfterExit=yes
 ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-session-start
 ExecStop=%h/.local/share/omadora/libexec/systemd/omadora-session-stop
 
+#Slice=session-graphical.slice
 TimeoutStopSec=10
-KillSignal=SIGTERM
-
-[Install]
-WantedBy=omadora-session.target

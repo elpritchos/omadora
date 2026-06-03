@@ -1,11 +1,10 @@
 [Unit]
-Description=Omadora Fcitx5 input service
+Description=Omadora Fcitx5 Service
 PartOf=omadora-session.target
+After=graphical-session.target
 
 [Service]
+Type=simple
 ExecStart=/usr/bin/fcitx5
+#Slice=session.slice
 Restart=on-failure
-RestartSec=2
-
-[Install]
-WantedBy=omadora-session.target

@@ -1,6 +1,5 @@
 [Unit]
-Description=Omadora theme service
-PartOf=omadora-session.target
+Description=Omadora Theme Reload Service
 
 [Service]
 Type=oneshot

@@ -1,12 +1,10 @@
 [Unit]
-Description=Omadora update check timer
+Description=Omadora Update Check Timer
 PartOf=omadora-session.target
+After=graphical-session.target
 
 [Timer]
 OnBootSec=15m
-OnUnitActiveSec=2h
+OnUnitActiveSec=6h
 RandomizedDelaySec=30m
 Persistent=true
-
-[Install]
-WantedBy=timers.target

@@ -1,13 +1,25 @@
 [Unit]
-Description=Omadora Session
-Documentation=man:systemd.special(7)
+Description=Omadora Session Target
+Documentation=man:uwsm(1) man:systemd.special(7)
+PartOf=graphical-session.target
+#BindsTo=graphical-session.target
+After=wayland-session@%i.target graphical-session.target
+Conflicts=wayland-session-shutdown.target
+Before=wayland-session-shutdown.target
+#StopWhenUnneeded=yes
 
-PartOf=wayland-session@hyprland.desktop.target
-After=wayland-session@hyprland.desktop.target
-
-BindsTo=wayland-session@hyprland.desktop.target
+Wants=mako.service
+Wants=waybar.service
+Wants=hypridle.service
+Wants=hyprpaper.service
+Wants=hyprsunset.service
+Wants=hyprpolkitagent.service
 
 Wants=omadora-session.service
+Wants=omadora-fcitx5.service
+Wants=omadora-battery-monitor.timer
+Wants=omadora-update-check.timer
+Wants=omadora-theme-reload.path
 
 [Install]
-WantedBy=wayland-session@hyprland.desktop.target
+WantedBy=graphical-session.target

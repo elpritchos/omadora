@@ -1,12 +1,10 @@
 [Unit]
-Description=Omadora battery monitor timer
+Description=Omadora Battery Monitor Timer
 PartOf=omadora-session.target
+After=graphical-session.target
 
 [Timer]
-OnBootSec=1min
-OnUnitActiveSec=30sec
-AccuracySec=10sec
-RandomizedDelaySec=10sec
-
-[Install]
-WantedBy=omadora-session.target
+OnBootSec=2min
+OnUnitActiveSec=2min
+AccuracySec=30s
+RandomizedDelaySec=15s

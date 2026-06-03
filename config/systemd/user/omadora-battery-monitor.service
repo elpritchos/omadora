@@ -1,6 +1,5 @@
 [Unit]
-Description=Omadora battery monitor service
-PartOf=omadora-session.target
+Description=Omadora Battery Monitor Service
 
 [Service]
 Type=oneshot

@@ -1,10 +1,9 @@
 [Unit]
-Description=Omadora update check
-PartOf=omadora-session.target
+Description=Omadora Update Check Service
 
 [Service]
 Type=oneshot
 ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-update-check
 
 Nice=10
-IOSchedulingClass=best-effort
+TimeoutStartSec=5m

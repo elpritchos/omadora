@@ -1,9 +1,7 @@
 [Unit]
-Description=Omadora theme path monitor
+Description=Omadora Theme Reload Path
 PartOf=omadora-session.target
+After=graphical-session.target
 
 [Path]
 PathChanged=%h/.config/omadora/current/theme.name
-
-[Install]
-WantedBy=omadora-session.target
