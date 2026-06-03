@@ -10,10 +10,10 @@ readonly OMADORA_UPDATE_DNF_ADVISORIES_JSON="$OMADORA_UPDATE_CACHE_DIR/dnf-advis
 readonly OMADORA_UPDATE_FWUPD_JSON="$OMADORA_UPDATE_CACHE_DIR/fwupd.json"
 
 update_waybar_module() {
-  pkill -RTMIN+7 waybar || true
+  pkill -RTMIN+7 waybar
 }
 
-update_init() {
+update_dirs_init() {
   mkdir -p \
     "$OMADORA_UPDATE_STATE_DIR" \
     "$OMADORA_UPDATE_CACHE_DIR" \
@@ -33,6 +33,11 @@ update_write_json_atomic() {
 
 update_collect_dnf() {
   dnf_package_total=0
+  dnf_advisory_total=0
+  dnf_security_total=0
+  dnf_bugfix_total=0
+  dnf_enhancement_total=0
+  dnf_other_total=0
 
   dnf5 repoquery \
     --upgrades \
@@ -43,18 +48,9 @@ update_collect_dnf() {
   dnf_package_total="$(
     wc -l <"$OMADORA_UPDATE_DNF_UPGRADES_LIST"
   )"
-}
-
-update_collect_advisories() {
-  dnf_advisory_total=0
-  dnf_security_total=0
-  dnf_bugfix_total=0
-  dnf_enhancement_total=0
-  dnf_other_total=0
 
   dnf5 advisory list \
     --updates \
-    --refresh \
     --json \
     >"$OMADORA_UPDATE_DNF_ADVISORIES_JSON" 2>/dev/null ||
     return 1

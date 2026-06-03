@@ -12,7 +12,8 @@ source "$OMADORA_LIB_DIR/update.sh"
 require_cmd dnf5
 require_cmd jq
 
-update_init
+update_dirs_init ||
+  fatal "failed to initialize update dirs"
 
 # -----------------------------------------------------------------------------
 # Locking
@@ -26,21 +27,32 @@ flock -n 9 || exit 0
 # Update Check Workflow
 # -----------------------------------------------------------------------------
 
-log_debug "Starting update check"
+printf 'Update check started\n'
+log_info "Starting update check"
 
+printf 'Collecting dnf updates\n'
 update_collect_dnf ||
-  log_warn "Failed to query DNF updates"
+  fatal "failed to collect dnf updates"
 
-update_collect_advisories ||
-  log_warn "Failed to query DNF advisories"
+printf 'Collecting cargo updates\n'
+update_collect_cargo ||
+  fatal "failed to collect cargo updates"
 
-update_collect_flatpak
+printf 'Collecting flatpak updates\n'
+update_collect_flatpak ||
+  fatal "failed to collect flatpak updates"
 
-update_collect_cargo
-
+printf 'Collecting firmware updates\n'
 update_collect_firmware ||
-  log_warn "Failed to query firmware updates"
+  fatal "failed to collect firmware updates"
 
-update_write_state
+printf 'Writing update state\n'
+update_write_state ||
+  fatal "failed to write update state"
 
-log_debug "Update check complete"
+printf 'Updating waybar module\n'
+update_waybar_module ||
+  log_debug "Failed to update Waybar module"
+
+printf 'Update check complete\n'
+log_info "Update check complete"

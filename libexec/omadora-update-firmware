@@ -6,19 +6,34 @@ readonly OMADORA_LOG_TAG="omadora-update"
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
-# TODO: Review
+# shellcheck source=lib/update.sh
+source "$OMADORA_LIB_DIR/update.sh"
 
-require_cmd fwupdmgr
-
-echo -e "\e[32mUpdate Firmware\e[0m"
-
-fwupdmgr refresh --force &>/dev/null
-
-if fwupdmgr get-updates 2>/dev/null | grep -qiE '^ *New version:'; then
-  sudo fwupdmgr update --assume-yes --no-reboot-check
-
-  # Assume a reboot is required after firmware updates
-  #omadora-state set reboot-required
-else
-  echo -e "Nothing to do.\n"
+if ! command -v fwupdmgr >/dev/null 2>&1; then
+  printf "fwupdmgr not installed. Skipping.\n"
+  log_debug "fwupdmgr not installed"
+  exit 0
 fi
+
+log_info "Updating firmware"
+
+printf "Looking for updates…\n\n"
+
+update_dirs_init ||
+  fatal "failed to initialize update dirs"
+
+update_collect_firmware ||
+  fatal "failed to query firmware updates"
+
+if ((firmware_total == 0)); then
+  printf "Nothing to do.\n"
+  exit 0
+fi
+
+sudo fwupdmgr update \
+  --assume-yes \
+  --no-reboot-check ||
+  fatal "failed to install firmware updates"
+
+# Assume a reboot is required after firmware updates
+sudo touch /run/reboot-required

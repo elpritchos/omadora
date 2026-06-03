@@ -6,12 +6,13 @@ readonly OMADORA_LOG_TAG="omadora-update"
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
-# TODO: Review
+require_cmd dnf
 
-echo -e "\e[32m\nUpdate system packages\e[0m"
+log_info "Updating system packages"
 
-#sudo dnf -q makecache --refresh
-sudo dnf upgrade -y
+# TODO: add back
+sudo dnf upgrade -y ||
+  fatal "failed to upgrade system packages"
 
 # Fedora: use dnf needs-restarting to detect if a reboot is recommended/required.
 # Non-zero exit status indicates a reboot is needed.

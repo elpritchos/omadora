@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-update"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+log_info "Running migrations"
+# Run all pending migrations to bring the system in line with the installed version.
+
+# Where we store an empty file for each migration that has already been performed.
+OMADORA_MIGRATIONS_STATE_DIR="$HOME/.local/state/omadora/migrations"
+mkdir -p "$OMADORA_MIGRATIONS_STATE_DIR"
+
+# Skipped migrations are tracked separately
+mkdir -p "$OMADORA_MIGRATIONS_STATE_DIR/skipped"
+
+# Run any pending migrations
+for file in "${OMADORA_MIGRATIONS_DIR}"/*.sh; do
+  filename="${file##*/}"
+
+  if [[ ! -f "$OMADORA_MIGRATIONS_STATE_DIR/$filename" && ! -f "$OMADORA_MIGRATIONS_STATE_DIR/skipped/$filename" ]]; then
+    printf "Migrating ==> %s\n" "${filename%.sh}"
+
+    log_debug "Running migration: ${filename}"
+
+    if bash "$file"; then
+      touch "$OMADORA_MIGRATIONS_STATE_DIR/$filename"
+    else
+      # Migrations should not fail, so don't offer to skip. Instead, just exit and let the user fix the underlying issue.
+      fatal "migration ${filename%.sh} failed"
+    fi
+  fi
+done

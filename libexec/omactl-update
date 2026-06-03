@@ -19,8 +19,9 @@ Usage:
 
 Commands:
   all (default)        Update everything (git, cargo, flatpak, etc.)
-  check                Check for updates and write state JSON
+  check                Perform manual update check
   state                Show update state JSON
+  migrate              Run migrations
 
 EOF
 }
@@ -36,7 +37,7 @@ __complete() {
   all | state)
     ;;
   *)
-    compgen -W "all check state" -- "$cmd"
+    compgen -W "all check state migrate" -- "$cmd"
     ;;
   esac
 }
@@ -56,12 +57,15 @@ case "$cmd" in
   ;;
 
 check)
-  # TODO: should update-check be a libexec script?
   exec "$OMADORA_LIBEXEC_DIR/systemd/omadora-update-check"
   ;;
 
 state)
   cat "$OMADORA_UPDATE_STATE_FILE" 2>/dev/null || true
+  ;;
+
+migrate)
+  exec "$OMADORA_LIBEXEC_DIR/omadora-update-migrate"
   ;;
 
 __complete)

@@ -15,9 +15,10 @@ Usage:
   omactl doctor <command>
 
 Commands:
-  boot
-  recent
-  follow
+  boot-errors
+  recent-errors
+  session-follow
+  session-status
 
 EOF
 }
@@ -36,11 +37,11 @@ __complete() {
   #fi
 
   case "$cmd" in
-  boot | recent | follow)
+  boot-errors | recent-errors | session-follow | session-status)
     ;;
 
   *)
-    compgen -W "boot recent follow" -- "$cmd"
+    compgen -W "boot-errors recent-errors session-follow session-status" -- "$cmd"
     ;;
   esac
 }
@@ -55,16 +56,25 @@ case "$cmd" in
   usage
   ;;
 
-boot)
+boot-errors)
   journalctl --user -p err -b
   ;;
 
-recent)
+recent-errors)
   journalctl --user -p err -n 50
   ;;
 
-follow)
-  journalctl --user -fu omadora-*
+session-follow)
+  journalctl --user -fu 'omadora-*'
+  ;;
+
+session-status)
+  printf "\n%s\n" "Session Target Status:" "----------------------"
+  systemctl --user --no-pager status omadora-session.target
+  printf "\n%s\n" "Session Target Dependencies:" "-----------------------------"
+  systemctl --user --no-pager list-dependencies omadora-session.target
+  printf "\n%s\n" "Session Units:" "----------------"
+  systemctl --user --no-pager --all list-units 'omadora-*'
   ;;
 
 __complete)

@@ -6,10 +6,13 @@ readonly OMADORA_LOG_TAG="omadora-update"
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
-# TODO: Review
+if ! command -v flatpak >/dev/null 2>&1; then
+  printf "flatpak not installed. Skipping.\n"
+  log_debug "flatpak not installed"
+  exit 0
+fi
 
-require_cmd flatpak
+log_info "Updating flatpaks"
 
-echo -e "\e[32m\nUpdate Flatpaks\e[0m"
-
-flatpak update -y
+flatpak update -y ||
+  fatal "failed to update flatpaks"
