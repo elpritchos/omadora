@@ -8,6 +8,8 @@ readonly OMADORA_UPDATE_STATE_FILE="$OMADORA_UPDATE_STATE_DIR/state.json"
 readonly OMADORA_UPDATE_DNF_UPGRADES_LIST="$OMADORA_UPDATE_CACHE_DIR/dnf-upgrades.txt"
 readonly OMADORA_UPDATE_DNF_ADVISORIES_JSON="$OMADORA_UPDATE_CACHE_DIR/dnf-advisories.json"
 readonly OMADORA_UPDATE_FWUPD_JSON="$OMADORA_UPDATE_CACHE_DIR/fwupd.json"
+readonly OMADORA_UPDATE_FLATPAK_UPGRADES_LIST="$OMADORA_UPDATE_CACHE_DIR/flatpak-upgrades.txt"
+readonly OMADORA_UPDATE_CARGO_UPGRADES_LIST="$OMADORA_UPDATE_CACHE_DIR/cargo-upgrades.txt"
 
 update_waybar_module() {
   pkill -RTMIN+7 waybar
@@ -39,20 +41,22 @@ update_collect_dnf() {
   dnf_enhancement_total=0
   dnf_other_total=0
 
-  dnf5 repoquery \
-    --upgrades \
-    --refresh \
-    >"$OMADORA_UPDATE_DNF_UPGRADES_LIST" 2>/dev/null ||
+  dnf5 -q --refresh makecache \
+    2>/dev/null ||
+    return 1
+
+  dnf5 -q repoquery --upgrades \
+    >"$OMADORA_UPDATE_DNF_UPGRADES_LIST" \
+    2>/dev/null ||
     return 1
 
   dnf_package_total="$(
     wc -l <"$OMADORA_UPDATE_DNF_UPGRADES_LIST"
   )"
 
-  dnf5 advisory list \
-    --updates \
-    --json \
-    >"$OMADORA_UPDATE_DNF_ADVISORIES_JSON" 2>/dev/null ||
+  dnf5 -q advisory list --updates --json \
+    >"$OMADORA_UPDATE_DNF_ADVISORIES_JSON" \
+    2>/dev/null ||
     return 1
 
   dnf_advisory_total="$(
@@ -89,33 +93,43 @@ update_collect_dnf() {
   )"
 }
 
+update_collect_cargo() {
+  cargo_total=0
+
+  command -v cargo >/dev/null 2>&1 ||
+    return 1
+
+  cargo install-update --version >/dev/null 2>&1 ||
+    return 1
+
+  cargo install-update --list \
+    >"$OMADORA_UPDATE_CARGO_UPGRADES_LIST" ||
+    return 1
+
+  cargo_total="$(
+    grep -cE '[[:space:]]Yes$' \
+      "$OMADORA_UPDATE_CARGO_UPGRADES_LIST" ||
+      true
+  )"
+}
+
 update_collect_flatpak() {
   flatpak_total=0
 
   command -v flatpak >/dev/null 2>&1 ||
     return 0
 
+  flatpak remote-ls \
+    --updates \
+    --columns=ref \
+    2>/dev/null \
+    >"$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST" ||
+    return 1
+
   flatpak_total="$(
-    flatpak remote-ls \
-      --updates \
-      --columns=ref \
-      2>/dev/null |
-      grep -cE '^[a-zA-Z0-9._-]+/.+/.+/.+' || true
-  )"
-}
-
-update_collect_cargo() {
-  cargo_total=0
-
-  command -v cargo >/dev/null 2>&1 ||
-    return 0
-
-  cargo install-update --version >/dev/null 2>&1 ||
-    return 0
-
-  cargo_total="$(
-    cargo install-update --list |
-      grep -cE '[[:space:]]Yes$' || true
+    grep -cE '^[a-zA-Z0-9._-]+/.+/.+/.+$' \
+      "$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST" ||
+      true
   )"
 }
 
@@ -165,8 +179,8 @@ update_write_state() {
     --argjson timestamp "$timestamp" \
     --argjson total_updates "$total_updates" \
     --argjson dnf_package_total "$dnf_package_total" \
-    --argjson flatpak_total "$flatpak_total" \
     --argjson cargo_total "$cargo_total" \
+    --argjson flatpak_total "$flatpak_total" \
     --argjson firmware_total "$firmware_total" \
     --argjson dnf_advisory_total "$dnf_advisory_total" \
     --argjson dnf_security_total "$dnf_security_total" \
@@ -186,12 +200,12 @@ update_write_state() {
       count: $dnf_package_total
     },
 
-    flatpak: {
-      count: $flatpak_total
-    },
-
     cargo: {
       count: $cargo_total
+    },
+
+    flatpak: {
+      count: $flatpak_total
     },
 
     firmware: {

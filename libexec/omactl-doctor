@@ -6,6 +6,17 @@ readonly OMADORA_LOG_TAG="omadora-doctor"
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
+# shellcheck source=lib/update.sh
+source "$OMADORA_LIB_DIR/update.sh"
+
+COMMANDS=(
+  "service-errors-boot"
+  "service-errors-recent"
+  "service-follow-omadora"
+  "service-session-status"
+  "update-state"
+)
+
 # ----------------------------
 # Usage
 # ----------------------------
@@ -15,12 +26,9 @@ Usage:
   omactl doctor <command>
 
 Commands:
-  boot-errors
-  recent-errors
-  session-follow
-  session-status
-
 EOF
+  printf '  %s\n' "${COMMANDS[@]}"
+  printf '\n'
 }
 
 # ----------------------------
@@ -41,7 +49,7 @@ __complete() {
     ;;
 
   *)
-    compgen -W "boot-errors recent-errors session-follow session-status" -- "$cmd"
+    compgen -W "${COMMANDS[*]}" -- "$cmd"
     ;;
   esac
 }
@@ -56,25 +64,29 @@ case "$cmd" in
   usage
   ;;
 
-boot-errors)
+service-errors-boot)
   journalctl --user -p err -b
   ;;
 
-recent-errors)
+service-errors-recent)
   journalctl --user -p err -n 50
   ;;
 
-session-follow)
+service-follow-omadora)
   journalctl --user -fu 'omadora-*'
   ;;
 
-session-status)
-  printf "\n%s\n" "Session Target Status:" "----------------------"
+service-session-status)
+  printf "\n%s\n" "Omadora Session Target Status:" "----------------------"
   systemctl --user --no-pager status omadora-session.target
-  printf "\n%s\n" "Session Target Dependencies:" "-----------------------------"
+  printf "\n%s\n" "Omadora Session Dependencies:" "-----------------------------"
   systemctl --user --no-pager list-dependencies omadora-session.target
-  printf "\n%s\n" "Session Units:" "----------------"
+  printf "\n%s\n" "Omadora Session Units:" "----------------"
   systemctl --user --no-pager --all list-units 'omadora-*'
+  ;;
+
+update-state)
+  cat "$OMADORA_UPDATE_STATE_FILE" 2>/dev/null || true
   ;;
 
 __complete)

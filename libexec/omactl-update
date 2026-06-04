@@ -20,7 +20,6 @@ Usage:
 Commands:
   all (default)        Update everything (git, cargo, flatpak, etc.)
   check                Perform manual update check
-  state                Show update state JSON
   migrate              Run migrations
 
 EOF
@@ -34,10 +33,10 @@ __complete() {
   local cmd="${comp_words[0]:-}"
 
   case "$cmd" in
-  all | state)
+  all | check | migrate)
     ;;
   *)
-    compgen -W "all check state migrate" -- "$cmd"
+    compgen -W "all check migrate" -- "$cmd"
     ;;
   esac
 }
@@ -58,10 +57,6 @@ case "$cmd" in
 
 check)
   exec "$OMADORA_LIBEXEC_DIR/systemd/omadora-update-check"
-  ;;
-
-state)
-  cat "$OMADORA_UPDATE_STATE_FILE" 2>/dev/null || true
   ;;
 
 migrate)

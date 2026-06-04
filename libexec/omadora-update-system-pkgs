@@ -10,8 +10,7 @@ require_cmd dnf
 
 log_info "Updating system packages"
 
-# TODO: add back
-sudo dnf upgrade -y ||
+sudo dnf --refresh upgrade -y ||
   fatal "failed to upgrade system packages"
 
 # Fedora: use dnf needs-restarting to detect if a reboot is recommended/required.
