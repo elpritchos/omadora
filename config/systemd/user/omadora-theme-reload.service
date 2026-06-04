@@ -1,5 +1,6 @@
 [Unit]
 Description=Omadora Theme Reload Service
+After=graphical-session.target
 
 [Service]
 Type=oneshot

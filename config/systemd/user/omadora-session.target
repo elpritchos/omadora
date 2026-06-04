@@ -1,12 +1,7 @@
 [Unit]
 Description=Omadora Session Target
-Documentation=man:uwsm(1) man:systemd.special(7)
 PartOf=graphical-session.target
-#BindsTo=graphical-session.target
-After=wayland-session@%i.target graphical-session.target
-Conflicts=wayland-session-shutdown.target
-Before=wayland-session-shutdown.target
-#StopWhenUnneeded=yes
+After=graphical-session.target
 
 Wants=mako.service
 Wants=waybar.service

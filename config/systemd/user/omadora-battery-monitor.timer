@@ -1,7 +1,6 @@
 [Unit]
 Description=Omadora Battery Monitor Timer
 PartOf=omadora-session.target
-After=graphical-session.target
 
 [Timer]
 OnBootSec=2min

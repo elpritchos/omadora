@@ -1,7 +1,6 @@
 [Unit]
 Description=Omadora Update Check Timer
 PartOf=omadora-session.target
-After=graphical-session.target
 
 [Timer]
 OnBootSec=15m

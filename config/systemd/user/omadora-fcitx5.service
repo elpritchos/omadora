@@ -6,5 +6,5 @@ After=graphical-session.target
 [Service]
 Type=simple
 ExecStart=/usr/bin/fcitx5
-#Slice=session.slice
 Restart=on-failure
+RestartSec=2

@@ -10,5 +10,4 @@ RemainAfterExit=yes
 ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-session-start
 ExecStop=%h/.local/share/omadora/libexec/systemd/omadora-session-stop
 
-#Slice=session-graphical.slice
 TimeoutStopSec=10
