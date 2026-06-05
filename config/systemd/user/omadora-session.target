@@ -7,14 +7,11 @@ Wants=mako.service
 Wants=waybar.service
 Wants=hypridle.service
 Wants=hyprpaper.service
-Wants=hyprsunset.service
-Wants=hyprpolkitagent.service
+#Wants=hyprsunset.service
 
 Wants=omadora-session.service
+Wants=omadora-polkitagent.service
 Wants=omadora-fcitx5.service
 Wants=omadora-battery-monitor.timer
 Wants=omadora-update-check.timer
 Wants=omadora-theme-reload.path
-
-[Install]
-WantedBy=graphical-session.target

@@ -3,7 +3,7 @@ Description=Omadora Update Check Timer
 PartOf=omadora-session.target
 
 [Timer]
-OnBootSec=15m
-OnUnitActiveSec=6h
-RandomizedDelaySec=30m
+OnBootSec=15min
+OnCalendar=*-*-* 0/6:00
+RandomizedDelaySec=30min
 Persistent=true

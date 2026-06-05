@@ -18,6 +18,7 @@ fcitx5-gtk
 fcitx5-qt
 fd-find
 fontawesome-fonts-all
+fprintd
 fzf
 gnome-calculator
 gnome-keyring
@@ -31,7 +32,6 @@ hyprland
 hyprlock
 hyprpaper
 hyprpicker
-hyprpolkitagent
 hyprshot
 hyprsunset
 imv
@@ -40,6 +40,7 @@ iwd
 kvantum-qt5
 libxkbcommon-utils
 mako
+mate-polkit
 mpv
 nautilus
 neovim

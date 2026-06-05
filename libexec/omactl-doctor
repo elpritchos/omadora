@@ -78,11 +78,13 @@ service-follow-omadora)
 
 service-session-status)
   printf "\n%s\n" "Omadora Session Target Status:" "----------------------"
-  systemctl --user --no-pager status omadora-session.target
+  systemctl --user --no-pager status omadora-session.target || true
   printf "\n%s\n" "Omadora Session Dependencies:" "-----------------------------"
-  systemctl --user --no-pager list-dependencies omadora-session.target
+  systemctl --user --no-pager list-dependencies omadora-session.target || true
   printf "\n%s\n" "Omadora Session Units:" "----------------"
-  systemctl --user --no-pager --all list-units 'omadora-*'
+  systemctl --user --no-pager --all list-units 'omadora-*' || true
+  printf "\n%s\n" "Omadora Session Timers:" "----------------"
+  systemctl --user --no-pager --all list-timers 'omadora-*' || true
   ;;
 
 update-state)
