@@ -95,6 +95,7 @@ __complete)
 
 *)
   usage >&2
-  fatal "unknown command: $cmd"
+  printf 'ERROR: unknown command: %s\n' "$cmd" >&2
+  exit 2
   ;;
 esac

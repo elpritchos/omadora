@@ -18,6 +18,6 @@ sudo dnf5 upgrade -y ||
 
 # Fedora: use dnf needs-restarting to detect if a reboot is recommended/required.
 # Non-zero exit status indicates a reboot is needed.
-if ! sudo dnf needs-restarting >/dev/null 2>&1; then
-  touch /run/reboot-required
+if ! dnf5 needs-restarting >/dev/null 2>&1; then
+  sudo touch /run/reboot-required
 fi
