@@ -5,7 +5,7 @@ After=graphical-session.target
 ConditionEnvironment=WAYLAND_DISPLAY
 
 [Service]
-ExecStart=/usr/libexec/polkit-mate-authentication-agent-1
+ExecStart=/usr/libexec/xfce-polkit
 Slice=session.slice
 TimeoutStopSec=5sec
 Restart=on-failure

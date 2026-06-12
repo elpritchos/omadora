@@ -1,7 +1,7 @@
 [Unit]
 Description=Omadora Session Target
 PartOf=graphical-session.target
-After=graphical-session.target
+After=graphical-session.target xdg-desktop-portal.service
 
 Wants=mako.service
 Wants=waybar.service

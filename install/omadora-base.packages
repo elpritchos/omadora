@@ -37,10 +37,12 @@ hyprsunset
 imv
 iputils
 iwd
+kvantum
 kvantum-qt5
+libinput
+libxkbcommon
 libxkbcommon-utils
 mako
-mate-polkit
 mpv
 nautilus
 neovim
@@ -58,6 +60,7 @@ qt6-qtwayland
 ripgrep
 satty
 slurp
+startup-notification
 sushi
 tar
 tldr
@@ -77,6 +80,7 @@ xdg-desktop-portal-gtk
 xdg-desktop-portal-hyprland
 xdg-terminal-exec
 xdg-user-dirs
+xfce-polkit
 xmlstarlet
 yaru-icon-theme
 zoxide
