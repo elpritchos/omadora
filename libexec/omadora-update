@@ -98,22 +98,22 @@ update_perform() {
 
   hyprctl dispatch tagwindow +noidle >/dev/null 2>&1 || true
 
-  print_step "Updating git"
+  print_step "Updating git..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-git"
 
-  print_step "Running migrations"
+  print_step "Running migrations..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-migrate"
 
-  print_step "Updating system packages"
+  print_step "Updating system packages..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-system-pkgs"
 
-  print_step "Updating cargo packages"
+  print_step "Updating cargo packages..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-cargo"
 
-  print_step "Updating flatpaks"
+  print_step "Updating flatpaks..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-flatpak"
 
-  print_step "Updating firmware"
+  print_step "Updating firmware..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-firmware"
 
   # TODO: reimplement hooks
@@ -128,7 +128,7 @@ update_perform() {
 # -----------------------------------------------------------------------------
 
 update_state_refresh() {
-  print_step "Refreshing update state"
+  print_step "Refreshing update state..."
 
   if ! flock -u 9; then
     log_debug "Could not drop update lock"
@@ -190,6 +190,6 @@ update_perform
 
 update_state_refresh
 
-print_step "Update completed"
+print_step "Update complete."
 
 update_restart_check

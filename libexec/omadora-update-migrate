@@ -33,3 +33,5 @@ for file in "${OMADORA_MIGRATIONS_DIR}"/*.sh; do
     fi
   fi
 done
+
+printf "Done.\n"
