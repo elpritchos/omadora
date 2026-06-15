@@ -1,5 +1,3 @@
-#!/bin/bash
-
 clear
 tte -i ~/.local/share/omadora/logo.txt --frame-rate 920 laseretch
 echo
