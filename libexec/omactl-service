@@ -9,8 +9,18 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 # shellcheck source=lib/service.sh
 source "$OMADORA_LIB_DIR/service.sh"
 
-# TODO: Remove this comment
-# Service: reboot/shutdown/lock/power-profile/timezone/status
+COMMANDS=(
+  "reload"
+)
+
+SERVICES=(
+  "alacritty"
+  "ghostty"
+  "hyprland"
+  "kitty"
+  "mako"
+  "waybar"
+)
 
 # ----------------------------
 # Usage
@@ -21,8 +31,9 @@ Usage:
   omactl service <command>
 
 Commands:
-
 EOF
+  printf '  %s\n' "${COMMANDS[@]}"
+  printf '\n'
 }
 
 # ----------------------------
@@ -31,10 +42,23 @@ EOF
 __complete() {
   local comp_words=("$@")
   local cmd="${comp_words[0]:-}"
+  local cur=""
+
+  if ((${#comp_words[@]})); then
+    cur="${comp_words[${#comp_words[@]} - 1]}"
+  fi
 
   case "$cmd" in
+  #stop | restart | reload)
+  #  systemctl --user list-units --type=service --state=running --no-legend --no-pager |
+  #    awk '{print $1}'
+  #  ;;
+  status | start | stop | restart | reload)
+    compgen -W "${SERVICES[*]}" -- "$cur"
+    ;;
+
   *)
-    compgen -W "" -- "$cmd"
+    compgen -W "${COMMANDS[*]}" -- "$cmd"
     ;;
   esac
 }
@@ -42,11 +66,39 @@ __complete() {
 # ----------------------------
 # Dispatcher
 # ----------------------------
+service_dispatch() {
+  local action="$1"
+  local unit="$2"
+  local fn="service_${action}_${unit}"
+
+  if declare -F "$fn" >/dev/null; then
+    "$fn"
+  else
+    #systemctl --user "$action" "${unit}.service"
+    printf 'ERROR: function not found: %s\n' "${fn}" >&2
+    exit 2
+  fi
+}
+
 cmd="${1:-}"
 
 case "$cmd" in
 "" | -h | --help | help)
   usage
+  ;;
+
+status | start | stop | restart | reload)
+  shift
+  service_cmd="$cmd"
+  service_name="${1:-}"
+
+  if [[ -z "$service_name" ]]; then
+    usage >&2
+    printf 'ERROR: missing service name\n' >&2
+    exit 2
+  fi
+
+  service_dispatch "$service_cmd" "$service_name"
   ;;
 
 __complete)

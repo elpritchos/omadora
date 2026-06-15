@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Adjust audio output volume.
+
+cmd="${1:-raise}"
+
+if [[ $cmd == "raise" ]]; then
+  wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+  wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 0.05+
+elif [[ $cmd == "lower" ]]; then
+  wpctl set-mute @DEFAULT_AUDIO_SINK@ 0
+  wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-
+elif [[ $cmd == "mute-toggle" ]]; then
+  wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+fi
+
+notify-send -h string:x-canonical-private-synchronous:audio -u low -t 2000 "Output Volume" "$(wpctl get-volume @DEFAULT_AUDIO_SINK@ | awk '{printf "%d%% %s", $2 * 100, $3}')"

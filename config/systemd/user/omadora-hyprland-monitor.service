@@ -1,0 +1,10 @@
+[Unit]
+Description=Omadora Hyprland Monitor Service
+PartOf=omadora-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-hyprland-monitor-watch
+Restart=on-failure
+RestartSec=2

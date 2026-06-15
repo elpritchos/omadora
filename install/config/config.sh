@@ -1,5 +1,3 @@
-xdg-user-dirs-update
-
 # Copy over configs
 mkdir -p ~/.config
 cp -R ~/.local/share/omadora/config/* ~/.config/

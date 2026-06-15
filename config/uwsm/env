@@ -4,6 +4,27 @@
 export OMADORA_PATH=$HOME/.local/share/omadora
 export PATH=$OMADORA_PATH/bin/:$PATH
 
+# Cursor size
+export XCURSOR_SIZE=24
+export HYPRCURSOR_SIZE=24
+
+# Force all apps to use Wayland
+export GDK_BACKEND="wayland,x11,*"
+export QT_QPA_PLATFORM="wayland;xcb"
+export QT_STYLE_OVERRIDE="kvantum"
+export SDL_VIDEODRIVER="wayland"
+export MOZ_ENABLE_WAYLAND=1
+export ELECTRON_OZONE_PLATFORM_HINT="wayland"
+export OZONE_PLATFORM="wayland"
+export XDG_SESSION_TYPE="wayland"
+
+# Allow better support for screen sharing (Google Meet, Discord, etc)
+export XDG_CURRENT_DESKTOP="Hyprland"
+export XDG_SESSION_DESKTOP="Hyprland"
+
+# Use XCompose file
+export XCOMPOSEFILE=$HOME/.XCompose
+
 # Set default terminal and editor
 source ~/.config/uwsm/default
 

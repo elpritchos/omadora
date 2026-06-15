@@ -1,9 +1,14 @@
 #!/bin/bash
 
-if pgrep -x hypridle >/dev/null; then
-  pkill -x hypridle
-  notify-send "Stop locking computer when idle"
+# Toggle hypridle idle locking
+
+if systemctl --quiet --user is-active hypridle.service; then
+  systemctl --user stop hypridle.service
+  notify-send -u low "󱫖    Stop locking computer when idle"
 else
-  uwsm-app -- hypridle >/dev/null 2>&1 &
-  notify-send "Now locking computer when idle"
+  systemctl --user start hypridle.service
+  notify-send -u low "󱫖    Now locking computer when idle"
 fi
+
+# TODO: check this
+pkill -RTMIN+9 waybar

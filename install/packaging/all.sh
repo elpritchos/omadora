@@ -1,5 +1,6 @@
 source "$OMADORA_INSTALL/packaging/base.sh"
 source "$OMADORA_INSTALL/packaging/cargo.sh"
+source "$OMADORA_INSTALL/packaging/flathub.sh"
 source "$OMADORA_INSTALL/packaging/fonts.sh"
 source "$OMADORA_INSTALL/packaging/nvim.sh"
 source "$OMADORA_INSTALL/packaging/icons.sh"

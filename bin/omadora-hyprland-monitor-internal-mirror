@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# Enable, disable, toggle, or recover mirroring the internal display to an external monitor
+
+TOGGLE="internal-monitor-mirror"
+TOGGLE_FLAG="$HOME/.local/state/omadora/toggles/hypr/$TOGGLE.conf"
+DISABLE_TOGGLE="internal-monitor-disable"
+
+# Get names dynamically
+INTERNAL=$(hyprctl monitors -j | jq -r '.[] | select(.name | contains("eDP")).name' | head -n 1)
+# Get the first available external monitor
+EXTERNAL=$(hyprctl monitors -j | jq -r '.[] | select(.name | contains("eDP") | not).name' | head -n 1)
+
+enable() {
+  if [[ -z "$EXTERNAL" ]]; then
+    notify-send -u low "󰍹    No external monitors found for mirror"
+    exit 1
+  fi
+
+  if [[ -z "$INTERNAL" ]]; then
+    notify-send -u low "󰍹    No laptop monitor found to mirror"
+    exit 1
+  fi
+
+  if omadora-hyprland-toggle-enabled "$DISABLE_TOGGLE"; then
+    omadora-hyprland-toggle "$DISABLE_TOGGLE"
+  fi
+
+  if omadora-hyprland-toggle-disabled "$TOGGLE"; then
+    echo "monitor=$EXTERNAL, preferred, auto, 1, mirror, $INTERNAL" >"$TOGGLE_FLAG"
+    notify-send -u low "󰍹    Mirroring enabled ($EXTERNAL)"
+    hyprctl reload
+  fi
+}
+
+disable() {
+  if omadora-hyprland-toggle-enabled "$TOGGLE"; then
+    omadora-hyprland-toggle --disabled-notification "󰍹    Extended mode restored" "$TOGGLE"
+  fi
+}
+
+recover() {
+  if ! omadora-hw-external-monitors && omadora-hyprland-toggle-enabled "$TOGGLE"; then
+    omadora-hyprland-toggle "$TOGGLE"
+  fi
+}
+
+case "$1" in
+on) enable ;;
+off) disable ;;
+toggle) if omadora-hyprland-toggle-enabled "$TOGGLE"; then disable; else enable; fi ;;
+recover) recover ;;
+*)
+  echo "Usage: $(basename "$0") {on|off|toggle|recover}" >&2
+  exit 1
+  ;;
+esac

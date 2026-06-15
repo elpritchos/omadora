@@ -21,6 +21,7 @@ focused_monitor="$({
 
 cleanup() {
   hyprctl keyword cursor:invisible false >/dev/null 2>&1 || true
+  exit 0
 }
 
 trap cleanup EXIT SIGINT SIGTERM
