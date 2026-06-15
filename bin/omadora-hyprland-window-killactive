@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Kill wofi or active window.
+
+if pgrep -x wofi >/dev/null; then
+  pkill -x wofi
+else
+  hyprctl dispatch killactive
+fi
