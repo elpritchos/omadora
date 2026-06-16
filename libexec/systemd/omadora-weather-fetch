@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# =========================================================
+# Omadora Weather Daemon
+# =========================================================
+
+readonly OMADORA_LOG_TAG="omadora-weather"
+
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+STATE_DIR="${OMADORA_STATE_HOME}/weather"
+CACHE_DIR="${OMADORA_CACHE_HOME}/weather"
+
+STATE_FILE="$STATE_DIR/state.json"
+RAW_FILE="$CACHE_DIR/raw.json"
+
+mkdir -p "$STATE_DIR" "$CACHE_DIR"
+
+# ---------------------------------------
+# 1. IP geolocation
+# ---------------------------------------
+get_location() {
+  curl -fsS https://ipapi.co/json/ |
+    jq -r '{
+      source: "ipapi",
+      lat: .latitude,
+      lon: .longitude,
+      city: .city,
+      country: .country_code
+    }'
+}
+
+# ---------------------------------------
+# 2. Open-Meteo fetch
+# ---------------------------------------
+fetch_weather() {
+  local lat="$1"
+  local lon="$2"
+
+  curl -fsS \
+    "https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto\
+&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weathercode,cloud_cover,pressure_msl,wind_speed_10m,wind_gusts_10m,wind_direction_10m,visibility,uv_index\
+&hourly=uv_index,precipitation_probability\
+&daily=weathercode,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset\
+&forecast_days=7"
+}
+
+# ---------------------------------------
+# 3. condition mapping (WMO)
+# ---------------------------------------
+get_condition() {
+  case "$1" in
+  0) echo "clear" ;;
+  1 | 2 | 3) echo "cloudy" ;;
+  45 | 48) echo "fog" ;;
+  51 | 53 | 55) echo "drizzle" ;;
+  56 | 57) echo "freezing_drizzle" ;;
+  61 | 63 | 65) echo "rain" ;;
+  66 | 67) echo "freezing_rain" ;;
+  71 | 73 | 75) echo "snow" ;;
+  77) echo "snow_grains" ;;
+  80 | 81 | 82) echo "showers" ;;
+  85 | 86) echo "snow_showers" ;;
+  95) echo "thunderstorm" ;;
+  96 | 99) echo "severe_thunderstorm" ;;
+  *) echo "unknown" ;;
+  esac
+}
+
+# ---------------------------------------
+# 4. wind class (Beaufort)
+# ---------------------------------------
+get_wind_class() {
+  awk -v w="$1" 'BEGIN {
+    if (w < 0.5) print "calm"
+    else if (w < 1.6) print "light_air"
+    else if (w < 3.4) print "light_breeze"
+    else if (w < 5.5) print "gentle_breeze"
+    else if (w < 7.9) print "moderate_breeze"
+    else if (w < 10.8) print "fresh_breeze"
+    else if (w < 13.9) print "strong_breeze"
+    else if (w < 17.2) print "near_gale"
+    else print "gale"
+  }'
+}
+
+# ---------------------------------------
+# 5. UV class (WHO)
+# ---------------------------------------
+get_uv_class() {
+  awk -v u="$1" 'BEGIN {
+    if (u < 3) print "low"
+    else if (u < 6) print "moderate"
+    else if (u < 8) print "high"
+    else if (u < 11) print "very_high"
+    else print "extreme"
+  }'
+}
+
+# ---------------------------------------
+# 6. precipitation signal
+# ---------------------------------------
+get_precip_signal() {
+  jq -r '
+    (.hourly.precipitation_probability // [])
+    | to_entries
+    | map(select(.value >= 40))
+    | first
+    | if . == null then null else .key end
+  '
+}
+
+# ---------------------------------------
+# 7. fallback
+# ---------------------------------------
+fallback_state() {
+  jq -n '{
+    meta:{valid:false},
+    location:{},
+    weather:{
+      source: null,
+      current_units:{},
+      current:{},
+      daily_units:{},
+      daily:{},
+      derived:{icon:"",condition:"unknown"},
+      signals:{},
+    }
+  }'
+}
+
+# ---------------------------------------
+# 8. reducer
+# ---------------------------------------
+reduce_weather() {
+  local data="$1"
+
+  # CURRENT
+  current_units=$(jq -r '.current_units' <<<"$data")
+  current=$(jq -r '.current' <<<"$data")
+
+  # DAILY
+  daily_units=$(jq -r '.daily_units' <<<"$data")
+  daily=$(jq -r '.daily | with_entries(.value |= .[0])' <<<"$data")
+
+  # DERIVED
+  weathercode=$(jq -r '.current.weathercode' <<<"$data")
+  wind_speed_10m=$(jq -r '.current.wind_speed_10m' <<<"$data")
+  uv_index=$(jq -r '.current.uv_index' <<<"$data")
+
+  condition=$(get_condition "$weathercode")
+  wind_class=$(get_wind_class "$wind_speed_10m")
+  uv_class=$(get_uv_class "$uv_index")
+
+  # VIEW ICON
+  is_day=$(jq -r '.current.is_day' <<<"$data")
+
+  local icon=""
+  case "$condition:$is_day" in
+  clear:1) icon="󰖙" ;;
+  clear:0) icon="󰖔" ;;
+  cloudy:*) icon="" ;;
+  fog:*) icon="" ;;
+  drizzle:*) icon="" ;;
+  freezing_drizzle:*) icon="" ;;
+  rain:*) icon="" ;;
+  showers:*) icon="" ;;
+  snow:*) icon="" ;;
+  snow_showers:*) icon="" ;;
+  thunderstorm:*) icon="" ;;
+  severe_thunderstorm:*) icon="" ;;
+  esac
+
+  # SIGNALS
+  precip_signal=$(get_precip_signal <<<"$data")
+
+  jq -n \
+    --argjson current_units "$current_units" \
+    --argjson current "$current" \
+    --argjson daily_units "$daily_units" \
+    --argjson daily "$daily" \
+    --arg condition "$condition" \
+    --arg icon "$icon" \
+    --arg wind_class "$wind_class" \
+    --arg uv_class "$uv_class" \
+    --argjson precip_signal "$precip_signal" \
+    '
+    {
+      source:"open-meteo",
+
+      current_units:$current_units,
+
+      current:$current,
+
+      daily_units:$daily_units,
+
+      daily:$daily,
+
+      derived:{
+        icon:$icon,
+        condition:$condition,
+        wind_class:$wind_class,
+        uv_index_class:$uv_class
+      },
+
+      signals:{
+        next_precip_probability_index:$precip_signal
+      }
+    }
+  '
+}
+
+# ---------------------------------------
+# 9. compile
+# ---------------------------------------
+compile_output() {
+  local loc="$1"
+  local reduced="$2"
+
+  jq -n \
+    --argjson location "$loc" \
+    --argjson weather "$reduced" \
+    '
+    {
+      meta:{
+        valid: true,
+        timestamp:(now|floor)
+      },
+      location: $location,
+      weather: $weather
+    }
+  '
+}
+
+# ---------------------------------------
+# 10. main
+# ---------------------------------------
+loc=$(get_location || true)
+
+lat=$(jq -r '.lat // empty' <<<"$loc")
+lon=$(jq -r '.lon // empty' <<<"$loc")
+
+if [[ -z "$lat" || -z "$lon" ]]; then
+  fallback_state >"$STATE_FILE"
+  exit 0
+fi
+
+raw=$(fetch_weather "$lat" "$lon")
+printf '%s' "$raw" >"$RAW_FILE"
+
+if ! reduced=$(reduce_weather "$raw"); then
+  fallback_state >"$STATE_FILE"
+  exit 0
+fi
+
+if ! compiled=$(compile_output "$loc" "$reduced"); then
+  fallback_state >"$STATE_FILE"
+  exit 0
+fi
+
+printf '%s' "$compiled" >"$STATE_FILE"

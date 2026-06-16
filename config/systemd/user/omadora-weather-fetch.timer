@@ -1,0 +1,9 @@
+[Unit]
+Description=Omadora Weather Fetch Timer
+PartOf=omadora-session.target
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=5min
+AccuracySec=30s
+RandomizedDelaySec=15s

@@ -1,0 +1,19 @@
+[Unit]
+Description=Omadora Weather Fetch Service
+After=graphical-session.target network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-weather-fetch
+
+# hardening (safe, minimal)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=false
+
+# allow writing state/cache
+ReadWritePaths=%h/.local/state/omadora/weather %h/.cache/omadora/weather
+
+Nice=10
+TimeoutStartSec=5m

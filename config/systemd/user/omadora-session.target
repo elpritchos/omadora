@@ -17,3 +17,4 @@ Wants=omadora-fcitx5.service
 Wants=omadora-battery-monitor.timer
 Wants=omadora-update-check.timer
 Wants=omadora-theme-reload.path
+Wants=omadora-weather-fetch.timer

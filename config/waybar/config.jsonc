@@ -10,7 +10,10 @@
   ],
   "modules-center": [
     "clock",
-    "custom/screenrecording-indicator"
+    "custom/weather",
+    "custom/screenrecording-indicator",
+    "custom/idle-indicator",
+    "custom/notification-silencing-indicator"
   ],
   "modules-right": [
     "group/tray-expander",
@@ -19,7 +22,7 @@
     "pulseaudio",
     "cpu",
     "battery",
-    "custom/updates"
+    "custom/update"
   ],
   "hyprland/workspaces": {
     "on-click": "activate",
@@ -35,6 +38,7 @@
       "7": "7",
       "8": "8",
       "9": "9",
+      "10": "0",
       "active": "󱓻"
     },
     "persistent-workspaces": {
@@ -51,10 +55,10 @@
     "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "Omadora Menu\n\nSuper + Alt + Space"
   },
-  "custom/updates": {
-    "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-updates",
+  "custom/update": {
+    "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-update",
     "return-type": "json",
-    "interval": 30,
+    "interval": 60,
     "signal": 7,
     "on-click": "omadora-launch-floating-terminal-with-presentation omactl update all",
     "format": "{icon} {text}",
@@ -77,6 +81,27 @@
     "format-alt": "{:L%d %B W%V %Y}",
     "tooltip-format": "{:%Z:%Ez}",
     "on-click-right": "omadora-launch-floating-terminal-with-presentation omadora-tz-select"
+  },
+  "custom/weather": {
+    "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-weather",
+    "return-type": "json",
+    "interval": 60,
+    "format": "{icon} {text}",
+    "format-icons": {
+      "unknown": "",
+      "clear": "󰖙",
+      "cloudy": "",
+      "fog": "",
+      "drizzle": "",
+      "freezing_drizzle": "",
+      "rain": "",
+      "showers": "",
+      "snow": "",
+      "snow_showers": "",
+      "thunderstorm": "",
+      "severe_thunderstorm": ""
+    },
+    "tooltip": true
   },
   "network": {
     "format-icons": [
@@ -183,9 +208,21 @@
     "on-scroll-right": ""
   },
   "custom/screenrecording-indicator": {
-    "on-click": "omadora-cmd-screenrecord",
+    "on-click": "omadora-capture-screenrecording",
     "exec": "$OMADORA_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
+    "return-type": "json"
+  },
+  "custom/idle-indicator": {
+    "on-click": "omadora-toggle-idle",
+    "exec": "$OMADORA_PATH/default/waybar/indicators/idle.sh",
+    "signal": 9,
+    "return-type": "json"
+  },
+  "custom/notification-silencing-indicator": {
+    "on-click": "omadora-toggle-notification-silencing",
+    "exec": "$OMADORA_PATH/default/waybar/indicators/notification-silencing.sh",
+    "signal": 10,
     "return-type": "json"
   },
   "tray": {

@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly OMADORA_LOG_TAG="omadora-weather"
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+require_cmd jq
+
+STATE_FILE="${OMADORA_STATE_HOME}/weather/state.json"
+
+if [[ ! -f "$STATE_FILE" ]]; then
+  jq -nc '{text:"", alt:"unknown", tooltip:"Unknown: no weather data"}'
+  exit 0
+fi
+
+if ! jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null; then
+  jq -nc '{text:"", alt:"unknown", tooltip:"Unknown: invalid weather data"}'
+  exit 0
+fi
+
+jq -c '
+  {
+    text: "\(.weather.current.temperature_2m | tostring)\(.weather.current_units.temperature_2m)",
+    alt: (.weather.derived.condition),
+    tooltip:
+      (
+        "Location: \(.location.city), \(.location.country)\n" +
+        "Condition: \(.weather.derived.condition)\n" +
+        "Temperature: \(.weather.current.temperature_2m | tostring)\(.weather.current_units.temperature_2m) (feels \(.weather.current.apparent_temperature | tostring)\(.weather.current_units.apparent_temperature))\n" +
+        "\n" +
+        "Rain Probability: \(.weather.daily.precipitation_probability_max | tostring)\(.weather.daily_units.precipitation_probability_max)\n" +
+        "Humidity: \(.weather.current.relative_humidity_2m | tostring)\(.weather.current_units.relative_humidity_2m)\n" +
+        "Wind: \(.weather.current.wind_direction_10m | tostring)\(.weather.current_units.wind_direction_10m) \(.weather.current.wind_speed_10m | tostring) \(.weather.current_units.wind_speed_10m) (gusts \(.weather.current.wind_gusts_10m | tostring) \(.weather.current_units.wind_gusts_10m))\n" +
+        "UV Index: \(.weather.derived.uv_index_class) (\(.weather.current.uv_index | tostring))\n" +
+        "\n" +
+        "Sunrise: \(.weather.daily.sunrise | tostring)\n" +
+        "Sunset: \(.weather.daily.sunset | tostring)"
+      ),
+      class: [(.weather.derived.condition | tostring)]
+  }
+' "$STATE_FILE"

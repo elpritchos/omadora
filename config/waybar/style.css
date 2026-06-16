@@ -3,9 +3,9 @@
 * {
   border: none;
   border-radius: 0;
-  font-family: "CaskaydiaMono Nerd Font";
-  font-size: 12px;
   min-height: 0;
+  font-family: 'Cascadia Code NF';
+  font-size: 12px;
 }
 
 window#waybar {
@@ -14,6 +14,7 @@ window#waybar {
 }
 
 .modules-left,
+.modules-center,
 .modules-right {
   padding: 0 8px;
 }
@@ -27,8 +28,11 @@ window#waybar {
 #cpu,
 #tray,
 #custom-omadora,
-#custom-updates,
+#custom-update,
 #custom-expand-icon,
+#custom-weather,
+#custom-idle-indicator,
+#custom-notification-silencing-indicator,
 #custom-screenrecording-indicator {
   padding: 0 8px;
 }
@@ -41,6 +45,15 @@ window#waybar {
   opacity: 0.5;
 }
 
+#custom-weather.unavailable {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+#custom-update.security,
+#custom-idle-indicator.active,
+#custom-notification-silencing-indicator.active,
 #custom-screenrecording-indicator.active {
   color: #a55555;
 }
