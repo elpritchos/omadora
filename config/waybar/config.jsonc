@@ -74,7 +74,8 @@
   "cpu": {
     "interval": 5,
     "format": "󰍛",
-    "on-click": "omadora-launch-system-monitor"
+    "on-click": "omadora-launch-system-monitor",
+    "on-click-right": "alacritty"
   },
   "clock": {
     "format": "{:L%A %H:%M}",
@@ -159,6 +160,7 @@
     "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
     "interval": 5,
     "on-click": "omadora-menu power",
+    "on-click-right": "notify-send -u low \"$(omadora-battery-status)\"",
     "states": {
       "warning": 20,
       "critical": 10
@@ -179,9 +181,10 @@
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,
-    "format-muted": "󰝟",
+    "format-muted": "",
     "format-icons": {
       "headphone": "",
+      "headset": "",
       "default": [
         "",
         "",

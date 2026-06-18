@@ -49,7 +49,7 @@ def update_section:
     | map(select(. != null))
   )
   | if length > 0 then
-      ["Updates:"] + . + [""]
+      ["Updates:"] + .
     else
       []
     end;
@@ -76,13 +76,13 @@ def advisory_section:
     | map(select(. != null))
   )
   | if length > 0 then
-      ["Advisories:"] + . + [""]
+      ["Advisories:"] + .
     else
       []
     end;
 
 def full_summary:
-  (update_section + advisory_section)
+  (update_section + [""] + advisory_section)
   | join("\n");
 
 if $reboot_required then

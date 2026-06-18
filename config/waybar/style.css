@@ -46,7 +46,7 @@ window#waybar {
 }
 
 #custom-weather.stale {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 #custom-weather.error,
