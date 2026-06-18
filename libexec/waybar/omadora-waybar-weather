@@ -37,24 +37,12 @@ fi
 
 jq -c --argjson now "$NOW" '
   def cardinal:
-    [
-      "N",
-      "NNE",
-      "NE",
-      "ENE",
-      "E",
-      "ESE",
-      "SE",
-      "SSE",
-      "S",
-      "SSW",
-      "SW",
-      "WSW",
-      "W",
-      "WNW",
-      "NW",
-      "NNW"
-    ][((((. + 11.25) / 22.5) | floor) % 16)];
+  [
+    "N","NNE","NE","ENE",
+    "E","ESE","SE","SSE",
+    "S","SSW","SW","WSW",
+    "W","WNW","NW","NNW"
+  ][((. + 11.25) / 22.5 | floor) % 16];
 
   def time_only:
     split("T")[1];

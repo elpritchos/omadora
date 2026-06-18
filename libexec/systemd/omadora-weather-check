@@ -18,7 +18,7 @@ RAW_FILE="$CACHE_DIR/raw.json"
 mkdir -p "$STATE_DIR" "$CACHE_DIR"
 
 # ---------------------------------------
-# 1. IP geolocation
+# IP geolocation
 # ---------------------------------------
 get_location() {
   curl -fsS https://ipapi.co/json/ |
@@ -33,22 +33,74 @@ get_location() {
 }
 
 # ---------------------------------------
-# 2. Open-Meteo fetch
+# Get units
+# ---------------------------------------
+get_units() {
+  local mode="${OMADORA_WEATHER_UNITS:-auto}"
+  local system
+
+  case "$mode" in
+  metric | imperial)
+    system="$mode"
+    ;;
+  auto)
+    measurement="$(locale measurement 2>/dev/null || true)"
+
+    case "$measurement" in
+    1) system="metric" ;;
+    2) system="imperial" ;;
+    *)
+      case "${LANG:-}" in
+      *US* | *LR* | *MM*) system="imperial" ;;
+      *) system="metric" ;;
+      esac
+      ;;
+    esac
+    ;;
+  *)
+    mode="auto"
+    system="metric"
+    ;;
+  esac
+
+  printf '{"mode":"%s","system":"%s"}\n' "$mode" "$system"
+}
+
+# ---------------------------------------
+# Open-Meteo fetch
 # ---------------------------------------
 fetch_weather() {
   local lat="$1"
   local lon="$2"
+  local system="$3"
+
+  local wind_speed_unit="kmh"
+  local temperature_unit="celsius"
+  local precipitation_unit="mm"
+
+  if [[ "$system" == "imperial" ]]; then
+    wind_speed_unit="mph"
+    temperature_unit="fahrenheit"
+    precipitation_unit="inch"
+  fi
 
   curl -fsS \
-    "https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto\
-&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weathercode,cloud_cover,pressure_msl,wind_speed_10m,wind_gusts_10m,wind_direction_10m,visibility,uv_index\
+    "https://api.open-meteo.com/v1/forecast?\
+latitude=${lat}\
+&longitude=${lon}\
 &hourly=uv_index,precipitation_probability\
-&daily=weathercode,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset\
+&daily=weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset\
+&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,cloud_cover,pressure_msl,wind_speed_10m,wind_gusts_10m,wind_direction_100m,visibility,uv_index\
+&wind_speed_unit=${wind_speed_unit}\
+&temperature_unit=${temperature_unit}\
+&precipitation_unit=${precipitation_unit}\
+&timeformat=iso8601\
+&timezone=auto\
 &forecast_days=7"
 }
 
 # ---------------------------------------
-# 3. condition mapping (WMO)
+# Condition mapping (WMO)
 # ---------------------------------------
 get_condition() {
   case "$1" in
@@ -70,24 +122,51 @@ get_condition() {
 }
 
 # ---------------------------------------
-# 4. wind class (Beaufort)
+# Wind class (Beaufort scale 0–12)
 # ---------------------------------------
 get_wind_class() {
-  awk -v w="$1" 'BEGIN {
-    if (w < 0.5) print "calm"
-    else if (w < 1.6) print "light_air"
-    else if (w < 3.4) print "light_breeze"
-    else if (w < 5.5) print "gentle_breeze"
-    else if (w < 7.9) print "moderate_breeze"
+  local speed="$1"
+  local unit="$2"
+
+  local ms
+
+  case "$unit" in
+  km/h | kmh)
+    ms=$(awk -v v="$speed" 'BEGIN { print v / 3.6 }')
+    ;;
+  mph)
+    ms=$(awk -v v="$speed" 'BEGIN { print v * 0.44704 }')
+    ;;
+  knots | kt | kt.)
+    ms=$(awk -v v="$speed" 'BEGIN { print v * 0.514444 }')
+    ;;
+  m/s | ms | mps | "")
+    ms="$speed"
+    ;;
+  *)
+    ms="$speed"
+    ;;
+  esac
+
+  awk -v w="$ms" 'BEGIN {
+    if      (w < 0.3)  print "calm"
+    else if (w < 1.6)  print "light_air"
+    else if (w < 3.4)  print "light_breeze"
+    else if (w < 5.5)  print "gentle_breeze"
+    else if (w < 8.0)  print "moderate_breeze"
     else if (w < 10.8) print "fresh_breeze"
     else if (w < 13.9) print "strong_breeze"
     else if (w < 17.2) print "near_gale"
-    else print "gale"
+    else if (w < 20.8) print "gale"
+    else if (w < 24.5) print "strong_gale"
+    else if (w < 28.5) print "storm"
+    else if (w < 32.7) print "violent_storm"
+    else               print "hurricane"
   }'
 }
 
 # ---------------------------------------
-# 5. UV class (WHO)
+# UV class (WHO)
 # ---------------------------------------
 get_uv_class() {
   awk -v u="$1" 'BEGIN {
@@ -100,20 +179,7 @@ get_uv_class() {
 }
 
 # ---------------------------------------
-# 6. precipitation signal
-# ---------------------------------------
-get_precip_signal() {
-  jq -r '
-    (.hourly.precipitation_probability // [])
-    | to_entries
-    | map(select(.value >= 40))
-    | first
-    | if . == null then null else .key end
-  '
-}
-
-# ---------------------------------------
-# 7. fallback
+# Fallback
 # ---------------------------------------
 fallback_state() {
   jq -n '{
@@ -132,10 +198,12 @@ fallback_state() {
 }
 
 # ---------------------------------------
-# 8. reducer
+# Reducer
 # ---------------------------------------
 reduce_weather() {
   local data="$1"
+
+  utc_offset_seconds=$(jq -r '.utc_offset_seconds' <<<"$data")
 
   # CURRENT
   current_units=$(jq -r '.current_units' <<<"$data")
@@ -146,13 +214,14 @@ reduce_weather() {
   daily=$(jq -r '.daily | with_entries(.value |= .[0])' <<<"$data")
 
   # DERIVED
-  weathercode=$(jq -r '.current.weathercode' <<<"$data")
+  weather_code=$(jq -r '.current.weather_code' <<<"$data")
   wind_speed_10m=$(jq -r '.current.wind_speed_10m' <<<"$data")
+  wind_speed_unit=$(jq -r '.current_units.wind_speed_10m' <<<"$data")
   uv_index=$(jq -r '.current.uv_index' <<<"$data")
   uv_index_max=$(jq -r '.daily.uv_index_max[0]' <<<"$data")
 
-  condition=$(get_condition "$weathercode")
-  wind_class=$(get_wind_class "$wind_speed_10m")
+  condition=$(get_condition "$weather_code")
+  wind_class=$(get_wind_class "$wind_speed_10m" "$wind_speed_unit")
   uv_class=$(get_uv_class "$uv_index")
   uv_max_class=$(get_uv_class "$uv_index_max")
 
@@ -175,10 +244,8 @@ reduce_weather() {
   severe_thunderstorm:*) icon="" ;;
   esac
 
-  # SIGNALS
-  precip_signal=$(get_precip_signal <<<"$data")
-
   jq -n \
+    --argjson utc_offset_seconds "$utc_offset_seconds" \
     --argjson current_units "$current_units" \
     --argjson current "$current" \
     --argjson daily_units "$daily_units" \
@@ -188,10 +255,11 @@ reduce_weather() {
     --arg wind_class "$wind_class" \
     --arg uv_class "$uv_class" \
     --arg uv_max_class "$uv_max_class" \
-    --argjson precip_signal "$precip_signal" \
     '
     {
       source:"open-meteo",
+
+      utc_offset_seconds:$utc_offset_seconds,
 
       current_units:$current_units,
 
@@ -208,23 +276,21 @@ reduce_weather() {
         uv_index_class:$uv_class,
         uv_index_max_class:$uv_max_class
       },
-
-      signals:{
-        next_precip_probability_index:$precip_signal
-      }
     }
   '
 }
 
 # ---------------------------------------
-# 9. compile
+# Compile
 # ---------------------------------------
 compile_output() {
   local loc="$1"
-  local reduced="$2"
+  local units="$2"
+  local reduced="$3"
 
   jq -n \
     --argjson location "$loc" \
+    --argjson units "$units" \
     --argjson weather "$reduced" \
     '
     {
@@ -233,25 +299,28 @@ compile_output() {
         timestamp:(now|floor)
       },
       location: $location,
+      units: $units,
       weather: $weather
     }
   '
 }
 
 # ---------------------------------------
-# 10. main
+# Main
 # ---------------------------------------
 loc=$(get_location || true)
+units=$(get_units || true)
 
 lat=$(jq -r '.lat // empty' <<<"$loc")
 lon=$(jq -r '.lon // empty' <<<"$loc")
+system=$(jq -r '.system // empty' <<<"$units")
 
-if [[ -z "$lat" || -z "$lon" ]]; then
+if [[ -z "$lat" || -z "$lon" || -z "$system" ]]; then
   fallback_state >"$STATE_FILE"
   exit 0
 fi
 
-raw=$(fetch_weather "$lat" "$lon")
+raw=$(fetch_weather "$lat" "$lon" "$system")
 printf '%s' "$raw" >"$RAW_FILE"
 
 if ! reduced=$(reduce_weather "$raw"); then
@@ -259,7 +328,7 @@ if ! reduced=$(reduce_weather "$raw"); then
   exit 0
 fi
 
-if ! compiled=$(compile_output "$loc" "$reduced"); then
+if ! compiled=$(compile_output "$loc" "$units" "$reduced"); then
   fallback_state >"$STATE_FILE"
   exit 0
 fi
