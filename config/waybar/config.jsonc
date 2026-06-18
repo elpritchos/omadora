@@ -86,9 +86,10 @@
     "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-weather",
     "return-type": "json",
     "interval": 60,
-    "format": "{icon} {text}",
+    "format": "{icon}",
+    "format-alt": "{icon} {text}",
     "format-icons": {
-      "unknown": "",
+      "unknown": "󰖐",
       "clear": "󰖙",
       "cloudy": "",
       "fog": "",

@@ -4,7 +4,7 @@
   border: none;
   border-radius: 0;
   min-height: 0;
-  font-family: 'Cascadia Code NF';
+  font-family: 'JetBrainsMono Nerd Font';
   font-size: 12px;
 }
 
@@ -45,12 +45,11 @@ window#waybar {
   opacity: 0.5;
 }
 
-#custom-weather.unavailable {
-  min-width: 0;
-  margin: 0;
-  padding: 0;
+#custom-weather.stale {
+    opacity: 0.5;
 }
 
+#custom-weather.error,
 #custom-update.security,
 #custom-idle-indicator.active,
 #custom-notification-silencing-indicator.active,
