@@ -7,14 +7,16 @@ Wants=mako.service
 Wants=waybar.service
 Wants=hypridle.service
 Wants=hyprpaper.service
-#Wants=hyprsunset.service
+Wants=hyprsunset.service
 Wants=fumon.service
 
 Wants=omadora-session.service
-Wants=omadora-hyprland-monitor.service
-Wants=omadora-polkitagent.service
 Wants=omadora-fcitx5.service
+Wants=omadora-polkitagent.service
+Wants=omadora-hyprland-monitor.service
+
 Wants=omadora-battery-monitor.timer
 Wants=omadora-update-check.timer
+Wants=omadora-weather-check.timer
+
 Wants=omadora-theme-reload.path
-Wants=omadora-weather-fetch.timer

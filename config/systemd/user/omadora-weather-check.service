@@ -1,10 +1,10 @@
 [Unit]
-Description=Omadora Weather Fetch Service
+Description=Omadora Weather Check Service
 After=graphical-session.target network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-weather-fetch
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-weather-check
 
 # hardening (safe, minimal)
 NoNewPrivileges=true

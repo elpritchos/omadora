@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # =========================================================
-# Omadora Weather Daemon
+# Omadora Weather Check
 # =========================================================
 
 readonly OMADORA_LOG_TAG="omadora-weather"
@@ -27,7 +27,8 @@ get_location() {
       lat: .latitude,
       lon: .longitude,
       city: .city,
-      country: .country_code
+      country: .country_name,
+      country_code: .country_code
     }'
 }
 
@@ -124,7 +125,7 @@ fallback_state() {
       current:{},
       daily_units:{},
       daily:{},
-      derived:{icon:"",condition:"unknown"},
+      derived:{icon:"",condition:"unknown"},
       signals:{},
     }
   }'
@@ -148,15 +149,17 @@ reduce_weather() {
   weathercode=$(jq -r '.current.weathercode' <<<"$data")
   wind_speed_10m=$(jq -r '.current.wind_speed_10m' <<<"$data")
   uv_index=$(jq -r '.current.uv_index' <<<"$data")
+  uv_index_max=$(jq -r '.daily.uv_index_max[0]' <<<"$data")
 
   condition=$(get_condition "$weathercode")
   wind_class=$(get_wind_class "$wind_speed_10m")
   uv_class=$(get_uv_class "$uv_index")
+  uv_max_class=$(get_uv_class "$uv_index_max")
 
   # VIEW ICON
   is_day=$(jq -r '.current.is_day' <<<"$data")
 
-  local icon=""
+  local icon=""
   case "$condition:$is_day" in
   clear:1) icon="󰖙" ;;
   clear:0) icon="󰖔" ;;
@@ -184,6 +187,7 @@ reduce_weather() {
     --arg icon "$icon" \
     --arg wind_class "$wind_class" \
     --arg uv_class "$uv_class" \
+    --arg uv_max_class "$uv_max_class" \
     --argjson precip_signal "$precip_signal" \
     '
     {
@@ -201,7 +205,8 @@ reduce_weather() {
         icon:$icon,
         condition:$condition,
         wind_class:$wind_class,
-        uv_index_class:$uv_class
+        uv_index_class:$uv_class,
+        uv_index_max_class:$uv_max_class
       },
 
       signals:{
