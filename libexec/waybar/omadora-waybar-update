@@ -26,6 +26,10 @@ jq -c \
 def update_section:
   (
     [
+      (.updates.omadora.count
+        | select(. > 0)
+        | tostring + " omadora"),
+
       (.updates.dnf.count
         | select(. > 0)
         | tostring + " dnf"),

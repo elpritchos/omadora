@@ -12,16 +12,25 @@ source "$OMADORA_LIB_DIR/update.sh"
 # shellcheck source=lib/state.sh
 source "$OMADORA_LIB_DIR/state.sh"
 
+require_cmd gum
+
 # -----------------------------------------------------------------------------
 # Confirmation
 # -----------------------------------------------------------------------------
+confirm() {
+  gum confirm \
+    --prompt.foreground 7 \
+    --selected.foreground 0 \
+    --selected.background 4 \
+    --unselected.foreground 7 \
+    --unselected.background 0 \
+    "$1"
+}
 
 update_confirm() {
-  require_cmd gum
-
   gum style \
     --border normal \
-    --border-foreground 6 \
+    --border-foreground 4 \
     --padding "1 2" \
     "Ready to update?" \
     "" \
@@ -32,13 +41,10 @@ update_confirm() {
     "  • Cargo-installed binaries" \
     "  • Firmware" \
     "" \
-    "• Do not interrupt the update once it starts." \
-    "• Ensure you are connected to power or have sufficient battery." \
-    ""
+    "• Do not interrupt the update once it starts!" \
+    "• Ensure you are connected to power or have sufficient battery."
 
-  echo
-
-  gum confirm "Continue with update?"
+  confirm "Continue with update?"
 }
 
 # -----------------------------------------------------------------------------
@@ -151,13 +157,13 @@ update_restart_check() {
   # TODO: check uwsm stop/reboot correctness
   if [[ -f "/run/reboot-required" ]]; then
     printf '\n'
-    gum confirm "Updates require reboot. Ready?" && systemctl reboot --no-wall
+    confirm "Updates require reboot. Ready?" && systemctl reboot --no-wall
     exit 0
   fi
 
   if state_exists "relaunch-required"; then
     printf '\n'
-    gum confirm "Updates require Hyprland relaunch. Ready?" && uwsm stop
+    confirm "Updates require Hyprland relaunch. Ready?" && uwsm stop
     exit 0
   fi
 }

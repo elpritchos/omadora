@@ -11,8 +11,26 @@ readonly OMADORA_UPDATE_FWUPD_JSON="$OMADORA_UPDATE_CACHE_DIR/fwupd.json"
 readonly OMADORA_UPDATE_FLATPAK_UPGRADES_LIST="$OMADORA_UPDATE_CACHE_DIR/flatpak-upgrades.txt"
 readonly OMADORA_UPDATE_CARGO_UPGRADES_LIST="$OMADORA_UPDATE_CACHE_DIR/cargo-upgrades.txt"
 
-update_waybar_module() {
-  pkill -RTMIN+7 waybar
+omadora_update=0
+dnf_package_total=0
+dnf_advisory_total=0
+dnf_security_total=0
+dnf_bugfix_total=0
+dnf_enhancement_total=0
+dnf_other_total=0
+cargo_total=0
+flatpak_total=0
+firmware_total=0
+with_errors=false
+
+write_atomic() {
+  local target="$1"
+  local tmp
+
+  tmp="$(mktemp "${target}.tmp.XXXXXX")"
+
+  cat >"$tmp"
+  mv "$tmp" "$target"
 }
 
 update_dirs_init() {
@@ -22,42 +40,45 @@ update_dirs_init() {
     "$OMADORA_RUNTIME_DIR"
 }
 
-update_write_json_atomic() {
-  local target="$1"
-  local tmp
+update_collect_omadora() {
+  latest_tag=$(git -C "$OMADORA_ROOT" ls-remote --tags origin | grep -v "{}" | awk '{print $2}' | sed 's#refs/tags/##' | sort -V | tail -n 1)
+  if [[ -z "$latest_tag" ]]; then
+    return 1
+  fi
 
-  tmp="$(mktemp "${target}.tmp.XXXXXX")"
+  current_tag=$(git -C "$OMADORA_ROOT" describe --tags "$(git -C "$OMADORA_ROOT" rev-list --tags --max-count=1)")
+  if [[ -z "$current_tag" ]]; then
+    return 1
+  fi
 
-  cat >"$tmp"
-
-  mv "$tmp" "$target"
+  if [[ "$current_tag" != "$latest_tag" ]]; then
+    omadora_update=1
+  fi
 }
 
 update_collect_dnf() {
-  dnf_package_total=0
-  dnf_advisory_total=0
-  dnf_security_total=0
-  dnf_bugfix_total=0
-  dnf_enhancement_total=0
-  dnf_other_total=0
-
-  dnf5 -q --refresh makecache \
-    2>/dev/null ||
+  if ! dnf5 -q --refresh makecache >/dev/null 2>&1; then
+    with_errors=true
     return 1
+  fi
 
-  dnf5 -q repoquery --upgrades \
+  if ! dnf5 -q repoquery --upgrades \
     >"$OMADORA_UPDATE_DNF_UPGRADES_LIST" \
-    2>/dev/null ||
+    2>/dev/null; then
+    with_errors=true
     return 1
+  fi
 
   dnf_package_total="$(
     wc -l <"$OMADORA_UPDATE_DNF_UPGRADES_LIST"
   )"
 
-  dnf5 -q advisory list --updates --json \
+  if ! dnf5 -q advisory list --updates --json \
     >"$OMADORA_UPDATE_DNF_ADVISORIES_JSON" \
-    2>/dev/null ||
+    2>/dev/null; then
+    with_errors=true
     return 1
+  fi
 
   dnf_advisory_total="$(
     jq 'length' "$OMADORA_UPDATE_DNF_ADVISORIES_JSON"
@@ -94,17 +115,22 @@ update_collect_dnf() {
 }
 
 update_collect_cargo() {
-  cargo_total=0
 
-  command -v cargo >/dev/null 2>&1 ||
+  if ! command -v cargo >/dev/null 2>&1; then
+    with_errors=true
     return 1
+  fi
 
-  cargo install-update --version >/dev/null 2>&1 ||
+  if ! cargo install-update --version >/dev/null 2>&1; then
+    with_errors=true
     return 1
+  fi
 
-  cargo install-update --list \
-    >"$OMADORA_UPDATE_CARGO_UPGRADES_LIST" ||
+  if ! cargo install-update --list \
+    >"$OMADORA_UPDATE_CARGO_UPGRADES_LIST"; then
+    with_errors=true
     return 1
+  fi
 
   cargo_total="$(
     grep -cE '[[:space:]]Yes$' \
@@ -114,17 +140,19 @@ update_collect_cargo() {
 }
 
 update_collect_flatpak() {
-  flatpak_total=0
+  if ! command -v flatpak >/dev/null 2>&1; then
+    with_errors=true
+    return 1
+  fi
 
-  command -v flatpak >/dev/null 2>&1 ||
-    return 0
-
-  flatpak remote-ls \
+  if ! flatpak remote-ls \
     --updates \
     --columns=ref \
     2>/dev/null \
-    >"$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST" ||
+    >"$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST"; then
+    with_errors=true
     return 1
+  fi
 
   flatpak_total="$(
     grep -cE '^[a-zA-Z0-9._-]+/.+/.+/.+$' \
@@ -134,20 +162,23 @@ update_collect_flatpak() {
 }
 
 update_collect_firmware() {
-  firmware_total=0
-
-  command -v fwupdmgr >/dev/null 2>&1 ||
+  if ! command -v fwupdmgr >/dev/null 2>&1; then
     return 0
+  fi
 
-  fwupdmgr refresh \
+  if ! fwupdmgr refresh \
     --force \
-    >/dev/null 2>&1 ||
+    >/dev/null 2>&1; then
+    with_errors=true
     return 1
+  fi
 
-  fwupdmgr get-updates \
+  if ! fwupdmgr get-updates \
     --json \
-    >"$OMADORA_UPDATE_FWUPD_JSON" 2>/dev/null ||
+    >"$OMADORA_UPDATE_FWUPD_JSON" 2>/dev/null; then
+    with_errors=true
     return 1
+  fi
 
   firmware_total="$(
     jq '
@@ -164,19 +195,18 @@ update_collect_firmware() {
 }
 
 update_write_state() {
-  local timestamp
   local total_updates
 
-  timestamp="$(date +%s)"
-
   total_updates=$((\
+    omadora_update + \
     dnf_package_total + \
     flatpak_total + \
     cargo_total + \
     firmware_total))
 
   jq -n \
-    --argjson timestamp "$timestamp" \
+    --argjson with_errors "$with_errors" \
+    --argjson omadora_update "${omadora_update}" \
     --argjson total_updates "$total_updates" \
     --argjson dnf_package_total "$dnf_package_total" \
     --argjson cargo_total "$cargo_total" \
@@ -191,10 +221,17 @@ update_write_state() {
 {
   schema_version: 1,
 
-  timestamp: $timestamp,
+  meta: {
+    timestamp:(now|floor),
+    with_errors: $with_errors
+  },
 
   updates: {
     total: $total_updates,
+
+    omadora: {
+      count: $omadora_update
+    },
 
     dnf: {
       count: $dnf_package_total
@@ -223,5 +260,5 @@ update_write_state() {
     }
   }
 }
-' | update_write_json_atomic "$OMADORA_UPDATE_STATE_FILE"
+' | write_atomic "$OMADORA_UPDATE_STATE_FILE"
 }
