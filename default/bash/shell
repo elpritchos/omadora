@@ -11,3 +11,6 @@ fi
 
 # Ensure command hashing is off for mise
 set +h
+
+# Simple prompt
+PS1="[\u@\h \W]\$ "

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Launch the screensaver in the default terminal on the system with the correct font configuration.
+
+if ! command -v tte &>/dev/null; then
+  exit 1
+fi
+
+# Exit early if screensave is already running
+pgrep -f org.omadora.screensaver && exit 0
+
+# Allow screensaver to be turned off but also force started
+if omadora-toggle-enabled screensaver-off && [[ $1 != "force" ]]; then
+  exit 1
+fi
+
+focused=$(omadora-hyprland-monitor-focused)
+
+for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
+  hyprctl dispatch focusmonitor "$m"
+
+  hyprctl dispatch exec -- \
+    alacritty --class=org.omadora.screensaver \
+    --config-file ~/.local/share/omadora/default/alacritty/screensaver.toml \
+    -e omadora-screensaver
+done
+
+hyprctl dispatch focusmonitor "$focused"

@@ -3,6 +3,5 @@
 echo
 gum spin \
   --spinner "pulse" \
-  --spinner.foreground 4 \
   --title "Done! Press any key to close..." \
   -- bash -c 'read -n 1 -s'

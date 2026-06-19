@@ -2,7 +2,7 @@
 
 # Launch the Omadora Menu or takes a parameter to jump straight to a submenu.
 
-export PATH="$HOME/.local/share/omadora/bin:$PATH"
+#export PATH="$HOME/.local/share/omadora/bin:$PATH"
 
 # Set to true when going directly to a submenu, so we can exit directly
 BACK_TO_EXIT=false
