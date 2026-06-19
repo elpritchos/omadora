@@ -1,3 +1,11 @@
 # Editor used by CLI
 export SUDO_EDITOR="$EDITOR"
 export BAT_THEME=ansi
+
+# Color man pages with bat
+export MANROFFOPT="-c"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+# Duplicated from .config/uwsm/env so SSH works too
+export OMADORA_PATH=$HOME/.local/share/omadora
+export PATH=$OMADORA_PATH/bin:$PATH:$HOME/.local/bin
