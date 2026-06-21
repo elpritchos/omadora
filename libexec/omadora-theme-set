@@ -9,18 +9,16 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 # shellcheck source=lib/theme.sh
 source "$OMADORA_LIB_DIR/theme.sh"
 
+# shellcheck source=lib/service.sh
+source "$OMADORA_LIB_DIR/service.sh"
+
 [[ $# -eq 1 ]] || fatal "missing theme name"
 
 theme_name="$(theme_name_normalize "$1")"
+local_theme_path="${OMADORA_USER_THEMES_DIR}/${theme_name}"
+system_theme_path="${OMADORA_THEMES_DIR}/${theme_name}"
 
-local_theme="${OMADORA_USER_THEMES_DIR}/${theme_name}"
-system_theme="${OMADORA_THEMES_DIR}/${theme_name}"
-
-if [[ -d "$local_theme" ]]; then
-  theme_path="$local_theme"
-elif [[ -d "$system_theme" ]]; then
-  theme_path="$system_theme"
-else
+if [[ ! -d "$local_theme_path" ]] && [[ ! -d "$system_theme_path" ]]; then
   fatal "theme not found: $theme_name"
 fi
 
@@ -30,8 +28,16 @@ log_info "Applying theme: $theme_name"
 rm -rf "$OMADORA_NEXT_THEME_DIR"
 mkdir -p "$OMADORA_NEXT_THEME_DIR"
 
-# Copy static configs
-cp -r "$theme_path/." "$OMADORA_NEXT_THEME_DIR/"
+# Copy official theme first, then overlay user customizations on top
+[[ -d "$local_theme_path" ]] &&
+  cp -r "$local_theme_path/." "$OMADORA_NEXT_THEME_DIR/"
+[[ -d "$system_theme_path" ]] &&
+  cp -r "$system_theme_path/." "$OMADORA_NEXT_THEME_DIR/"
+
+# Generate colors.toml from alacritty.toml if theme is missing colors.toml
+if [[ ! -f $OMADORA_NEXT_THEME_DIR/colors.toml && -f $OMADORA_NEXT_THEME_DIR/alacritty.toml ]]; then
+  "$OMADORA_LIBEXEC_DIR/omadora-theme-colors-from-alacritty" "$OMADORA_NEXT_THEME_DIR"
+fi
 
 # Generate dynamic configs
 theme_set_templates ||
@@ -42,21 +48,39 @@ rm -rf "$OMADORA_CURRENT_THEME_DIR"
 mv "$OMADORA_NEXT_THEME_DIR" "$OMADORA_CURRENT_THEME_DIR"
 
 # Store theme name for reference
-# Theme component configs reloaded by omadora-theme.service watching this file
 printf '%s\n' "$theme_name" >"$OMADORA_THEME_NAME_FILE"
 
 # Change background with theme
-"$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" ||
-  fatal "failed to apply theme background"
+if [[ "${OMADORA_THEME_SKIP_BACKGROUND:-}" != "1" ]]; then
+  "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" &
+fi
+
+# Restart components to apply new theme
+reload() {
+  local fn="service_reload_$1"
+
+  if ! "$fn"; then
+    log_warn "Failed to reload: ${fn}"
+  fi
+}
+
+reload hyprland
+reload alacritty &
+reload ghostty &
+reload kitty &
+reload waybar &
+reload mako &
+wait
+reload btop &
+reload opencode &
 
 # Change app-specific themes
-theme_set_gnome ||
-  log_warn "failed to apply GNOME theme settings"
+(theme_set_gnome ||
+  log_warn "failed to apply GNOME theme settings") &
 
-# TODO: move the omadora-hook to libexec
 # Call hook on theme set
-if ! omadora-hook theme-set "$theme_name"; then
-  log_warn "theme-set hook failed"
-fi
+# TODO: move the omadora-hook to libexec
+("$OMADORA_LIBEXEC_DIR/omadora-hook" theme-set "$theme_name" ||
+  log_warn "theme-set hook failed") &
 
 log_info "Theme applied: $theme_name"

@@ -10,5 +10,4 @@ else
   notify-send -u low "󱫖    Now locking computer when idle"
 fi
 
-# TODO: check this
 pkill -RTMIN+9 waybar

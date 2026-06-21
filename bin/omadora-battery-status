@@ -2,7 +2,7 @@
 
 # Returns a formatted battery status string with percentage and power draw/charge.
 
-battery_info=$(upower -i $(upower -e | grep BAT))
+battery_info=$(upower -i "$(upower -e | grep BAT)")
 
 percentage=$(echo "$battery_info" | awk '/percentage/ {
     print int($2)
@@ -21,7 +21,7 @@ time_remaining=$(omadora-battery-remaining-time)
 capacity=$(omadora-battery-capacity)
 
 if [[ $state == "charging" ]]; then
-  echo "󰁹    Battery ${percentage}%  ·  ${time_remaining} to full  ·   ${power_rate}W / ${capacity}Wh"
+  echo "󰁹    Battery ${percentage}% · ${time_remaining} to full ·  ${power_rate}W / ${capacity}Wh"
 else
-  echo "󰁹    Battery ${percentage}%  ·  ${time_remaining} left  ·   ${power_rate}W / ${capacity}Wh"
+  echo "󰁹    Battery ${percentage}% · ${time_remaining} left ·  ${power_rate}W / ${capacity}Wh"
 fi

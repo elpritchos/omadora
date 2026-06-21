@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Edit, set, or reset screensaver branding
+
+set -euo pipefail
+
+case "${1:-}" in
+image)
+  extensions=(svg png)
+
+  fd_args=()
+  for ext in "${extensions[@]}"; do
+    fd_args+=(-e "$ext")
+  done
+
+  files="$(fd -t f "${fd_args[@]}" . "$HOME")"
+  image="$(fzf \
+    --style minimal \
+    --layout reverse \
+    --info hidden \
+    --header "Logo image" \
+    --header-first \
+    --list-border \
+    --height 10% \
+    <<<"$files")"
+
+  if [[ -n $image ]] && omadora-transcode-ascii "$image" ~/.config/omadora/branding/screensaver.txt; then
+    omadora-launch-screensaver force >/dev/null 2>&1
+  fi
+  ;;
+text)
+  omadora-launch-editor ~/.config/omadora/branding/screensaver.txt >/dev/null 2>&1 && omadora-launch-screensaver force >/dev/null 2>&1
+  ;;
+reset)
+  cp "$OMADORA_PATH/logo.txt" ~/.config/omadora/branding/screensaver.txt && omadora-launch-screensaver force >/dev/null 2>&1
+  ;;
+*)
+  echo "Usage: omadora-branding-screensaver <image|text|reset>" >&2
+  exit 1
+  ;;
+esac

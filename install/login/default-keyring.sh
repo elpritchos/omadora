@@ -4,7 +4,7 @@ DEFAULT_FILE="$KEYRING_DIR/default"
 
 mkdir -p $KEYRING_DIR
 
-cat << EOF | tee "$KEYRING_FILE"
+cat <<EOF >"$KEYRING_FILE"
 [keyring]
 display-name=Default keyring
 ctime=$(date +%s)
@@ -13,7 +13,7 @@ lock-on-idle=false
 lock-after=false
 EOF
 
-cat << EOF | tee "$DEFAULT_FILE"
+cat <<EOF >"$DEFAULT_FILE"
 Default_keyring
 EOF
 

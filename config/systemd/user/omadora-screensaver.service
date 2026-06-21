@@ -1,8 +1,0 @@
-[Unit]
-Description=Omadora Screensaver Service
-After=graphical-session.target
-
-[Service]
-Type=oneshot
-ExecCondition=/usr/bin/sh -c '! pgrep -x hyprlock >/dev/null'
-ExecStart=%h/.local/share/omadora/bin/omadora-launch-screensaver

@@ -18,5 +18,3 @@ Wants=omadora-hyprland-monitor.service
 Wants=omadora-battery-monitor.timer
 Wants=omadora-update-check.timer
 Wants=omadora-weather-check.timer
-
-Wants=omadora-theme-reload.path

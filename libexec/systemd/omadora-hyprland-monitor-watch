@@ -6,9 +6,15 @@ SOCKET="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 
 socat -U - "UNIX-CONNECT:$SOCKET" | while read -r event; do
   case "$event" in
-  monitorremoved\>\>* | monitorremovedv2\>\>*)
+  monitorremovedv2\>\>*)
     omadora-hyprland-monitor-internal recover
     omadora-hyprland-monitor-internal-mirror recover
+    ;;
+  monitoraddedv2\>\>*)
+    # NOTE: Temporary fix for multiple waybar issues with external monitors
+    if systemctl --quiet --user is-active waybar.service; then
+      (sleep 0.1 && systemctl --quiet --user restart waybar.service)
+    fi
     ;;
   esac
 done

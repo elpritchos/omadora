@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Overwrite the user tmux config with the Omadora default and reload tmux.
+
+omadora-refresh-config tmux/tmux.conf
+omadora-restart-tmux

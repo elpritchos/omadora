@@ -10,5 +10,4 @@ else
   notify-send -u low "󰂚    Enabled notifications"
 fi
 
-# TODO: check this
 pkill -RTMIN+10 waybar

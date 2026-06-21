@@ -17,5 +17,6 @@ _prepend_path() {
 }
 [[ -d "$HOME/.cargo/bin" ]] && _prepend_path "$HOME/.cargo/bin"
 [[ -d "$OMADORA_PATH/bin" ]] && _prepend_path "$OMADORA_PATH/bin"
+[[ -d "$OMADORA_PATH/libexec" ]] && _prepend_path "$OMADORA_PATH/libexec"
 [[ -d "$HOME/.local/bin" ]] && _prepend_path "$HOME/.local/bin"
 unset -f _prepend_path

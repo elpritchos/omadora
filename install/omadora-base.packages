@@ -1,6 +1,7 @@
 alacritty
 bat
 bind-utils
+bolt
 brightnessctl
 btop
 cargo
@@ -11,6 +12,7 @@ clang
 dbus-tools
 du-dust
 evince
+eza
 fastfetch
 fcitx5
 fcitx5-configtool
@@ -27,13 +29,7 @@ google-noto-fonts-common
 gum
 gvfs-mtp
 gvfs-smb
-hypridle
-hyprland
-hyprlock
-hyprpaper
-hyprpicker
-hyprshot
-hyprsunset
+ImageMagick
 imv
 iputils
 iwd
@@ -45,6 +41,7 @@ libxkbcommon-utils
 mako
 mpv
 nautilus
+nautilus-python
 neovim
 pciutils
 pipewire
@@ -58,8 +55,8 @@ power-profiles-daemon
 qt5-qtwayland
 qt6-qtwayland
 ripgrep
-satty
 slurp
+socat
 startup-notification
 sushi
 tar
@@ -67,7 +64,6 @@ tesseract
 tldr
 unzip
 usbutils
-uwsm
 waybar
 wf-recorder
 wget
@@ -78,7 +74,6 @@ wl-clipboard
 wofi
 xdg-desktop-portal
 xdg-desktop-portal-gtk
-xdg-desktop-portal-hyprland
 xdg-terminal-exec
 xdg-user-dirs
 xfce-polkit

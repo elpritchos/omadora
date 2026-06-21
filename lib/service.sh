@@ -1,6 +1,7 @@
 service_reload_waybar() {
   if pgrep -x "waybar" >/dev/null; then
-    pkill -SIGUSR2 waybar
+    #pkill -SIGUSR2 waybar
+    systemctl --quiet --user restart waybar.service
   fi
 }
 
@@ -9,7 +10,7 @@ service_reload_mako() {
 }
 
 service_reload_hyprland() {
-  hyprctl reload
+  hyprctl -q reload
 }
 
 service_reload_btop() {
@@ -35,5 +36,17 @@ service_reload_ghostty() {
 service_reload_kitty() {
   if pgrep -x "kitty" >/dev/null; then
     pkill -SIGUSR1 kitty
+  fi
+}
+
+service_reload_tmux() {
+  if pgrep -x tmux >/dev/null; then
+    tmux source-file ~/.config/tmux/tmux.conf
+  fi
+}
+
+service_reload_opencode() {
+  if pgrep -x opencode >/dev/null; then
+    killall -SIGUSR2 opencode
   fi
 }

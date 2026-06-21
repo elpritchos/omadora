@@ -1,6 +1,0 @@
-[Unit]
-Description=Omadora Theme Reload Path
-PartOf=omadora-session.target
-
-[Path]
-PathChanged=%h/.config/omadora/current/theme.name

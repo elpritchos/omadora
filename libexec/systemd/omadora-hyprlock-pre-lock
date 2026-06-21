@@ -5,7 +5,7 @@ hyprctl switchxkblayout all 0 || true
 
 playerctl pause || true
 
-systemctl --user stop omadora-screensaver.service || true
+pkill -f org.omadora.screensaver || true
 
 if pgrep -i 1password >/dev/null; then
   1password --lock || true

@@ -2,14 +2,14 @@
 config-file = ?"~/.config/omadora/current/theme/ghostty.conf"
 
 # Font
-font-family = "Cascadia Mono NF"
+font-family = "JetBrainsMono Nerd Font"
 font-style = Regular
 font-size = 9
 
 # Window
 window-theme = ghostty
-window-padding-x = 12
-window-padding-y = 12
+window-padding-x = 14
+window-padding-y = 14
 confirm-close-surface=false
 resize-overlay = never
 gtk-toolbar-style = flat
@@ -32,3 +32,6 @@ keybind = super+control+shift+alt+arrow_right=resize_split:right,100
 
 # Slowdown mouse scrolling
 mouse-scroll-multiplier = 0.95
+
+# Fix general slowness on hyprland (https://github.com/ghostty-org/ghostty/discussions/3224)
+async-backend = epoll
