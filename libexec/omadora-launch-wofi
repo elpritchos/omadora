@@ -3,4 +3,4 @@
 # Launch Wofi
 
 cd "$HOME" || exit 1
-exec wofi --width 644 --height 300 "$@"
+exec wofi "$@"

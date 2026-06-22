@@ -5,7 +5,7 @@ ConditionPathExists=%h/.local/state/omadora/toggles/hypr/internal-monitor-disabl
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/share/omadora/bin/omadora-hw-recover-internal-monitor
+ExecStart=%h/.local/share/omadora/libexec/omadora-hw-recover-internal-monitor
 
 [Install]
 WantedBy=graphical-session-pre.target

@@ -1,1 +1,1 @@
-source "$OMADORA_PATH"/bin/omactl-completion.bash
+source "$OMADORA_PATH"/completions/omactl-completion.bash
