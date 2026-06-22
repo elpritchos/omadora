@@ -1,5 +1,5 @@
 # File system
-if command -v eza &> /dev/null; then
+if command -v eza &>/dev/null; then
   alias ls='eza -lh --group-directories-first --icons=auto'
   alias lsa='ls -a'
   alias lt='eza --tree --level=2 --long --icons --git'
@@ -12,26 +12,30 @@ else
   alias ff="fzf --preview 'bat --style=numbers --color=always {}'"
 fi
 alias eff='$EDITOR "$(ff)"'
-sff() { if [ $# -eq 0 ]; then echo "Usage: sff <destination> (e.g. sff host:/tmp/)"; return 1; fi; local file; file=$(find . -type f -printf '%T@\t%p\n' | sort -rn | cut -f2- | ff) && [ -n "$file" ] && scp "$file" "$1"; }
+sff() {
+  if [ $# -eq 0 ]; then
+    echo "Usage: sff <destination> (e.g. sff host:/tmp/)"
+    return 1
+  fi
+  local file
+  file=$(find . -type f -printf '%T@\t%p\n' | sort -rn | cut -f2- | ff) && [ -n "$file" ] && scp "$file" "$1"
+}
 
-if command -v zoxide &> /dev/null; then
-  alias cd="zd"
-  zd() {
-    if (( $# == 0 )); then
-      builtin cd ~ || return
-    elif [[ -d $1 ]]; then
-      builtin cd "$1" || return
-    else
-      if ! z "$@"; then
-        echo "Error: Directory not found"
-        return 1
-      fi
+cd() {
+  case "$1" in
+  --help | -P | -L | -@ | -)
+    command cd "$@" || return 1
+    return
+    ;;
+  esac
 
-      printf "\U000F17A9 "
-      pwd
-    fi
-  }
-fi
+  if command cd "$@" 2>/dev/null; then
+    return
+  fi
+
+  command -v zoxide >/dev/null 2>&1 || return 1
+  z "$@" && printf '\U000F17A9 %s\n' "$(pwd)"
+}
 
 open() (
   xdg-open "$@" >/dev/null 2>&1 &
@@ -51,7 +55,7 @@ alias t='tmux attach || tmux new -s Work'
 alias ic='tdl c'
 alias ix='tdl cx'
 alias icx='tdl c cx'
-n() { if [ "$#" -eq 0 ]; then command nvim . ; else command nvim "$@"; fi; }
+n() { if [ "$#" -eq 0 ]; then command nvim .; else command nvim "$@"; fi; }
 
 # Git
 alias g='git'

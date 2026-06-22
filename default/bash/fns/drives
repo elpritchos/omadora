@@ -1,6 +1,6 @@
 # Write iso file to sd card
 iso2sd() {
-  if (( $# < 1 )); then
+  if (($# < 1)); then
     echo "Usage: iso2sd <input_file> [output_device]"
     echo "Example: iso2sd ~/Downloads/ubuntu-25.04-desktop-amd64.iso /dev/sda"
     return 1
@@ -31,7 +31,7 @@ iso2sd() {
 
 # Format an entire drive for a single partition using exFAT
 format-drive() {
-  if (( $# != 2 )); then
+  if (($# != 2)); then
     echo "Usage: format-drive <device> <name>"
     echo "Example: format-drive /dev/sda 'My Stuff'"
     echo -e "\nAvailable drives:"

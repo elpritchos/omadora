@@ -11,8 +11,8 @@ export OMADORA_PATH=$HOME/.local/share/omadora
 _prepend_path() {
   local dir="$1"
   case ":$PATH:" in
-    *":$dir:"*) return ;;
-    *) PATH="$dir:$PATH" ;;
+  *":$dir:"*) return ;;
+  *) PATH="$dir:$PATH" ;;
   esac
 }
 [[ -d "$HOME/.cargo/bin" ]] && _prepend_path "$HOME/.cargo/bin"
