@@ -20,11 +20,7 @@ window,
 
 window {
   background-color: alpha(@base, 0.95);
-}
-
-#outer-box {
   border: 1px solid alpha(@selected-text, 0.5);
-  border-radius: 2px;
 }
 
 #input {
