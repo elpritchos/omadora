@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Set install mode to online since boot.sh is used for curl installations
 export OMADORA_ONLINE_INSTALL=true
 
