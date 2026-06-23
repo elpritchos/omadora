@@ -1,3 +1,4 @@
+adwaita-fonts-all
 alacritty
 bat
 bind-utils
@@ -25,7 +26,11 @@ fzf
 gnome-calculator
 gnome-keyring
 gnome-themes-extra
+google-noto-emoji-fonts
 google-noto-fonts-common
+google-noto-sans-cjk-fonts
+google-noto-sans-fonts
+google-noto-serif-fonts
 gum
 gvfs-mtp
 gvfs-smb
@@ -33,6 +38,7 @@ ImageMagick
 imv
 iputils
 iwd
+jetbrains-mono-fonts
 kvantum
 kvantum-qt5
 libinput
