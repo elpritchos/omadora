@@ -1,6 +1,4 @@
 show=drun
-width=875
-height=600
 prompt=Search...
 allow_images=true
 insensitive=true

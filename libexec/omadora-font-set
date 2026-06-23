@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Set the system-wide monospace font that should be used by the terminal, hyprlock, waybar, etc.
+# Set the system-wide monospace font that should be used by the terminal, etc.
 # The font name must be one of the ones returned by omadora-font-list.
 
 font_name="$1"
@@ -8,7 +8,7 @@ font_name="$1"
 if [[ -n "$font_name" ]]; then
   if fc-list | grep -iq "$font_name"; then
     if [[ -f ~/.config/alacritty/alacritty.toml ]]; then
-      sed -i "s/family = \".*\"/family = \"$font_name\"/g" ~/.config/alacritty/alacritty.toml
+      sed -i "s/family = \"[^\"]*\"/family = \"$font_name\"/g" ~/.config/alacritty/alacritty.toml
     fi
 
     if [[ -f ~/.config/kitty/kitty.conf ]]; then
@@ -21,19 +21,18 @@ if [[ -n "$font_name" ]]; then
       pkill -SIGUSR2 ghostty
     fi
 
-    sed -i "s/font_family = .*/font_family = $font_name/g" ~/.config/hypr/hyprlock.conf
-    sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/waybar/style.css
-    sed -i "s/font-family: .*/font-family: '$font_name';/g" ~/.config/swayosd/style.css
     xmlstarlet ed -L \
       -u '//match[@target="pattern"][test/string="monospace"]/edit[@name="family"]/string' \
       -v "$font_name" \
       ~/.config/fontconfig/fonts.conf
 
-    omadora-restart-waybar
-
     if pgrep -x ghostty; then
       notify-send "    You must restart Ghostty to see font change"
     fi
+
+    gsettings set org.gnome.desktop.interface font-name "Adwaita Sans 11"
+    gsettings set org.gnome.desktop.interface document-font-name "Adwaita Sans 12"
+    gsettings set org.gnome.desktop.interface monospace-font-name "$font_name 10"
 
     omadora-hook font-set "$font_name"
   else

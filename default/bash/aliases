@@ -62,6 +62,3 @@ alias g='git'
 alias gcm='git commit -m'
 alias gcam='git commit -a -m'
 alias gcad='git commit -a --amend'
-
-# GPU Screen Recorder
-alias gpu-screen-recorder='flatpak run --command=gpu-screen-recorder com.dec05eba.gpu_screen_recorder'

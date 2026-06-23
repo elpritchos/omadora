@@ -61,7 +61,7 @@
     "interval": 60,
     "signal": 7,
     "on-click": "omadora-launch-floating-terminal-with-presentation omactl update all",
-    "format": "{icon} {text}",
+    "format": "{icon}  {text}",
     "format-icons": {
       "updated": "󰏗",
       "updates": "󰏕",
@@ -88,7 +88,7 @@
     "return-type": "json",
     "interval": 60,
     "format": "{icon}",
-    "format-alt": "{icon} {text}",
+    "format-alt": "{icon}  {text}",
     "format-icons": {
       "unknown": "󰖐",
       "clear": "󰖙",

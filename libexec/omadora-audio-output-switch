@@ -52,7 +52,7 @@ fi
 
 next_sink_volume_icon="audio-volume-${icon_state}-symbolic"
 
-if [[ $next_sink_name != $current_sink_name ]]; then
+if [[ $next_sink_name != "$current_sink_name" ]]; then
   next_sink_wpid=$(echo "$next_sink" | jq -r '.properties."object.id"')
   wpctl set-default "$next_sink_wpid"
 fi

@@ -55,6 +55,10 @@ if [[ "${OMADORA_THEME_SKIP_BACKGROUND:-}" != "1" ]]; then
   "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" &
 fi
 
+# Change app-specific themes
+theme_set_gnome ||
+  log_warn "failed to apply GNOME theme settings"
+
 # Restart components to apply new theme
 reload() {
   local fn="service_reload_$1"
@@ -73,10 +77,6 @@ reload mako &
 wait
 reload btop &
 reload opencode &
-
-# Change app-specific themes
-(theme_set_gnome ||
-  log_warn "failed to apply GNOME theme settings") &
 
 # Call hook on theme set
 # TODO: move the omadora-hook to libexec
