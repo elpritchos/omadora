@@ -1,20 +1,18 @@
 #!/bin/bash
 
-# Toggle Weather Checks
+# Toggle Waybar Service
 
-readonly flag="weather-off"
-readonly unit="omadora-weather-check.timer"
+readonly flag="waybar-off"
+readonly unit="waybar.service"
 
 omadora-toggle "$flag"
 
 if omadora-toggle-enabled "$flag"; then
   systemctl --quiet --user disable --now "$unit"
-  notify-send -u low "    Weather disabled"
+  notify-send -u low "󰍜    Waybar disabled"
 else
   systemctl --quiet --user enable --now "$unit"
-  notify-send -u low "    Weather enabled"
+  notify-send -u low "󰍜    Waybar enabled"
 fi
-
-pkill -RTMIN+11 waybar || true
 
 systemctl --user is-enabled "$unit"
