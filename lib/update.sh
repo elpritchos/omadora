@@ -184,10 +184,7 @@ update_collect_firmware() {
     jq '
       [
         .Devices[]?
-        | select(
-            .Updates != null and
-            (.Updates | length > 0)
-          )
+        | select(has("Releases"))
       ]
       | length
     ' "$OMADORA_UPDATE_FWUPD_JSON"
