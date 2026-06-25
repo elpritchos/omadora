@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Edit, set, or reset About branding
+
+set -euo pipefail
+
+case "${1:-}" in
+image)
+  image=$(omadora-menu-file "Logo image" "$HOME" "svg png")
+  if [[ -n $image ]] && omadora-transcode-ascii "$image" ~/.config/omadora/branding/about.txt --width 54 --height 26 --mode block; then
+    omadora-launch-about >/dev/null 2>&1
+  fi
+  ;;
+text)
+  omadora-launch-editor ~/.config/omadora/branding/about.txt >/dev/null 2>&1 && omadora-launch-about >/dev/null 2>&1
+  ;;
+reset)
+  cp "$OMADORA_PATH/icon.txt" ~/.config/omadora/branding/about.txt && omadora-launch-about >/dev/null 2>&1
+  ;;
+*)
+  echo "Usage: omadora-branding-about <image|text|reset>" >&2
+  exit 1
+  ;;
+esac
