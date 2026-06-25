@@ -53,7 +53,7 @@
     "format": "",
     "on-click": "omadora-menu",
     "on-click-right": "xdg-terminal-exec",
-    "tooltip-format": "Omadora Menu\n\nSuper + Alt + Space"
+    "tooltip-format": "Omadora Menu\r\rSuper + Alt + Space"
   },
   "custom/update": {
     "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-update",
@@ -152,7 +152,7 @@
     "format-wifi": "{icon}",
     "format-ethernet": "󰀂",
     "format-disconnected": "󰤮",
-    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
+    "tooltip-format-wifi": "{essid} ({frequency} GHz)\r⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-ethernet": "⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
@@ -247,7 +247,7 @@
     "on-scroll-right": ""
   },
   "custom/screenrecording-indicator": {
-    "on-click": "omadora-capture-screenrecording",
+    "on-click": "omadora-capture-screenrecording >/dev/null 2>&1",
     "exec": "$OMADORA_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
     "return-type": "json"

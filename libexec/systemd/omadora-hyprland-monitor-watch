@@ -11,7 +11,7 @@ socat -U - "UNIX-CONNECT:$SOCKET" | while read -r event; do
     omadora-hyprland-monitor-internal-mirror recover
     ;;
   monitoraddedv2\>\>*)
-    # NOTE: Temporary fix for multiple waybar issues with external monitors
+    # HACK: Temporary fix for multiple waybar issues with external monitors
     if systemctl --quiet --user is-active waybar.service; then
       (sleep 0.1 && systemctl --quiet --user restart waybar.service)
     fi
