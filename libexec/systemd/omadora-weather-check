@@ -308,7 +308,11 @@ compile_output() {
 # ---------------------------------------
 # Main
 # ---------------------------------------
+echo 'Starting weather check...'
+
+echo 'Fetching location data...'
 loc=$(get_location || true)
+echo 'Getting unit preference...'
 units=$(get_units || true)
 
 lat=$(jq -r '.lat // empty' <<<"$loc")
@@ -320,17 +324,27 @@ if [[ -z "$lat" || -z "$lon" || -z "$system" ]]; then
   exit 0
 fi
 
-raw=$(fetch_weather "$lat" "$lon" "$system")
+echo 'Fetching weather data...'
+if ! raw=$(fetch_weather "$lat" "$lon" "$system"); then
+  fallback_state >"$STATE_FILE"
+  exit 0
+fi
+
 printf '%s' "$raw" >"$RAW_FILE"
 
+echo 'Reducing weather data...'
 if ! reduced=$(reduce_weather "$raw"); then
   fallback_state >"$STATE_FILE"
   exit 0
 fi
 
+echo 'Compiling state...'
 if ! compiled=$(compile_output "$loc" "$units" "$reduced"); then
   fallback_state >"$STATE_FILE"
   exit 0
 fi
 
+echo 'Writing state...'
 printf '%s' "$compiled" >"$STATE_FILE"
+
+echo 'Finished weather check.'

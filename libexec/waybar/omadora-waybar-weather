@@ -8,8 +8,9 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 
 require_cmd jq
 
-STATE_FILE="${OMADORA_STATE_HOME}/weather/state.json"
-NOW="$(date +%s)"
+readonly STATE_FILE="${OMADORA_STATE_HOME}/weather/state.json"
+
+now="$(date +%s)"
 
 if [[ ! -f "$STATE_FILE" ]]; then
   jq -nc '
@@ -35,7 +36,7 @@ if ! jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null 2>&1; then
   exit 0
 fi
 
-jq -c --argjson now "$NOW" '
+jq -c --argjson now "$now" '
   def cardinal:
   [
     "N","NNE","NE","ENE",
@@ -68,6 +69,8 @@ jq -c --argjson now "$NOW" '
   | .location as $loc
   | .weather as $w
 
+  | ($w.current.is_day * 100) as $is_day_percentage
+
   | $w.derived.condition as $condition
   | ($condition | titlecase_words) as $condition_text
 
@@ -93,12 +96,15 @@ jq -c --argjson now "$NOW" '
       text:
         "\($temp_now)\($w.current_units.temperature_2m)",
 
+      percentage:
+        $is_day_percentage,
+
       alt:
         $condition,
 
       class:
         (
-          [$condition]
+          ["active", $condition]
           + (if $stale then ["stale"] else [] end)
         ),
 
@@ -148,6 +154,6 @@ jq -c --argjson now "$NOW" '
 
           "Sunset: \($w.daily.sunset | time_only)"
         ]
-        | join("\n")
+        | join("\r")
     }
 ' "$STATE_FILE"

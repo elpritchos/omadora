@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Toggle Weather Checks
+
+readonly WEATHER_TOGGLE="weather-off"
+readonly WEATHER_TIMER="omadora-weather-check.timer"
+
+omadora-toggle "$WEATHER_TOGGLE"
+
+if omadora-toggle-enabled "$WEATHER_TOGGLE"; then
+  systemctl --quiet --user disable --now "$WEATHER_TIMER"
+else
+  systemctl --quiet --user enable --now "$WEATHER_TIMER"
+fi
+
+systemctl --user is-enabled "$WEATHER_TIMER"
+
+pkill -RTMIN+11 waybar || true

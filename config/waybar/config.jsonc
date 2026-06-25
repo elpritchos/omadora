@@ -61,7 +61,7 @@
     "interval": 60,
     "signal": 7,
     "on-click": "omadora-launch-floating-terminal-with-presentation omactl update all",
-    "format": "{icon}  {text}",
+    "format": "{icon}",
     "format-icons": {
       "updated": "󰏗",
       "updates": "󰏕",
@@ -85,23 +85,58 @@
   },
   "custom/weather": {
     "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-weather",
+    "exec-if": "test ! -f ~/.local/state/omadora/toggles/weather-off",
     "return-type": "json",
     "interval": 60,
+    "signal": 11,
     "format": "{icon}",
     "format-alt": "{icon}  {text}",
     "format-icons": {
       "unknown": "󰖐",
-      "clear": "󰖙",
-      "cloudy": "",
-      "fog": "",
-      "drizzle": "",
-      "freezing_drizzle": "",
-      "rain": "",
-      "showers": "",
-      "snow": "",
-      "snow_showers": "",
-      "thunderstorm": "",
-      "severe_thunderstorm": ""
+      "clear": [
+        "",
+        ""
+      ],
+      "cloudy": [
+        "",
+        ""
+      ],
+      "fog": [
+        "",
+        ""
+      ],
+      "drizzle": [
+        "",
+        ""
+      ],
+      "freezing_drizzle": [
+        " ",
+        " "
+      ],
+      "rain": [
+        "",
+        ""
+      ],
+      "showers": [
+        "",
+        ""
+      ],
+      "snow": [
+        "",
+        ""
+      ],
+      "snow_showers": [
+        "",
+        ""
+      ],
+      "thunderstorm": [
+        "",
+        ""
+      ],
+      "severe_thunderstorm": [
+        " ",
+        " "
+      ]
     },
     "tooltip": true
   },
