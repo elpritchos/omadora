@@ -10,4 +10,4 @@ omadora-flatpak-cmd-install org.localsend.localsend_app localsend
 omadora-flatpak-cmd-install com.dec05eba.gpu_screen_recorder gpu-screen-recorder
 
 # Add flatpak overrides
-flatpak override --user --filesystem=home org.localsend.localsend_app
+flatpak override --user --filesystem=home --filesystem=/tmp/localsend org.localsend.localsend_app

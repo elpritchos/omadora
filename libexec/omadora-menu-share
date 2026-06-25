@@ -11,9 +11,11 @@ MODE="$1"
 shift
 
 if [[ $MODE == "clipboard" ]]; then
-  TEMP_FILE=$(mktemp --suffix=.txt)
-  wl-paste >"$TEMP_FILE"
-  FILES="$TEMP_FILE"
+  temp_dir="/tmp/localsend"
+  mkdir -p "$temp_dir"
+  temp_file="$temp_dir/localsend-clipboard-$(date +%s).txt"
+  wl-paste >"$temp_file"
+  FILES="$temp_file"
 else
   if (($# > 0)); then
     FILES="$*"
