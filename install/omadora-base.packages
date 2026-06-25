@@ -23,6 +23,7 @@ fd-find
 flatseal
 fontawesome-fonts-all
 fprintd
+fprintd-pam
 fzf
 gnome-calculator
 gnome-keyring
