@@ -1,15 +1,19 @@
-# If not running interactively, don't do anything (leave this at the top of this file)
-[[ $- != *i* ]] && return
+# .bashrc
 
-# All the default Omadora aliases and functions
-# (don't mess with these directly, just overwrite them here!)
-source ~/.local/share/omadora/default/bash/rc
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
 
-# Source user config from .bashrc.d
+# Source the default Omadora bash config
+# (don't mess with these directly, just overwrite them in ~/.bashrc.d)
+. ~/.local/share/omadora/default/bash/rc
+
+# Source user bash config
 if [ -d "$HOME"/.bashrc.d ]; then
   for rc in "$HOME"/.bashrc.d/*; do
     if [ -f "$rc" ]; then
-      source "$rc"
+      . "$rc"
     fi
   done
 fi

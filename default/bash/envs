@@ -20,3 +20,6 @@ _prepend_path() {
 [[ -d "$OMADORA_PATH/libexec" ]] && _prepend_path "$OMADORA_PATH/libexec"
 [[ -d "$HOME/.local/bin" ]] && _prepend_path "$HOME/.local/bin"
 unset -f _prepend_path
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+export SYSTEMD_PAGER=

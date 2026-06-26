@@ -2,7 +2,10 @@ if command -v mise &>/dev/null; then
   eval "$(mise activate bash)"
 fi
 
-if [[ $- == *i* ]] && [[ ${TERM:-} != "dumb" ]] && command -v starship &>/dev/null; then
+if [[ ${TERM:-} != "dumb" ]] &&
+  [[ "$TERM" != "linux" ]] &&
+  [[ "${PROMPT_STYLE:-}" == "starship" ]] &&
+  command -v starship &>/dev/null; then
   eval "$(starship init bash)"
 fi
 
