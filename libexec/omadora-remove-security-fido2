@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Remove FIDO2 authentication from sudo and polkit
+
+echo -e "\e[32mRemoving FIDO2 device from authentication.\e[0m"
+
+sudo -v || exit 1
+
+echo
+echo -e "\e[32mDisabling U2F authentication...\e[0m"
+if authselect current | grep -q "with-pam-u2f"; then
+  sudo authselect disable-feature with-pam-u2f
+  sudo authselect apply-changes
+fi
+echo "Done."
+
+echo
+echo -e "\e[32mRemoving U2F keys...\e[0m"
+key_dir="$HOME"/.config/Yubico
+if [[ -d $key_dir ]]; then
+  rm -rf "$key_dir"
+fi
+echo "Done."
+
+echo
+echo -e "\e[32mRemoving installed packages...\e[0m"
+sudo dnf remove -y fido2-tools pamu2fcfg
+echo "Done."
+
+echo -e "\e[32mFIDO2 U2F authentication removed.\e[0m"
