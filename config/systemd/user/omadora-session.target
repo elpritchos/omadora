@@ -3,18 +3,5 @@ Description=Omadora Session Target
 PartOf=graphical-session.target
 After=graphical-session.target xdg-desktop-portal.service
 
-Wants=mako.service
-Wants=waybar.service
-Wants=hypridle.service
-Wants=hyprpaper.service
-Wants=hyprsunset.service
-Wants=fumon.service
-
-Wants=omadora-session.service
-Wants=omadora-fcitx5.service
-Wants=omadora-polkitagent.service
-Wants=omadora-hyprland-monitor.service
-
-Wants=omadora-battery-monitor.timer
-Wants=omadora-update-check.timer
-Wants=omadora-weather-check.timer
+[Install]
+WantedBy=graphical-session.target

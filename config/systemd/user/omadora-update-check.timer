@@ -7,3 +7,6 @@ OnBootSec=15min
 OnCalendar=*-*-* 0/6:00
 RandomizedDelaySec=30min
 Persistent=true
+
+[Install]
+WantedBy=omadora-session.target

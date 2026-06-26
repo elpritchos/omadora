@@ -8,3 +8,6 @@ Type=simple
 ExecStart=/usr/bin/fcitx5
 Restart=on-failure
 RestartSec=2
+
+[Install]
+WantedBy=omadora-session.target

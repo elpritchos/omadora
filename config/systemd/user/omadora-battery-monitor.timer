@@ -6,3 +6,6 @@ PartOf=omadora-session.target
 OnBootSec=15sec
 OnUnitActiveSec=1min
 AccuracySec=10sec
+
+[Install]
+WantedBy=omadora-session.target

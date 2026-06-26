@@ -8,3 +8,6 @@ Type=simple
 ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-hyprland-monitor-watch
 Restart=on-failure
 RestartSec=2
+
+[Install]
+WantedBy=omadora-session.target

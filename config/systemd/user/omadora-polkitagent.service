@@ -9,3 +9,6 @@ ExecStart=/usr/libexec/xfce-polkit
 Slice=session.slice
 TimeoutStopSec=5sec
 Restart=on-failure
+
+[Install]
+WantedBy=omadora-session.target
