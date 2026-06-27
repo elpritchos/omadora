@@ -3,4 +3,4 @@
 # Launch Wofi
 
 cd "$HOME" || exit 1
-exec wofi "$@"
+pkill wofi || exec wofi --width 600 --height 400 "$@"

@@ -2,8 +2,6 @@
 
 # Launch the Omadora Menu or takes a parameter to jump straight to a submenu.
 
-#export PATH="$HOME/.local/share/omadora/bin:$PATH"
-
 # Set to true when going directly to a submenu, so we can exit directly
 BACK_TO_EXIT=false
 
@@ -35,7 +33,7 @@ menu() {
     fi
   fi
 
-  echo -e "$options" | omadora-launch-wofi --dmenu --width 320 --lines 16 -p "$prompt…" "${args[@]}"
+  echo -e "$options" | omadora-launch-wofi --dmenu --width 320 -p "$prompt…" "${args[@]}" 2>/dev/null
 }
 
 terminal() {
@@ -47,38 +45,90 @@ present_terminal() {
 }
 
 open_in_editor() {
-  notify-send "Editing config file" "$1"
+  notify-send -u low "Editing config file" "$1"
   omadora-launch-editor "$1"
 }
 
 show_learn_menu() {
-  case $(menu "Learn" "  Keybindings\n  Omadora\n  Omarchy\n  Hyprland\n  Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash") in
+  case $(menu "Learn" "  Keybindings\n  Omadora\n  Hyprland\n  Fedora\n󰣇  Arch\n  Neovim\n󱆃  Bash\n  Tmux") in
   *Keybindings*) omadora-menu-keybindings ;;
   *Omadora*) omadora-launch-webapp "https://github.com/elpritchos/omadora" ;;
-  *Omarchy*) omadora-launch-webapp "https://learn.omacom.io/2/the-omarchy-manual" ;;
   *Hyprland*) omadora-launch-webapp "https://wiki.hypr.land" ;;
   *Fedora*) omadora-launch-webapp "https://docs.fedoraproject.org" ;;
   *Arch*) omadora-launch-webapp "https://wiki.archlinux.org" ;;
   *Neovim*) omadora-launch-webapp "https://neovim.io/doc/user/quickref.html" ;;
   *Bash*) omadora-launch-webapp "https://devhints.io/bash" ;;
+  *Tmux*) omadora-launch-webapp "https://github.com/tmux/tmux/wiki" ;;
   *) show_main_menu ;;
   esac
 }
 
 show_trigger_menu() {
-  case $(menu "Trigger" "  Capture\n󰔎  Toggle") in
+  case $(menu "Trigger" "󰔛  Reminder\n  Capture\n󰧸  Transcode\n  Share\n󰔎  Toggle\n  Hardware") in
+  *Reminder*) show_reminder_menu ;;
   *Capture*) show_capture_menu ;;
+  *Transcode*) present_terminal omadora-transcode ;;
+  *Share*) show_share_menu ;;
   *Toggle*) show_toggle_menu ;;
+  *Hardware*) show_hardware_menu ;;
   *) show_main_menu ;;
   esac
 }
 
+show_reminder_menu() {
+  case $(menu "Reminder" "󰔛  Set one\n󰔛  Show all\n󰔛  Clear all") in
+  *Set*) show_custom_reminder_input ;;
+  *"Show all"*) omadora-reminder show ;;
+  *"Clear all"*) omadora-reminder clear ;;
+  *) back_to show_trigger_menu ;;
+  esac
+}
+
+show_custom_reminder_input() {
+  local minutes
+  minutes=$(
+    echo -e '1\n5\n10\n15\n30\n60\n120' |
+      omadora-launch-wofi --dmenu \
+        --width 500 \
+        --height 240 \
+        --prompt "Remind in minutes"
+  )
+
+  if [[ $minutes =~ ^[0-9]+$ ]] && ((minutes > 0)); then
+    show_reminder_message_input "$minutes"
+  elif [[ -n $minutes ]]; then
+    omadora-notification-send "󰔛" "Invalid reminder" "Enter the number of minutes" -u critical
+    show_custom_reminder_input
+  else
+    back_to show_reminder_menu
+  fi
+}
+
+show_reminder_message_input() {
+  local minutes="$1"
+  local message
+  message=$(
+    echo 'Take a break...' |
+      omadora-launch-wofi --dmenu \
+        --width 500 \
+        --height 240 \
+        --prompt "Reminder message"
+  )
+
+  if [[ -n $message ]]; then
+    omadora-reminder "$minutes" "$message"
+  else
+    back_to show_reminder_menu
+  fi
+}
+
+# HACK: Sleeps added to let wofi close before screen capture
 show_capture_menu() {
   case $(menu "Capture" "  Screenshot\n  Screenrecord\n󰴑  Text Extraction\n󰃉  Color") in
-  *Screenshot*) omadora-capture-screenshot ;;
+  *Screenshot*) sleep 0.1 && omadora-capture-screenshot ;;
   *Screenrecord*) show_screenrecord_menu ;;
-  *Text*) omadora-capture-text-extraction ;;
-  *Color*) pkill hyprpicker || hyprpicker -a ;;
+  *Text*) sleep 0.1 && omadora-capture-text-extraction ;;
+  *Color*) sleep 0.1 && pkill hyprpicker || hyprpicker -a ;;
   *) back_to show_trigger_menu ;;
   esac
 }
@@ -110,43 +160,99 @@ show_webcam_select_menu() {
   fi
 }
 
+# HACK: Sleeps added to let wofi close before screen capture
 show_screenrecord_menu() {
   omadora-capture-screenrecording --stop-recording && exit 0
 
   case $(menu "Screenrecord" "  With no audio\n  With desktop audio\n  With desktop + microphone audio\n  With desktop + microphone audio + webcam") in
-  *"With no audio") omadora-capture-screenrecording ;;
-  *"With desktop audio") omadora-capture-screenrecording --with-desktop-audio ;;
-  *"With desktop + microphone audio") omadora-capture-screenrecording --with-desktop-audio --with-microphone-audio ;;
+  *"With no audio") sleep 0.1 && omadora-capture-screenrecording ;;
+  *"With desktop audio") sleep 0.1 && omadora-capture-screenrecording --with-desktop-audio ;;
+  *"With desktop + microphone audio") sleep 0.1 && omadora-capture-screenrecording --with-desktop-audio --with-microphone-audio ;;
   *"With desktop + microphone audio + webcam")
     local device=$(show_webcam_select_menu) || {
       back_to show_capture_menu
       return
     }
-    omadora-capture-screenrecording --with-desktop-audio --with-microphone-audio --with-webcam --webcam-device="$device"
+    sleep 0.1 && omadora-capture-screenrecording --with-desktop-audio --with-microphone-audio --with-webcam --webcam-device="$device"
     ;;
   *) back_to show_capture_menu ;;
   esac
 }
 
+show_share_menu() {
+  case $(menu "Share" "  Clipboard\n  File \n  Folder") in
+  *Clipboard*) omadora-menu-share clipboard ;;
+  *File*) terminal bash -c "omadora-menu-share file" ;;
+  *Folder*) terminal bash -c "omadora-menu-share folder" ;;
+  *) back_to show_trigger_menu ;;
+  esac
+}
+
 show_toggle_menu() {
-  case $(menu "Toggle" "󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰍜  Top Bar") in
+  local options="󱄄  Screensaver\n󰔎  Nightlight\n󱫖  Idle Lock\n󰂛  Notifications\n  Weather\n󰍜  Top Bar\n󱂬  Workspace Layout\n  Window Gaps\n  1-Window Ratio\n󰍹  Monitor Scaling"
+
+  case $(menu "Toggle" "$options") in
   *Screensaver*) omadora-toggle-screensaver ;;
   *Nightlight*) omadora-toggle-nightlight ;;
   *Idle*) omadora-toggle-idle ;;
-  *Bar*) omactl workspace toggle-waybar ;;
-  *) show_trigger_menu ;;
+  *Notifications*) omadora-toggle-notification-silencing ;;
+  *Weather*) omadora-toggle-weather ;;
+  *Bar*) omadora-toggle-waybar ;;
+  *Layout*) omadora-hyprland-workspace-layout-toggle ;;
+  *Ratio*) omadora-hyprland-window-single-square-aspect-toggle ;;
+  *Gaps*) omadora-hyprland-window-gaps-toggle ;;
+  *Scaling*) omadora-hyprland-monitor-scaling-cycle ;;
+  *) back_to show_trigger_menu ;;
+  esac
+}
+
+show_hardware_menu() {
+  local options="󰛧  Laptop Display\n󰍹  Mirror Display"
+
+  if omadora-hw-touchpad; then
+    options="$options\n󰟸  Touchpad"
+  fi
+
+  if omadora-hw-touchscreen; then
+    options="$options\n󰆽  Touchscreen"
+  fi
+
+  case $(menu "Toggle" "$options") in
+  *Laptop*) omadora-hyprland-monitor-internal toggle ;;
+  *Mirror*) omadora-hyprland-monitor-internal-mirror toggle ;;
+  *Touchpad*) omadora-toggle-touchpad ;;
+  *Touchscreen*) omadora-toggle-touchscreen ;;
+  *) back_to show_trigger_menu ;;
   esac
 }
 
 show_style_menu() {
-  case $(menu "Style" "󰸌  Theme\n  Font\n  Background\n  Hyprland\n󱄄  Screensaver\n  About") in
+  case $(menu "Style" "󰸌  Theme\n  Terminal Font\n  Background\n  Hyprland\n󱄄  Screensaver\n  About") in
   *Theme*) show_theme_menu ;;
-  *Font*) show_font_menu ;;
+  *"Terminal Font"*) show_font_menu ;;
   *Background*) omactl theme bg-next ;;
   *Hyprland*) open_in_editor ~/.config/hypr/looknfeel.conf ;;
-  *Screensaver*) open_in_editor ~/.config/omadora/branding/screensaver.txt ;;
-  *About*) open_in_editor ~/.config/omadora/branding/about.txt ;;
+  *Screensaver*) show_screensaver_menu ;;
+  *About*) show_about_menu ;;
   *) show_main_menu ;;
+  esac
+}
+
+show_about_menu() {
+  case $(menu "About" "  Edit Text\n  Set From Image\n  Restore Default") in
+  *Text*) omadora-branding-about text ;;
+  *Image*) omadora-branding-about image ;;
+  *Default*) omadora-branding-about reset ;;
+  *) show_style_menu ;;
+  esac
+}
+
+show_screensaver_menu() {
+  case $(menu "Screensaver" "  Edit Text\n  Set From Image\n  Restore Default") in
+  *Text*) omadora-branding-screensaver text ;;
+  *Image*) omadora-branding-screensaver image ;;
+  *Default*) omadora-branding-screensaver reset ;;
+  *) show_style_menu ;;
   esac
 }
 
@@ -160,8 +266,8 @@ show_theme_menu() {
 }
 
 show_font_menu() {
-  theme=$(menu "Font" "$(omadora-font-list)" "-w 350" "$(omadora-font-current)")
-  if [[ "$theme" == "CNCLD" || -z "$theme" ]]; then
+  theme=$(menu "Font" "$(omadora-font-list)" "--width 350" "$(omadora-font-current)")
+  if [[ $theme == "CNCLD" || -z $theme ]]; then
     back_to show_style_menu
   else
     omadora-font-set "$theme"
@@ -172,7 +278,7 @@ show_setup_menu() {
   local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
   [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
   [ -f ~/.config/hypr/input.conf ] && options="$options\n󰍽  Input"
-  options="$options\n󰱔  DNS\n  Config"
+  options="$options\n󰱔  DNS\n  Security\n  Config"
 
   case $(menu "Setup" "$options") in
   *Audio*) omadora-launch-audio ;;
@@ -183,6 +289,7 @@ show_setup_menu() {
   *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
   *Input*) open_in_editor ~/.config/hypr/input.conf ;;
   *DNS*) present_terminal omadora-setup-dns ;;
+  *Security*) show_setup_security_menu ;;
   *Config*) show_setup_config_menu ;;
   *) show_main_menu ;;
   esac
@@ -196,6 +303,14 @@ show_setup_power_menu() {
   else
     omadora-powerprofiles-set "$profile"
   fi
+}
+
+show_setup_security_menu() {
+  case $(menu "Setup" "󰈷  Fingerprint\n  Fido2") in
+  *Fingerprint*) present_terminal omadora-setup-security-fingerprint ;;
+  *Fido2*) present_terminal omadora-setup-security-fido2 ;;
+  *) show_setup_menu ;;
+  esac
 }
 
 show_setup_config_menu() {
@@ -238,18 +353,27 @@ show_install_style_menu() {
 }
 
 show_remove_menu() {
-  case $(menu "Remove" "  Package\n  Web App\n  TUI\n󰸌  Theme") in
+  case $(menu "Remove" "  Package\n  Web App\n  TUI\n󰸌  Theme\n  Security") in
   *Package*) terminal omadora-pkg-remove ;;
   *Web*) present_terminal omadora-webapp-remove ;;
   *TUI*) present_terminal omadora-tui-remove ;;
   *Theme*) present_terminal 'omactl theme remove "$(omactl theme list-user | gum choose --header="Remove user theme:")"' ;;
+  *Security*) show_remove_security_menu ;;
   *) show_main_menu ;;
+  esac
+}
+
+show_remove_security_menu() {
+  case $(menu "Remove" "󰈷  Fingerprint\n  Fido2") in
+  *Fingerprint*) present_terminal omadora-remove-security-fingerprint ;;
+  *Fido2*) present_terminal omadora-remove-security-fido2 ;;
+  *) show_remove_menu ;;
   esac
 }
 
 show_update_menu() {
   case $(menu "Update" "  Omadora\n  Config\n󰸌  Theme\n  Process\n󰇅  Hardware\n  Password\n  Timezone") in
-  *Omadora*) present_terminal 'omactl update all' ;;
+  *Omadora*) present_terminal 'omactl update' ;;
   *Config*) show_update_config_menu ;;
   *Theme*) present_terminal 'omactl theme update "$(omactl theme list-user | gum choose --header="Update user theme:")"' ;;
   *Process*) show_update_process_menu ;;
@@ -261,21 +385,23 @@ show_update_menu() {
 }
 
 show_update_process_menu() {
-  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n󰍜  Waybar") in
+  case $(menu "Restart" "  Hypridle\n  Hyprsunset\n󰎟  Mako\n󰍜  Waybar") in
   *Hypridle*) omadora-restart-hypridle ;;
   *Hyprsunset*) omadora-restart-hyprsunset ;;
+  *Mako*) omadora-restart-mako ;;
   *Waybar*) omadora-restart-waybar ;;
   *) show_update_menu ;;
   esac
 }
 
 show_update_config_menu() {
-  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n󰌧  Wofi\n󰍜  Waybar") in
+  case $(menu "Use default config" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󱣴  Plymouth\n  Tmux\n󰌧  Wofi\n󰍜  Waybar") in
   *Hyprland*) present_terminal omadora-refresh-hyprland ;;
   *Hypridle*) present_terminal omadora-refresh-hypridle ;;
   *Hyprlock*) present_terminal omadora-refresh-hyprlock ;;
   *Hyprsunset*) present_terminal omadora-refresh-hyprsunset ;;
   *Plymouth*) present_terminal omadora-refresh-plymouth ;;
+  *Tmux*) present_terminal omadora-refresh-tmux ;;
   *Wofi*) present_terminal omadora-refresh-wofi ;;
   *Waybar*) present_terminal omadora-refresh-waybar ;;
   *) show_update_menu ;;
@@ -299,8 +425,12 @@ show_update_password_menu() {
   esac
 }
 
+show_about() {
+  omadora-launch-about
+}
+
 show_system_menu() {
-  case $(menu "System" "  Lock\n󱄄  Screensaver\n  Logout\n󰜉  Reboot\n󰐥  Shutdown") in
+  case $(menu "System" "  Lock\n󱄄  Screensaver\n󰍃  Logout\n󰜉  Reboot\n󰐥  Shutdown") in
   *Lock*) omactl system lock ;;
   *Screensaver*) omactl system screensaver ;;
   *Logout*) omactl system logout ;;
@@ -316,19 +446,25 @@ show_main_menu() {
 
 go_to_menu() {
   case "${1,,}" in
-  *apps*) omadora-launch-wofi --show drun --lines 8 -p "Launch…" ;;
+  *apps*) omadora-launch-wofi --show drun -p "Launch…" ;;
   *learn*) show_learn_menu ;;
   *trigger*) show_trigger_menu ;;
+  *toggle*) show_toggle_menu ;;
+  *hardware*) show_hardware_menu ;;
+  *share*) show_share_menu ;;
+  *reminder-set*) show_custom_reminder_input ;;
+  *reminder*) show_reminder_menu ;;
+  *background*) show_background_menu ;;
+  *capture*) show_capture_menu ;;
   *style*) show_style_menu ;;
   *theme*) show_theme_menu ;;
-  *screenshot*) show_screenshot_menu ;;
   *screenrecord*) show_screenrecord_menu ;;
   *setup*) show_setup_menu ;;
   *power*) show_setup_power_menu ;;
   *install*) show_install_menu ;;
   *remove*) show_remove_menu ;;
   *update*) show_update_menu ;;
-  *about*) omadora-launch-about ;;
+  *about*) show_about ;;
   *system*) show_system_menu ;;
   esac
 }
@@ -339,7 +475,7 @@ USER_EXTENSIONS="$HOME/.config/omadora/extensions/menu.sh"
 
 if [[ -n "$1" ]]; then
   BACK_TO_EXIT=true
-  pkill wofi || go_to_menu "$1"
+  go_to_menu "$1"
 else
-  pkill wofi || show_main_menu
+  show_main_menu
 fi

@@ -1,5 +1,5 @@
 # Overwrite parts of the omadora-menu with user-specific submenus.
-# See $OMADORA_PATH/bin/omadora-menu for functions that can be overwritten.
+# See $OMADORA_PATH/libexec/omadora-menu for functions that can be overwritten.
 #
 # WARNING: Overwritten functions will obviously not be updated when Omadora changes.
 #

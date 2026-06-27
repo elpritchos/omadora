@@ -1,5 +1,5 @@
 # Build cargo bins
-# NOTE: Packages added for cargo builds
+# INFO: Packages added for cargo builds
 # cargo, clang, pipewire-devel
 cargo install \
   bluetui \

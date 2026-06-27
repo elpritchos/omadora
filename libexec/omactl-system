@@ -71,7 +71,7 @@ shutdown)
   ;;
 
 screensaver)
-  systemctl --user start omadora-screensaver.service >/dev/null 2>&1 &
+  omadora-launch-screensaver
   ;;
 
 __complete)

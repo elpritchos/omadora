@@ -6,24 +6,7 @@ set -euo pipefail
 
 case "${1:-}" in
 image)
-  extensions=(svg png)
-
-  fd_args=()
-  for ext in "${extensions[@]}"; do
-    fd_args+=(-e "$ext")
-  done
-
-  files="$(fd -t f "${fd_args[@]}" . "$HOME")"
-  image="$(fzf \
-    --style minimal \
-    --layout reverse \
-    --info hidden \
-    --header "Logo image" \
-    --header-first \
-    --list-border \
-    --height 10% \
-    <<<"$files")"
-
+  image=$(omadora-menu-file "Logo image" "$HOME" "svg png")
   if [[ -n $image ]] && omadora-transcode-ascii "$image" ~/.config/omadora/branding/screensaver.txt; then
     omadora-launch-screensaver force >/dev/null 2>&1
   fi

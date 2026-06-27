@@ -24,8 +24,12 @@ fi
 echo "Done."
 
 echo
-echo -e "\e[32mRemoving installed packages...\e[0m"
-sudo dnf remove -y fido2-tools pamu2fcfg
-echo "Done."
+if gum confirm "Remove related packages?"; then
+  echo
+  echo -e "\e[32mRemoving installed packages...\e[0m"
+  sudo dnf remove fido2-tools pamu2fcfg || true
+  echo "Done."
+  echo
+fi
 
 echo -e "\e[32mFIDO2 U2F authentication removed.\e[0m"

@@ -20,7 +20,6 @@ require_cmd gum
 update_confirm() {
   gum style \
     --border normal \
-    --border-foreground 4 \
     --padding "1 2" \
     "Ready to update?" \
     "" \
@@ -31,8 +30,8 @@ update_confirm() {
     "  • Cargo-installed binaries" \
     "  • Firmware" \
     "" \
-    "• Do not interrupt the update once it starts!" \
-    "• Ensure you are connected to power or have sufficient battery."
+    "• You cannot stop the update once you start!" \
+    "• Make sure you're connected to power or have a full battery"
 
   gum confirm "Continue with update?"
 }
@@ -112,9 +111,8 @@ update_perform() {
   print_step "Updating firmware..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-firmware"
 
-  # TODO: reimplement hooks
-  #log_info "Running post-update hooks"
-  #omadora-hook post-update
+  print_step "Running post-update hooks..."
+  "$OMADORA_LIBEXEC_DIR/omadora-hook" post-update
 
   log_info "Update complete"
 }
@@ -144,16 +142,15 @@ update_state_refresh() {
 # -----------------------------------------------------------------------------
 
 update_restart_check() {
-  # TODO: check uwsm stop/reboot correctness
   if [[ -f "/run/reboot-required" ]]; then
     printf '\n'
-    gum confirm "Updates require reboot. Ready?" && systemctl reboot --no-wall
+    gum confirm "Updates require reboot. Ready?" && omactl system reboot
     exit 0
   fi
 
   if state_exists "relaunch-required"; then
     printf '\n'
-    gum confirm "Updates require Hyprland relaunch. Ready?" && uwsm stop
+    gum confirm "Updates require Hyprland relaunch. Ready?" && omactl system logout
     exit 0
   fi
 }

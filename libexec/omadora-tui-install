@@ -40,7 +40,7 @@ else
   APP_CLASS="TUI.tile"
 fi
 
-# NOTE: All TUIs open with alacritty for consistency
+# INFO: All TUIs open with alacritty for consistency
 cat >"$DESKTOP_FILE" <<EOF
 [Desktop Entry]
 Version=1.0
