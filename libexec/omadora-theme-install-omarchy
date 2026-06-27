@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Installs Omarchy themes to the user themes directory.
+
+repo="https://github.com/basecamp/omarchy.git"
+branch="master"
+commit=""
+yes=false
+
+remote_dir="themes"
+dest="$HOME/.config/omadora/themes"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  -b | --branch)
+    [[ $# -ge 2 ]] || {
+      printf 'Missing value for %s\n' "$1" >&2
+      exit 1
+    }
+    branch="$2"
+    shift 2
+    ;;
+  -c | --commit)
+    [[ $# -ge 2 ]] || {
+      printf 'Missing value for %s\n' "$1" >&2
+      exit 1
+    }
+    commit="$2"
+    shift 2
+    ;;
+  -y | --yes)
+    yes=true
+    shift
+    ;;
+  *)
+    printf 'Unknown option: %s\n' "$1" >&2
+    exit 1
+    ;;
+  esac
+done
+
+tmpdir="$(mktemp -d)"
+trap 'rm -rf "$tmpdir"' EXIT
+
+mkdir -p "$dest"
+
+git clone \
+  --depth=1 \
+  --filter=blob:none \
+  --single-branch \
+  --branch "$branch" \
+  --sparse \
+  "$repo" \
+  "$tmpdir"
+
+git -C "$tmpdir" sparse-checkout set "$remote_dir"
+
+if [[ -n "$commit" ]]; then
+  git -C "$tmpdir" fetch --depth=1 origin "$commit"
+  git -C "$tmpdir" checkout "$commit"
+fi
+
+for theme_dir in "$tmpdir/$remote_dir"/*; do
+  [[ -d "$theme_dir" ]] || continue
+
+  theme_name="$(basename "$theme_dir")"
+  dest_theme_name="omarchy-$theme_name"
+  target="$dest/$dest_theme_name"
+
+  if [[ -e "$target" ]]; then
+    if [[ "$yes" == true ]] || gum confirm "Theme '$dest_theme_name' already exists. Overwrite?"; then
+      rm -rf -- "$target"
+      cp -r -- "$theme_dir" "$target"
+      printf 'Updated theme: %s\n' "$dest_theme_name"
+    else
+      printf 'Skipped theme: %s\n' "$dest_theme_name"
+    fi
+  else
+    cp -r -- "$theme_dir" "$target"
+    printf 'Installed theme: %s\n' "$dest_theme_name"
+  fi
+done

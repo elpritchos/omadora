@@ -6,6 +6,9 @@ sudo gtk-update-icon-cache /usr/share/icons/Yaru
 # Setup user theme folder
 mkdir -p ~/.config/omadora/themes
 
+# Install Omarchy themes
+omadora-theme-install-omarchy -y
+
 # Set initial theme
 omactl theme set "Rose Pine Darker"
 

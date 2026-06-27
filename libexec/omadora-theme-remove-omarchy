@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Removes Omarchy themes installed in the user themes directory.
+#
+dest="$HOME/.config/omadora/themes"
+
+shopt -s nullglob
+theme_dirs=("$dest"/omarchy-*)
+shopt -u nullglob
+
+if [[ ${#theme_dirs[@]} -eq 0 ]]; then
+  printf 'No Omarchy themes installed.\n'
+  exit 0
+fi
+
+gum confirm "Remove all Omarchy themes?" || exit 0
+
+for dir in "${theme_dirs[@]}"; do
+  [[ -d "$dir" ]] || continue
+
+  rm -rf -- "$dir"
+  printf 'Removed theme: %s\n' "${dir##*/}"
+done
