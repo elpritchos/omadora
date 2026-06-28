@@ -1,14 +1,14 @@
 @import "../omadora/current/theme/waybar.css";
 
 * {
-  border: none;
   border-radius: 0;
-  min-height: 0;
+  border: none;
   font-family: 'Adwaita Sans', 'JetBrainsMono Nerd Font';
-  font-size: 10pt;
+  font-size: 10.5pt;
+  min-height: 0;
 }
 
-window#waybar {
+#waybar {
   background-color: @background;
   color: @foreground;
 }
@@ -16,43 +16,53 @@ window#waybar {
 .modules-left,
 .modules-center,
 .modules-right {
-  padding: 0 8px;
+  padding: 0 0.35rem;
 }
 
-#clock,
 #battery,
-#network,
 #bluetooth,
-#pulseaudio,
-#workspaces,
+#clock,
 #cpu,
-#tray,
-#custom-omadora,
-#custom-update,
 #custom-expand-icon,
-#custom-weather,
 #custom-idle-indicator,
 #custom-notification-silencing-indicator,
-#custom-screenrecording-indicator {
-  padding: 0 8px;
+#custom-omadora,
+#custom-screenrecording-indicator,
+#custom-update,
+#custom-weather,
+#network,
+#pulseaudio,
+#tray,
+#workspaces {
+  padding: 0 0.55rem;
 }
 
+#battery,
+#bluetooth,
+#cpu,
+#custom-expand-icon,
+#custom-idle-indicator,
+#custom-notification-silencing-indicator,
+#custom-omadora,
+#custom-screenrecording-indicator,
+#custom-update,
+#custom-weather,
+#network,
+#pulseaudio,
 #workspaces button {
-  padding: 4px;
+  min-width: 2em;
+  padding: 0;
 }
 
+#custom-weather.stale,
 #workspaces button.empty {
   opacity: 0.5;
 }
 
-#custom-weather.stale {
-  opacity: 0.5;
-}
-
-#custom-weather.error,
-#custom-update.security,
 #custom-idle-indicator.active,
 #custom-notification-silencing-indicator.active,
-#custom-screenrecording-indicator.active {
+#custom-screenrecording-indicator.active,
+#custom-update.security,
+#custom-weather.error {
   color: #a55555;
 }

@@ -90,7 +90,7 @@
     "interval": 60,
     "signal": 11,
     "format": "{icon}",
-    "format-alt": "{icon}  {text}",
+    "format-alt": "{icon}   {text}",
     "format-icons": {
       "unknown": "󰖐",
       "clear": [
