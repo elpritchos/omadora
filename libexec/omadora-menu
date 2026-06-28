@@ -37,7 +37,7 @@ menu() {
 }
 
 terminal() {
-  alacritty --class=org.omadora.terminal -e "$@"
+  xdg-terminal-exec --app-id=org.omadora.terminal "$@"
 }
 
 present_terminal() {

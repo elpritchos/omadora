@@ -10,7 +10,7 @@ osc52 = "CopyPaste"
 normal = { family = "JetBrainsMono Nerd Font", style = "Regular" }
 bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
 italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
-size = 10
+size = 10.5
 
 [window]
 padding.x = 14

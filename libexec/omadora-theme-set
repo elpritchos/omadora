@@ -79,7 +79,6 @@ reload btop &
 reload opencode &
 
 # Call hook on theme set
-# TODO: move the omadora-hook to libexec
 ("$OMADORA_LIBEXEC_DIR/omadora-hook" theme-set "$theme_name" ||
   log_warn "theme-set hook failed") &
 

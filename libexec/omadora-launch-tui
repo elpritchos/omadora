@@ -2,4 +2,4 @@
 
 # Launch the TUI command passed in as an argument in the default terminal with an org.omadora.COMMAND app id for styling.
 
-exec setsid uwsm-app -- alacritty --class=org.omadora.$(basename $1) -e "$1" "${@:2}"
+exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.omadora."${1##*/}" -e "$1" "${@:2}"

@@ -75,7 +75,7 @@
     "interval": 5,
     "format": "󰍛",
     "on-click": "omadora-launch-system-monitor",
-    "on-click-right": "alacritty"
+    "on-click-right": "xdg-terminal-exec"
   },
   "clock": {
     "format": "{:L%A %H:%M}",

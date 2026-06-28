@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Launch the screensaver in the default terminal on the system with the correct font configuration.
+# Launch the screensaver in a terminal with the correct font configuration.
 
 if ! command -v tte &>/dev/null; then
   exit 1
@@ -20,8 +20,9 @@ for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
   hyprctl dispatch focusmonitor "$m"
 
   hyprctl dispatch exec -- \
-    alacritty --class=org.omadora.screensaver \
-    --config-file ~/.local/share/omadora/default/alacritty/screensaver.toml \
+    kitty --class=org.omadora.screensaver \
+    --override font_size=18 \
+    --override window_padding_width=0 \
     -e omadora-screensaver
 done
 

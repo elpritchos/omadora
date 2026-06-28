@@ -4,4 +4,4 @@
 # Used by actions such as Update System.
 
 cmd="$*"
-exec setsid uwsm-app -- alacritty --class=org.omadora.terminal --title=Omadora -e bash -c "omadora-show-logo; $cmd; if [ \$? -ne 130 ]; then omadora-show-done; fi"
+exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.omadora.terminal --title=Omadora -e bash -c "omadora-show-logo; $cmd; if (( \$? != 130 )); then omadora-show-done; fi"
