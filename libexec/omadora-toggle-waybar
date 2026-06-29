@@ -8,11 +8,9 @@ readonly unit="waybar.service"
 omadora-toggle "$flag"
 
 if omadora-toggle-enabled "$flag"; then
-  systemctl --quiet --user disable --now "$unit"
+  systemctl --quiet --user stop "$unit"
   notify-send -u low "󰍜    Waybar disabled"
 else
-  systemctl --quiet --user enable --now "$unit"
+  systemctl --quiet --user start "$unit"
   notify-send -u low "󰍜    Waybar enabled"
 fi
-
-systemctl --user is-enabled "$unit"

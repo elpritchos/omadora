@@ -3,7 +3,7 @@ Description=Omadora Hyprlock Service
 After=graphical-session.target
 
 [Service]
-Type=oneshot
+Type=simple
 ExecCondition=/usr/bin/sh -c '! pgrep -x hyprlock >/dev/null'
 ExecStartPre=%h/.local/share/omadora/libexec/systemd/omadora-hyprlock-pre-lock
 ExecStart=/usr/bin/hyprlock

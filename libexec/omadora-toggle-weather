@@ -8,13 +8,11 @@ readonly unit="omadora-weather-check.timer"
 omadora-toggle "$flag"
 
 if omadora-toggle-enabled "$flag"; then
-  systemctl --quiet --user disable --now "$unit"
+  systemctl --quiet --user stop "$unit"
   notify-send -u low "    Weather disabled"
 else
-  systemctl --quiet --user enable --now "$unit"
+  systemctl --quiet --user start "$unit"
   notify-send -u low "    Weather enabled"
 fi
 
 pkill -RTMIN+11 waybar || true
-
-systemctl --user is-enabled "$unit"

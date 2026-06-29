@@ -1,5 +1,6 @@
 [Unit]
 Description=Omadora Update Check Service
+PartOf=omadora-session.target
 After=graphical-session.target network-online.target
 
 [Service]
