@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Run the first-run welcome script etc.
+
+set -e
+
+FIRST_RUN_MODE=~/.local/state/omadora/first-run.mode
+
+if [[ -f $FIRST_RUN_MODE ]]; then
+  rm -f "$FIRST_RUN_MODE"
+
+  bash "$OMADORA_PATH/install/first-run/welcome.sh" || true
+fi

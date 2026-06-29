@@ -22,12 +22,12 @@ assert_dir() {
     fatal "directory not found: $path"
 }
 
-require_cmd() {
-  local command="$1"
-
-  command -v "$command" >/dev/null 2>&1 ||
-    fatal "required command not found: $command"
-}
+#require_cmd() {
+#  local command="$1"
+#
+#  command -v "$command" >/dev/null 2>&1 ||
+#    fatal "required command not found: $command"
+#}
 
 require_env() {
   local variable="$1"

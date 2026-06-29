@@ -21,8 +21,10 @@ for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
 
   hyprctl dispatch exec -- \
     kitty --class=org.omadora.screensaver \
-    --override font_size=18 \
+    --override font_size=12 \
     --override window_padding_width=0 \
+    --override cursor=#000000 \
+    --override cursor_trail=0 \
     -e omadora-screensaver
 done
 

@@ -19,8 +19,8 @@ theme_exists() {
 }
 
 theme_current() {
-  [[ -f "${OMADORA_THEME_NAME_FILE}" ]] || return 1
-  cat "$OMADORA_THEME_NAME_FILE"
+  [[ -s "$OMADORA_THEME_NAME_FILE" ]] || return 1
+  head -n 1 -- "$OMADORA_THEME_NAME_FILE"
 }
 
 theme_list_user() {
@@ -47,8 +47,8 @@ theme_list_system() {
 
 theme_list_all() {
   {
-    theme_list_user
-    theme_list_system
+    theme_list_user || return 1
+    theme_list_system || return 1
   } | sort -u
 }
 

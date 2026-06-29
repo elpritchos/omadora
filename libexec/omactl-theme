@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-readonly OMADORA_LOG_TAG="omadora-theme"
+set -Eeuo pipefail
 
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
@@ -96,50 +94,50 @@ case "$cmd" in
   ;;
 
 list)
-  theme_list_all
+  theme_list_all || die "failed to list themes"
   ;;
 
 list-user)
-  theme_list_user
+  theme_list_user || die "failed to list user themes"
   ;;
 
 current)
-  theme_current || fatal "no current theme set"
+  theme_current || die "failed to get current theme"
   ;;
 
 set)
   shift
-  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$@"
+  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$@"
   ;;
 
 add)
   shift
-  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-install" "$@"
+  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-install" "$@"
   ;;
 
 remove)
   shift
-  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-remove" "$@"
+  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-remove" "$@"
   ;;
 
 update)
   shift
-  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-update" "$@"
+  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-update" "$@"
   ;;
 
 bg-next)
   shift
-  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" "$@"
+  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" "$@"
   ;;
 
 bg-install)
   shift
-  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-install" "$@"
+  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-install" "$@"
   ;;
 
 bg-remove)
   shift
-  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-remove" "$@"
+  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-remove" "$@"
   ;;
 
 __complete)
@@ -149,7 +147,7 @@ __complete)
 
 *)
   usage >&2
-  printf 'ERROR: unknown command: %s\n' "$cmd" >&2
+  error "unknown command: $cmd"
   exit 2
   ;;
 esac

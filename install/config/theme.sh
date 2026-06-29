@@ -3,6 +3,11 @@ sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-previous-symbolic.svg 
 sudo ln -snf /usr/share/icons/Adwaita/symbolic/actions/go-next-symbolic.svg /usr/share/icons/Yaru/scalable/actions/go-next-symbolic.svg
 sudo gtk-update-icon-cache /usr/share/icons/Yaru
 
+# Set base system fonts
+gsettings set org.gnome.desktop.interface font-name "Adwaita Sans 11"
+gsettings set org.gnome.desktop.interface document-font-name "Adwaita Sans 12"
+gsettings set org.gnome.desktop.interface monospace-font-name "JetBrains Mono 10.5"
+
 # Setup user theme folder
 mkdir -p ~/.config/omadora/themes
 

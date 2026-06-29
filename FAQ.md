@@ -22,7 +22,7 @@ However, the best resource for understanding Omadora is to read and understand t
 
 ## How do I keep Omadora updated?
 
-There is an update indicator which appears in Waybar next to the date when an update is available; clicking this will pop a terminal and execute `omadora-update`.
+There is an update indicator which appears in the top right of the Waybar that indicates update status; clicking this will pop a terminal and execute `omadora-update`.
 The `omadora-update` script can also be run manually, and in both cases will update Omadora to the latest version, along with system packages, firmware, flatpaks, and cargo-installed binaries.
 
 ## Where are all the apps that are provided by default in Omarchy?
@@ -31,18 +31,9 @@ This is a conscious decision not to include all the applications and configurati
 
 Many of these additional apps can be installed via the default official Fedora repositories or as a flatpak via [Flathub](https://flathub.org) if needed.
 
-## Why are the Waybar glyphs so small with the default font?
+## Do I have to use the LazyVim starter?
 
-The default font is the _Cascadia Mono NF_ font which is the only Nerd Font included within the offical Fedora repositories.
-The glyphs in this font are the same width as the rest of the font which makes them appear small in comparison to other [Nerd Fonts](https://www.nerdfonts.com/font-downloads).
-
-If larger glyphs are desired, then install the [CaskaydiaMono Nerd Font](https://www.nerdfonts.com/font-downloads#:~:text=CaskaydiaMono) or similar Nerd Fonts to the `~/.local/share/fonts` directory and rebuild the cache with `fc-cache -f`.
-The fonts should now be available for selection via the Omadora style menu.
-
-## Why have the default Omarchy themes been modified?
-
-Neovim theme config files have been modified to load without the LazyVim plugin so that any Neovim configuration that uses the Lazy plugin manager can use the themes simply by symlinking in the theme plugin from `~/.config/omadora/current/theme/neovim.lua`.
-However, third-party themes may still load the LazyVim plugin and would need to be modified manually after the theme install to work in the same manner.
+No. You can still use the [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager configured to disable the 'LazyVim/LazyVim' plugin, and ensure the theme plugin from `~/.config/omadora/current/theme/neovim.lua` is symlinked to the your lazy plugins directory.
 
 ## Where is the Omadora default plymouth theme from?
 

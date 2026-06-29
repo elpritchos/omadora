@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Designed to be run by systemd timer every 30 seconds and alerts if battery is low
+# Designed to be run by systemd timer and alerts if battery is low
 
 BATTERY_THRESHOLD=10
 NOTIFICATION_FLAG="/run/user/$UID/omadora_battery_notified"
 
 battery_level=$(omadora-battery-remaining)
-battery_state=$(upower -i $(upower -e | grep 'BAT') | grep -E "state" | awk '{print $2}')
+battery_state=$(upower -i "$(upower -e | grep 'BAT')" | grep -E "state" | awk '{print $2}')
 
 send_notification() {
   notify-send -u critical "󱐋 Time to recharge!" "Battery is down to ${1}%" -i battery-caution -t 30000
