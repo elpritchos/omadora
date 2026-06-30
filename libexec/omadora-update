@@ -113,6 +113,7 @@ update_perform() {
 
   print_step "Running post-update hooks..."
   "$OMADORA_LIBEXEC_DIR/omadora-hook" post-update
+  printf 'Done.\n'
 
   log_info "Update complete"
 }
