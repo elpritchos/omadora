@@ -21,12 +21,7 @@ update_confirm() {
     --padding "1 2" \
     "Ready to update?" \
     "" \
-    "The following updates will occur:" \
-    "  • Omadora" \
-    "  • System packages" \
-    "  • Flatpaks" \
-    "  • Cargo-installed binaries" \
-    "  • Firmware" \
+    "The update process includes: Omadora, DNF packages, Flatpaks, Cargo bins, and firmware." \
     "" \
     "• You cannot stop the update once you start!" \
     "• Make sure you're connected to power or have a full battery"
@@ -132,7 +127,7 @@ trap cleanup EXIT
 
 if [[ "${1:-}" != "-y" ]]; then
   update_confirm || {
-    info "Update cancelled by user"
+    info "Update cancelled."
     exit 0
   }
 fi
