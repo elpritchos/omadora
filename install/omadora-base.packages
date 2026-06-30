@@ -21,16 +21,17 @@ fcitx5-configtool
 fcitx5-gtk
 fcitx5-qt
 fd-find
+flatpak
 flatseal
 fontawesome-fonts-all
 fprintd-pam
 fzf
+git
 gnome-calculator
 gnome-keyring-pam
 gnome-themes-extra
 google-noto-emoji-fonts
 google-noto-fonts-all
-google-noto-fonts-common
 gum
 gvfs
 gvfs-afc
@@ -46,6 +47,7 @@ imv
 iputils
 iwd
 jetbrains-mono-fonts
+jq
 kvantum
 kvantum-qt5
 libinput
@@ -59,8 +61,6 @@ nautilus-python
 neovim
 pciutils
 pinentry-gnome3
-pipewire
-pipewire-devel
 pipx
 playerctl
 plocate
@@ -78,8 +78,10 @@ tar
 tesseract
 thermald
 tldr
+tmux
 traceroute
 tree
+unzip
 uresourced
 usbutils
 waybar
@@ -87,7 +89,6 @@ wf-recorder
 wget
 whois
 wiremix
-wireplumber
 wl-clipboard
 wofi
 xdg-desktop-portal-gtk
@@ -95,5 +96,4 @@ xdg-terminal-exec
 xdg-user-dirs
 xfce-polkit
 yaru-icon-theme
-zip
 zoxide
