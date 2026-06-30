@@ -1,6 +1,8 @@
 #!/bin/bash
 
-timezone=$(timedatectl list-timezones | gum filter --height 20 --header "Set timezone" --placeholder "") || exit 1
+# Select and set the system timezone
+
+timezone=$(timedatectl list-timezones | gum filter --height 20 --header "Set timezone") || exit 1
 
 if [[ -z "$timezone" ]]; then
   echo "No timezone selected"

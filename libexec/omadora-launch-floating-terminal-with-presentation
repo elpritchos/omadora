@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Launch a floating terminal with the logo presentation, then execute the command passed in, and finally end with the omadora-show-done presentation.
-# Used by actions such as Update System.
+# Launch a floating terminal with the Omadora presentation wrapper
 
 cmd="$*"
 exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.omadora.terminal --title=Omadora -e bash -c "omadora-show-logo; $cmd; if (( \$? != 130 )); then omadora-show-done; fi"

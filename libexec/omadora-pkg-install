@@ -4,8 +4,8 @@
 
 fzf_args=(
   --multi
-  --preview 'dnf info {1}'
-  --preview-label='alt-p: toggle description, alt-j/k: scroll, tab: multi-select, F11: maximize'
+  --preview 'dnf info {1} 2>/dev/null'
+  --preview-label='alt-p: toggle description, alt-j/k: scroll, tab: multi-select'
   --preview-label-pos='bottom'
   --preview-window 'down:65%:wrap'
   --bind 'alt-p:toggle-preview'
@@ -18,7 +18,7 @@ pkg_names=$(dnf repoquery --available --qf "%{name}\n" 2>/dev/null | fzf "${fzf_
 
 if [[ -n "$pkg_names" ]]; then
   # Convert newline-separated list into an array
-  readarray -t pkgs <<< "$pkg_names"
+  readarray -t pkgs <<<"$pkg_names"
   sudo dnf install "${pkgs[@]}"
   omadora-show-done
 fi

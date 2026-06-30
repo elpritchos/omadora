@@ -1,4 +1,6 @@
 #!/bin/bash
 
+# Restart an application by killing it and relaunching via uwsm.
+
 pkill -x "$1"
-setsid uwsm-app -- "$1" >/dev/null 2>&1 &
+setsid uwsm-app -- "$@" >/dev/null 2>&1 &

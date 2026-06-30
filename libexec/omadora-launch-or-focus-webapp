@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Launch or focus on a given web app identified by the window-pattern.
-# Use by some default bindings to ensure there is only one instance of the application open.
 
 if (($# == 0)); then
   echo "Usage: omadora-launch-or-focus-webapp [window-pattern] [url-and-flags...]"
@@ -10,6 +9,6 @@ fi
 
 WINDOW_PATTERN="$1"
 shift
-LAUNCH_COMMAND="omadora-launch-webapp $@"
+LAUNCH_COMMAND="omadora-launch-webapp $*"
 
 exec omadora-launch-or-focus "$WINDOW_PATTERN" "$LAUNCH_COMMAND"

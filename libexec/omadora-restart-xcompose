@@ -1,3 +1,5 @@
 #!/bin/bash
 
-omadora-restart-app fcitx5
+# Restart the XCompose input method service (fcitx5) to apply new compose key settings.
+
+systemctl --user restart omadora-fcitx5.service

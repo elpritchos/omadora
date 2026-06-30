@@ -24,10 +24,10 @@ FLAG="$HOME/.local/state/omadora/toggles/hypr/$FLAG_NAME.conf"
 FLAG_SOURCE="$OMADORA_PATH/default/hypr/toggles/$FLAG_NAME.conf"
 
 if [[ -f $FLAG ]]; then
-  rm $FLAG
+  rm "$FLAG"
   [[ -n $DISABLED_NOTIFICATION ]] && notify-send -u low "$DISABLED_NOTIFICATION"
 elif [[ -f $FLAG_SOURCE ]]; then
-  cp $FLAG_SOURCE $FLAG
+  cp "$FLAG_SOURCE" "$FLAG"
   [[ -n $ENABLED_NOTIFICATION ]] && notify-send -u low "$ENABLED_NOTIFICATION"
 else
   echo "Flag not found: $FLAG_NAME"

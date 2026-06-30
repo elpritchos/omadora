@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#omadora-restart-app waybar
-if systemctl --quiet --user is-active waybar.service; then
-  systemctl --user restart waybar.service
-else
-  systemctl --user start waybar.service
-fi
+# Restart Waybar
+
+systemctl --user restart waybar.service
