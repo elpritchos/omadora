@@ -2,7 +2,7 @@
 
 # Toggle Weather Checks
 
-readonly flag="weather-off"
+readonly flag="weather-check-off"
 readonly unit="omadora-weather-check.timer"
 
 omadora-toggle "$flag"

@@ -1,6 +1,7 @@
 [Unit]
 Description=Omadora Update Check Timer
 PartOf=omadora-session.target
+ConditionPathExists=!%h/.local/state/omadora/toggles/update-check-off
 
 [Timer]
 OnBootSec=15min

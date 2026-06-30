@@ -57,6 +57,7 @@
   },
   "custom/update": {
     "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-update",
+    "exec-if": "test ! -f ~/.local/state/omadora/toggles/update-check-off",
     "return-type": "json",
     "interval": 60,
     "signal": 7,
@@ -85,7 +86,7 @@
   },
   "custom/weather": {
     "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-weather",
-    "exec-if": "test ! -f ~/.local/state/omadora/toggles/weather-off",
+    "exec-if": "test ! -f ~/.local/state/omadora/toggles/weather-check-off",
     "return-type": "json",
     "interval": 60,
     "signal": 11,

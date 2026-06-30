@@ -196,7 +196,7 @@ show_toggle_menu() {
   *Nightlight*) omadora-toggle-nightlight ;;
   *Idle*) omadora-toggle-idle ;;
   *Notifications*) omadora-toggle-notification-silencing ;;
-  *Weather*) omadora-toggle-weather ;;
+  *Weather*) omadora-toggle-weather-check ;;
   *Bar*) omadora-toggle-waybar ;;
   *Layout*) omadora-hyprland-workspace-layout-toggle ;;
   *Ratio*) omadora-hyprland-window-single-square-aspect-toggle ;;

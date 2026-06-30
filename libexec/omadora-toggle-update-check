@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Toggle Update Checks
+
+readonly flag="update-check-off"
+readonly unit="omadora-update-check.timer"
+
+omadora-toggle "$flag"
+
+if omadora-toggle-enabled "$flag"; then
+  systemctl --quiet --user stop "$unit"
+  notify-send -u low "󰏗    Update checks disabled"
+else
+  systemctl --quiet --user start "$unit"
+  notify-send -u low "󰏗    Update checks enabled"
+fi
+
+pkill -RTMIN+7 waybar || true
