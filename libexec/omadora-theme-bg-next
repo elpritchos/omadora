@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-theme"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -10,7 +8,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 source "$OMADORA_LIB_DIR/theme.sh"
 
 current_theme_name=$(theme_current) ||
-  fatal "no current theme set"
+  die "no current theme set"
 
 mapfile -d '' -t backgrounds < <(
   find -L \
@@ -25,12 +23,12 @@ mapfile -d '' -t backgrounds < <(
 total=${#backgrounds[@]}
 
 if ((total == 0)); then
-  log_info "No backgrounds available for theme: $current_theme_name"
+  info "No backgrounds available for theme: $current_theme_name"
 
   rm -f "$OMADORA_CURRENT_BACKGROUND_LINK"
 
   systemctl --user restart hyprpaper.service ||
-    fatal "failed to restart hyprpaper"
+    die "failed to restart hyprpaper"
 
   exit 0
 fi
@@ -65,6 +63,6 @@ ln -nsf "$new_background" "$OMADORA_CURRENT_BACKGROUND_LINK"
 
 # Apply the new wallpaper.
 theme_apply_background ||
-  fatal "failed to apply background"
+  die "failed to apply background"
 
-log_info "Background changed: ${new_background##*/}"
+info "Background changed: ${new_background##*/}"

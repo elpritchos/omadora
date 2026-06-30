@@ -1,39 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-update"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 
 # shellcheck source=lib/update.sh
 source "$OMADORA_LIB_DIR/update.sh"
 
-# -----------------------------------------------------------------------------
-# Helpers
-# -----------------------------------------------------------------------------
-info() {
-  printf '%s\n' "$1"
-  log_info "$1"
-}
-
-error() {
-  printf 'ERROR: %s\n' "$1"
-  log_error "$1"
-}
-
-waybar_module_refresh() {
-  pkill -RTMIN+7 waybar
-}
+require_cmd dnf5 jq
 
 # -----------------------------------------------------------------------------
 # Init
 # -----------------------------------------------------------------------------
-require_cmd dnf5
-require_cmd jq
-
 update_dirs_init ||
-  fatal "failed to initialize update dirs"
+  die "failed to initialize update dirs"
 
 # -----------------------------------------------------------------------------
 # Locking
@@ -44,35 +24,42 @@ exec 9>"$OMADORA_UPDATE_LOCK_FILE"
 flock -n 9 || exit 0
 
 # -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
+waybar_module_refresh() {
+  pkill -RTMIN+7 waybar
+}
+
+# -----------------------------------------------------------------------------
 # Perform Update Check
 # -----------------------------------------------------------------------------
 info 'Starting update check...'
 
-printf 'Collecting omadora updates...\n'
+info 'Collecting omadora updates...'
 update_collect_omadora ||
   error "failed to collect omadora updates"
 
-printf 'Collecting dnf updates...\n'
+info 'Collecting dnf updates...'
 update_collect_dnf ||
   error "failed to collect dnf updates"
 
-printf 'Collecting cargo updates...\n'
+info 'Collecting cargo updates...'
 update_collect_cargo ||
   error "failed to collect cargo updates"
 
-printf 'Collecting flatpak updates...\n'
+info 'Collecting flatpak updates...'
 update_collect_flatpak ||
   error "failed to collect flatpak updates"
 
-printf 'Collecting firmware updates...\n'
+info 'Collecting firmware updates...'
 update_collect_firmware ||
   error "failed to collect firmware updates"
 
-printf 'Writing update state...\n'
+info 'Writing update state...'
 update_write_state ||
-  fatal "failed to write update state"
+  die "failed to write update state"
 
 waybar_module_refresh ||
-  log_debug "Failed to update Waybar module"
+  debug "Failed to update Waybar module"
 
 info "Finished update check."

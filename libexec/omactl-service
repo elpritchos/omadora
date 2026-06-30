@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-service"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -75,7 +73,7 @@ service_dispatch() {
     "$fn"
   else
     #systemctl --user "$action" "${unit}.service"
-    printf 'ERROR: function not found: %s\n' "${fn}" >&2
+    error "function not found: $fn"
     exit 2
   fi
 }
@@ -94,7 +92,7 @@ status | start | stop | restart | reload)
 
   if [[ -z "$service_name" ]]; then
     usage >&2
-    printf 'ERROR: missing service name\n' >&2
+    error "missing service name: $service_name"
     exit 2
   fi
 
@@ -108,7 +106,7 @@ __complete)
 
 *)
   usage >&2
-  printf 'ERROR: unknown command: %s\n' "$cmd" >&2
+  error "unknown command: $cmd"
   exit 2
   ;;
 esac

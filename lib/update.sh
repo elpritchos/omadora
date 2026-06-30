@@ -34,7 +34,7 @@ write_atomic() {
 }
 
 update_dirs_init() {
-  mkdir -p \
+  ensure_dir \
     "$OMADORA_UPDATE_STATE_DIR" \
     "$OMADORA_UPDATE_CACHE_DIR" \
     "$OMADORA_RUNTIME_DIR"
@@ -116,7 +116,7 @@ update_collect_dnf() {
 
 update_collect_cargo() {
 
-  if ! command -v cargo >/dev/null 2>&1; then
+  if ! has_cmd cargo; then
     with_errors=true
     return 1
   fi
@@ -140,7 +140,7 @@ update_collect_cargo() {
 }
 
 update_collect_flatpak() {
-  if ! command -v flatpak >/dev/null 2>&1; then
+  if ! has_cmd flatpak; then
     with_errors=true
     return 1
   fi
@@ -162,7 +162,7 @@ update_collect_flatpak() {
 }
 
 update_collect_firmware() {
-  if ! command -v fwupdmgr >/dev/null 2>&1; then
+  if ! has_cmd fwupdmgr; then
     return 0
   fi
 

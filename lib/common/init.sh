@@ -14,9 +14,3 @@ source "$OMADORA_ROOT/lib/common/paths.sh"
 
 # shellcheck source=common.sh
 source "$OMADORA_ROOT/lib/common/common.sh"
-
-# shellcheck source=log.sh
-source "$OMADORA_ROOT/lib/common/log.sh"
-
-# shellcheck source=errors.sh
-source "$OMADORA_ROOT/lib/common/errors.sh"

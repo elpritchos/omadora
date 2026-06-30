@@ -1,17 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-update"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 require_cmd cargo
 
 cargo install-update --version >/dev/null 2>&1 ||
-  fatal "cargo install-update missing"
+  die "cargo install-update missing"
 
-log_info "Updating cargo packages"
+info "Updating cargo packages"
 
 cargo install-update --all ||
-  fatal "failed to update cargo packages"
+  die "failed to update cargo packages"

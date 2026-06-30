@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-update"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 
 require_cmd jq
 
-UPDATE_STATE_FILE="${OMADORA_STATE_HOME}/update/state.json"
+readonly STATE_FILE="${OMADORA_STATE_HOME}/update/state.json"
 
-[[ -f "$UPDATE_STATE_FILE" ]] || exit 0
+[[ -f "$STATE_FILE" ]] || exit 0
 
-if ! jq empty "$UPDATE_STATE_FILE" >/dev/null 2>&1; then
-  log_warn "Invalid update state file"
+if ! jq empty "$STATE_FILE" >/dev/null 2>&1; then
+  warn "Invalid update state file"
   exit 0
 fi
 
@@ -132,4 +130,4 @@ else
   }
 
 end
-' "$UPDATE_STATE_FILE"
+' "$STATE_FILE"

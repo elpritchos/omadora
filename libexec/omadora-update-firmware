@@ -1,39 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-update"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # shellcheck source=lib/update.sh
 source "$OMADORA_LIB_DIR/update.sh"
 
-if ! command -v fwupdmgr >/dev/null 2>&1; then
-  printf "fwupdmgr not installed. Skipping.\n"
-  log_debug "fwupdmgr not installed"
+if ! has_cmd fwupdmgr; then
+  info "fwupdmgr not installed. Skipping."
   exit 0
 fi
 
-log_info "Updating firmware"
-
-printf "Looking for updates…\n\n"
+info "Looking for updates…"
 
 update_dirs_init ||
-  fatal "failed to initialize update dirs"
+  die "failed to initialize update dirs"
 
 update_collect_firmware ||
-  fatal "failed to query firmware updates"
+  die "failed to query firmware updates"
 
 if ((firmware_total == 0)); then
-  printf "Nothing to do.\n"
+  echo
+  info "Nothing to do."
   exit 0
 fi
 
 sudo fwupdmgr update \
   --assume-yes \
   --no-reboot-check ||
-  fatal "failed to install firmware updates"
+  die "failed to install firmware updates"
 
 # Assume a reboot is required after firmware updates
 sudo touch /run/reboot-required

@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-update"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 require_cmd git
 
-log_info "Updating git repo"
-
 git -C "$OMADORA_ROOT" pull --autostash ||
-  fatal "failed to pull git updates"
+  die "failed to pull git updates"
 
 git -C "$OMADORA_ROOT" --no-pager diff --check ||
   git -C "$OMADORA_ROOT" reset --merge

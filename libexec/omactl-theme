@@ -107,37 +107,37 @@ current)
 
 set)
   shift
-  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$@"
   ;;
 
 add)
   shift
-  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-install" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-install" "$@"
   ;;
 
 remove)
   shift
-  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-remove" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-remove" "$@"
   ;;
 
 update)
   shift
-  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-update" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-update" "$@"
   ;;
 
 bg-next)
   shift
-  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" "$@"
   ;;
 
 bg-install)
   shift
-  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-install" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-install" "$@"
   ;;
 
 bg-remove)
   shift
-  exec_cmd "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-remove" "$@"
+  exec "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-remove" "$@"
   ;;
 
 __complete)

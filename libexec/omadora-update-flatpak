@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-update"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
-if ! command -v flatpak >/dev/null 2>&1; then
-  printf "flatpak not installed. Skipping.\n"
-  log_debug "flatpak not installed"
+if ! has_cmd flatpak; then
+  info "flatpak not installed. Skipping."
   exit 0
 fi
 
-log_info "Updating flatpaks"
-
 flatpak update -y ||
-  fatal "failed to update flatpaks"
+  die "failed to update flatpaks"

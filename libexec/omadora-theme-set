@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-theme"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -12,21 +10,21 @@ source "$OMADORA_LIB_DIR/theme.sh"
 # shellcheck source=lib/service.sh
 source "$OMADORA_LIB_DIR/service.sh"
 
-[[ $# -eq 1 ]] || fatal "missing theme name"
+[[ $# -eq 1 ]] || die "missing theme name"
 
 theme_name="$(theme_name_normalize "$1")"
 local_theme_path="${OMADORA_USER_THEMES_DIR}/${theme_name}"
 system_theme_path="${OMADORA_THEMES_DIR}/${theme_name}"
 
 if [[ ! -d "$local_theme_path" ]] && [[ ! -d "$system_theme_path" ]]; then
-  fatal "theme not found: $theme_name"
+  die "theme not found: $theme_name"
 fi
 
-log_info "Applying theme: $theme_name"
+info "Applying theme: $theme_name"
 
 # Setup clean next theme directory (for atomic theme config swapping)
 rm -rf "$OMADORA_NEXT_THEME_DIR"
-mkdir -p "$OMADORA_NEXT_THEME_DIR"
+ensure_dir "$OMADORA_NEXT_THEME_DIR"
 
 # Copy official theme first, then overlay user customizations on top
 [[ -d "$local_theme_path" ]] &&
@@ -41,7 +39,7 @@ fi
 
 # Generate dynamic configs
 theme_set_templates ||
-  fatal "failed to generate themed templates"
+  die "failed to generate themed templates"
 
 # Swap next theme in as current
 rm -rf "$OMADORA_CURRENT_THEME_DIR"
@@ -57,14 +55,14 @@ fi
 
 # Change app-specific themes
 theme_set_gnome ||
-  log_warn "failed to apply GNOME theme settings"
+  warn "failed to apply GNOME theme settings"
 
 # Restart components to apply new theme
 reload() {
   local fn="service_reload_$1"
 
   if ! "$fn"; then
-    log_warn "Failed to reload: ${fn}"
+    warn "Failed to reload: ${fn}"
   fi
 }
 
@@ -80,6 +78,6 @@ reload opencode &
 
 # Call hook on theme set
 ("$OMADORA_LIBEXEC_DIR/omadora-hook" theme-set "$theme_name" ||
-  log_warn "theme-set hook failed") &
+  warn "theme-set hook failed") &
 
-log_info "Theme applied: $theme_name"
+info "Theme applied: $theme_name"

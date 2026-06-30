@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-theme"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -13,7 +11,7 @@ COLORS_OUTPUT="$THEME_SOURCE/colors.toml"
 ALACRITTY_FILE="$THEME_SOURCE/alacritty.toml"
 
 if [[ -z $THEME_SOURCE ]]; then
-  fatal "missing theme directory"
+  die "missing theme directory"
 fi
 
 # Skip if colors.toml already exists in source theme
@@ -124,7 +122,7 @@ done
 # Validate we have all normal colors (required)
 for c in color0 color1 color2 color3 color4 color5 color6 color7; do
   if [[ -z ${!c} ]]; then
-    echo "Warning: Cannot extract all normal colors from $ALACRITTY_FILE, skipping generation" >&2
+    warn "Cannot extract all normal colors from $ALACRITTY_FILE, skipping generation" >&2
     exit 0
   fi
 done

@@ -19,6 +19,10 @@ info() {
   printf '%s\n' "$*"
 }
 
+info_heading() {
+  printf '\e[32m%s\e[0m\n' "$*"
+}
+
 debug() {
   ((OMADORA_DEBUG)) || return 0
   printf '%s: debug: %s\n' "$OMADORA_APP_NAME" "$*" >&2
@@ -42,7 +46,7 @@ require_cmd() {
 }
 
 ensure_dir() {
-  mkdir -p -- "$1"
+  mkdir -p -- "$@"
 }
 
 is_interactive() {
@@ -69,20 +73,18 @@ confirm() {
   esac
 }
 
-run() {
-  debug "running: $*"
-  "$@"
-}
+sudo_keepalive() {
+  sudo -v || return 1
 
-run_as_root() {
-  if ((EUID == 0)); then
-    run "$@"
-  else
-    run sudo "$@"
-  fi
-}
+  (
+    while true; do
+      sleep 60
 
-exec_cmd() {
-  debug "exec: $(printf '%q ' "$@")"
-  exec "$@"
+      # exit if parent dies
+      kill -0 "$PPID" || exit
+
+      # refresh timestamp without triggering auth
+      sudo -n true
+    done
+  ) &
 }

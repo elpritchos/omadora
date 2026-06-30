@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-theme"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -12,8 +10,7 @@ source "$OMADORA_LIB_DIR/theme.sh"
 url="${1:-}"
 
 [[ -n "$url" ]] || {
-  printf 'See https://manuals.omamix.org/2/the-omarchy-manual/90/extra-themes for themes.\n' >&2
-  fatal "missing theme repository URL"
+  die "missing theme repository URL"
 }
 
 theme_name="$(
@@ -23,7 +20,7 @@ theme_name="$(
 
 theme_path="$OMADORA_USER_THEMES_DIR/$theme_name"
 
-log_info "Installing theme: $theme_name"
+info "Installing theme: $theme_name"
 
 # Remove existing theme if present
 if [ -d "$theme_path" ]; then
@@ -32,10 +29,10 @@ fi
 
 # Clone the repo directly into the user themes directory
 git clone "$url" "$theme_path" ||
-  fatal "failed to clone theme repository"
+  die "failed to clone theme repository"
 
 # Apply the new theme
 "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$theme_name" ||
-  fatal "failed to apply theme"
+  die "failed to apply theme"
 
-log_info "Installed theme: $theme_name"
+info "Installed theme: $theme_name"

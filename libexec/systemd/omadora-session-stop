@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-logger --tag omadora-session "Session stop"
+info "Omadora session stop"

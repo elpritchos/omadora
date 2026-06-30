@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/theme.sh"
 
 # Installs Omarchy themes to the user themes directory.
 
@@ -9,22 +15,20 @@ commit=""
 yes=false
 
 remote_dir="themes"
-dest="$HOME/.config/omadora/themes"
+dest="$OMADORA_USER_THEMES_DIR"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
   -b | --branch)
     [[ $# -ge 2 ]] || {
-      printf 'Missing value for %s\n' "$1" >&2
-      exit 1
+      die "missing value for $1"
     }
     branch="$2"
     shift 2
     ;;
   -c | --commit)
     [[ $# -ge 2 ]] || {
-      printf 'Missing value for %s\n' "$1" >&2
-      exit 1
+      die "missing value for $1"
     }
     commit="$2"
     shift 2
@@ -34,8 +38,7 @@ while [[ $# -gt 0 ]]; do
     shift
     ;;
   *)
-    printf 'Unknown option: %s\n' "$1" >&2
-    exit 1
+    die "unknown option $1"
     ;;
   esac
 done
@@ -43,7 +46,7 @@ done
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "$tmpdir"' EXIT
 
-mkdir -p "$dest"
+ensure_dir "$dest"
 
 git clone \
   --depth=1 \
@@ -69,15 +72,15 @@ for theme_dir in "$tmpdir/$remote_dir"/*; do
   target="$dest/$dest_theme_name"
 
   if [[ -e "$target" ]]; then
-    if [[ "$yes" == true ]] || gum confirm "Theme '$dest_theme_name' already exists. Overwrite?"; then
+    if [[ "$yes" == true ]] || confirm "Theme '$dest_theme_name' already exists. Overwrite?"; then
       rm -rf -- "$target"
       cp -r -- "$theme_dir" "$target"
-      printf 'Updated theme: %s\n' "$dest_theme_name"
+      info "Updated theme: $dest_theme_name"
     else
-      printf 'Skipped theme: %s\n' "$dest_theme_name"
+      info "Skipped theme: $dest_theme_name"
     fi
   else
     cp -r -- "$theme_dir" "$target"
-    printf 'Installed theme: %s\n' "$dest_theme_name"
+    info "Installed theme: $dest_theme_name"
   fi
 done

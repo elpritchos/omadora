@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
-
-readonly OMADORA_LOG_TAG="omadora-update"
+set -Eeuo pipefail
 
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
@@ -33,27 +31,7 @@ update_confirm() {
     "• You cannot stop the update once you start!" \
     "• Make sure you're connected to power or have a full battery"
 
-  gum confirm "Continue with update?"
-}
-
-# -----------------------------------------------------------------------------
-# Sudo
-# -----------------------------------------------------------------------------
-
-sudo_keepalive() {
-  sudo -v || return 1
-
-  (
-    while true; do
-      sleep 60
-
-      # exit if parent dies
-      kill -0 "$PPID" || exit
-
-      # refresh timestamp without triggering auth
-      sudo -n true
-    done
-  ) &
+  confirm "Continue with update?"
 }
 
 # -----------------------------------------------------------------------------
@@ -75,47 +53,37 @@ cleanup() {
 }
 
 # -----------------------------------------------------------------------------
-# Helpers
-# -----------------------------------------------------------------------------
-
-print_step() {
-  printf '\n\e[32m%s\e[0m\n' "$1"
-}
-
-# -----------------------------------------------------------------------------
 # Update
 # -----------------------------------------------------------------------------
 
 update_perform() {
-  log_info "Starting update"
+  info_heading "Starting update..."
 
   state_set "update-running"
 
   hyprctl dispatch tagwindow +noidle >/dev/null 2>&1 || true
 
-  print_step "Updating git..."
+  info_heading "Updating git..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-git"
 
-  print_step "Running migrations..."
+  info_heading "Running migrations..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-migrate"
 
-  print_step "Updating system packages..."
+  info_heading "Updating system packages..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-system-pkgs"
 
-  print_step "Updating cargo packages..."
+  info_heading "Updating cargo packages..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-cargo"
 
-  print_step "Updating flatpaks..."
+  info_heading "Updating flatpaks..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-flatpak"
 
-  print_step "Updating firmware..."
+  info_heading "Updating firmware..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-firmware"
 
-  print_step "Running post-update hooks..."
+  info_heading "Running post-update hooks..."
   "$OMADORA_LIBEXEC_DIR/omadora-hook" post-update
-  printf 'Done.\n'
-
-  log_info "Update complete"
+  info 'Done.'
 }
 
 # -----------------------------------------------------------------------------
@@ -123,18 +91,17 @@ update_perform() {
 # -----------------------------------------------------------------------------
 
 update_state_refresh() {
-  print_step "Refreshing update state..."
+  info_heading "Refreshing update state..."
 
   if ! flock -u 9; then
-    log_debug "Could not drop update lock"
-    printf "Could not drop update lock. Skipping.\n"
+    info "Could not drop update lock. Skipping."
     return 0
   fi
 
   if "$OMADORA_LIBEXEC_DIR/systemd/omadora-update-check" >/dev/null 2>&1; then
-    printf "Update state refreshed.\n"
+    info "Update state refreshed."
   else
-    printf "Failed to refresh update state. Skipped.\n"
+    info "Failed to refresh update state. Skipped."
   fi
 }
 
@@ -145,13 +112,14 @@ update_state_refresh() {
 update_restart_check() {
   if [[ -f "/run/reboot-required" ]]; then
     printf '\n'
-    gum confirm "Updates require reboot. Ready?" && omactl system reboot
+    # TODO: call reboot/logout script internally?
+    confirm "Updates require reboot. Ready?" && omactl system reboot
     exit 0
   fi
 
   if state_exists "relaunch-required"; then
     printf '\n'
-    gum confirm "Updates require Hyprland relaunch. Ready?" && omactl system logout
+    confirm "Updates require Hyprland relaunch. Ready?" && omactl system logout
     exit 0
   fi
 }
@@ -164,7 +132,7 @@ trap cleanup EXIT
 
 if [[ "${1:-}" != "-y" ]]; then
   update_confirm || {
-    log_info "Update cancelled by user"
+    info "Update cancelled by user"
     exit 0
   }
 fi
@@ -173,17 +141,17 @@ sudo_keepalive
 sudo_pid=$!
 
 update_dirs_init ||
-  fatal "failed to initialize update dirs"
+  die "failed to initialize update dirs"
 
 exec 9>"$OMADORA_UPDATE_LOCK_FILE"
 
 flock -n 9 ||
-  fatal "another update operation is already running"
+  die "another update operation is already running"
 
 update_perform
 
 update_state_refresh
 
-print_step "Update complete."
+info_heading "Update complete."
 
 update_restart_check

@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly OMADORA_LOG_TAG="omadora-system"
-
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
@@ -81,7 +79,7 @@ __complete)
 
 *)
   usage >&2
-  printf 'ERROR: unknown command: %s\n' "$cmd" >&2
+  error "unknown command: $cmd"
   exit 2
   ;;
 esac
