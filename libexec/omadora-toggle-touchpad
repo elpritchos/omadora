@@ -1,10 +1,13 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Enable, disable, or toggle the touchpad
 
 STATE_CONF="$HOME/.local/state/omadora/toggles/hypr/touchpad-disabled.conf"
 
-device="$(omadora-hw-touchpad)"
+device="$(omadora_run omadora-hw-touchpad)"
 
 if [[ -z $device ]]; then
   echo "No touchpad device found" >&2

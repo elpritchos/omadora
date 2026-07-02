@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Enable, disable, toggle, or recover mirroring the internal display to an external monitor
 
 TOGGLE="internal-monitor-mirror"
@@ -22,11 +25,11 @@ enable() {
     exit 1
   fi
 
-  if omadora-hyprland-toggle-enabled "$DISABLE_TOGGLE"; then
-    omadora-hyprland-toggle "$DISABLE_TOGGLE"
+  if omadora_run omadora-hyprland-toggle-enabled "$DISABLE_TOGGLE"; then
+    omadora_run omadora-hyprland-toggle "$DISABLE_TOGGLE"
   fi
 
-  if omadora-hyprland-toggle-disabled "$TOGGLE"; then
+  if omadora_run omadora-hyprland-toggle-disabled "$TOGGLE"; then
     echo "monitor=$EXTERNAL, preferred, auto, 1, mirror, $INTERNAL" >"$TOGGLE_FLAG"
     notify-send -u low "󰍹    Mirroring enabled ($EXTERNAL)"
     hyprctl reload
@@ -34,21 +37,21 @@ enable() {
 }
 
 disable() {
-  if omadora-hyprland-toggle-enabled "$TOGGLE"; then
-    omadora-hyprland-toggle --disabled-notification "󰍹    Extended mode restored" "$TOGGLE"
+  if omadora_run omadora-hyprland-toggle-enabled "$TOGGLE"; then
+    omadora_run omadora-hyprland-toggle --disabled-notification "󰍹    Extended mode restored" "$TOGGLE"
   fi
 }
 
 recover() {
-  if ! omadora-hw-external-monitors && omadora-hyprland-toggle-enabled "$TOGGLE"; then
-    omadora-hyprland-toggle "$TOGGLE"
+  if ! omadora_run omadora-hw-external-monitors && omadora_run omadora-hyprland-toggle-enabled "$TOGGLE"; then
+    omadora_run omadora-hyprland-toggle "$TOGGLE"
   fi
 }
 
 case "$1" in
 on) enable ;;
 off) disable ;;
-toggle) if omadora-hyprland-toggle-enabled "$TOGGLE"; then disable; else enable; fi ;;
+toggle) if omadora_run omadora-hyprland-toggle-enabled "$TOGGLE"; then disable; else enable; fi ;;
 recover) recover ;;
 *)
   echo "Usage: $(basename "$0") {on|off|toggle|recover}" >&2

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Log out
+
+uwsm stop

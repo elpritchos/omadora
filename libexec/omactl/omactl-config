@@ -1,0 +1,166 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="config"
+CLI_SUMMARY="Edit, reload, and restore configs"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "edit|<component>|Edit config|run_edit|complete_edit_components|"
+  "reload|<component>|Reload config|run_reload|complete_reload_components|"
+  "restore|<component>|Restore config|run_restore|complete_restore_components|"
+)
+
+#  name | user config path | config reload script | config restore script
+CONFIG_COMPONENTS=(
+  "kitty|kitty/kitty.conf|omadora-restart-terminal|"
+  "alacritty|alacritty/alacritty.toml|omadora-restart-terminal|"
+  "ghostty|ghostty/config|omadora-restart-terminal|"
+
+  "tmux|tmux/tmux.conf|omadora-restart-tmux|omadora-refresh-tmux"
+
+  "hyprland|hypr/hyprland.conf|omadora-restart-hyprctl|omadora-refresh-hyprland"
+  "hypridle|hypr/hypridle.conf|omadora-restart-hypridle|omadora-refresh-hypridle"
+  "hyprlock|hypr/hyprlock.conf||omadora-refresh-hyprlock"
+  "hyprsunset|hypr/hyprsunset.conf|omadora-restart-hyprsunset|omadora-refresh-hyprsunset"
+
+  "btop|btop/btop.conf|omadora-restart-btop|"
+  "fastfetch|fastfetch/config.jsonc||omadora-refresh-fastfetch"
+  "mako||omadora-restart-mako|"
+  "waybar|waybar/config.jsonc|omadora-restart-waybar|omadora-refresh-waybar"
+  "wofi|wofi/config||omadora-refresh-wofi"
+
+  "opencode|opencode/opencode.json|omadora-restart-opencode|"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+component_entry() {
+  local component="$1"
+  local entry name
+
+  for entry in "${CONFIG_COMPONENTS[@]}"; do
+    IFS='|' read -r name _ _ _ <<<"$entry"
+    [[ "$name" == "$component" ]] || continue
+    printf '%s\n' "$entry"
+    return 0
+  done
+
+  return 1
+}
+
+component_config_path() {
+  local path="$1"
+
+  printf '%s\n' "$HOME/.config/$path"
+}
+
+run_component_command() {
+  local component="$1"
+  local action="$2"
+  local command="$3"
+
+  if [[ -z "$command" ]]; then
+    die "$action is not supported for config component: $component"
+  fi
+
+  omadora_exec "$command"
+}
+
+run_edit() {
+  local component="${1:-}"
+  local entry path
+
+  [[ -n "$component" ]] || die "missing config component"
+  entry="$(component_entry "$component")" || die "unknown config component: $component"
+  IFS='|' read -r _ path _ _ <<<"$entry"
+
+  [[ -n "$path" ]] || die "edit is not supported for config component: $component"
+
+  omadora_exec omadora-launch-editor "$(component_config_path "$path")"
+}
+
+run_reload() {
+  local component="${1:-}"
+  local entry command
+
+  [[ -n "$component" ]] || die "missing config component"
+  entry="$(component_entry "$component")" || die "unknown config component: $component"
+  IFS='|' read -r _ _ command _ <<<"$entry"
+
+  run_component_command "$component" reload "$command"
+}
+
+run_restore() {
+  local component="${1:-}"
+  local entry command
+
+  [[ -n "$component" ]] || die "missing config component"
+  entry="$(component_entry "$component")" || die "unknown config component: $component"
+  IFS='|' read -r _ _ _ command <<<"$entry"
+
+  run_component_command "$component" restore "$command"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+complete_components_for_action() {
+  local action="$1"
+  local cur="$2"
+  local entry component path reload restore
+
+  for entry in "${CONFIG_COMPONENTS[@]}"; do
+    IFS='|' read -r component path reload restore <<<"$entry"
+    case "$action" in
+    edit)
+      [[ -n "$path" ]] || continue
+      ;;
+    reload)
+      [[ -n "$reload" ]] || continue
+      ;;
+    restore)
+      [[ -n "$restore" ]] || continue
+      ;;
+    esac
+    printf '%s\n' "$component"
+  done | cli_complete_lines "$cur"
+}
+
+complete_edit_components() {
+  local cur="$1"
+
+  complete_components_for_action edit "$cur"
+}
+
+complete_reload_components() {
+  local cur="$1"
+
+  complete_components_for_action reload "$cur"
+}
+
+complete_restore_components() {
+  local cur="$1"
+
+  complete_components_for_action restore "$cur"
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

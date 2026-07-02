@@ -7,8 +7,8 @@
 #
 # show_system_menu() {
 #   case $(menu "System" "  Lock\n󰐥  Shutdown") in
-#   *Lock*) omactl system lock ;;
-#   *Shutdown*) omactl system shutdown ;;
+#   *Lock*) omadora_run omadora-system-lock ;;
+#   *Shutdown*) omadora_run omadora-system-shutdown ;;
 #   *) back_to show_main_menu ;;
 #   esac
 # }
@@ -16,5 +16,5 @@
 # Example of overriding just the about menu action: (Using zsh instead of bash (default))
 #
 # show_about() {
-#   exec omadora-launch-or-focus-tui "zsh -c 'fastfetch; read -k 1'"
+#   omadora_exec omadora-launch-or-focus-tui "zsh -c 'fastfetch; read -k 1'"
 # }

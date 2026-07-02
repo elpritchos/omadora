@@ -1,0 +1,115 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="theme"
+CLI_SUMMARY="Manage themes and backgrounds"
+
+CLI_NAMESPACES=(
+  "background|Manage theme backgrounds"
+)
+
+CLI_COMMANDS=(
+  "list||List all themes|run_list||"
+  "list-user||List user-installed themes|run_list_user||"
+  "current||Show current theme|run_current||"
+  "set|<name>|Apply a theme|run_set|complete_themes|"
+  "install|<repo-url>|Install a theme from git|run_install||"
+  "remove|<name>|Remove a user-installed theme|run_remove|complete_user_themes|"
+  "update|<name>|Update a user-installed theme|run_update|complete_user_themes|"
+  "background next||Cycle to next background|run_background_next||"
+  "background install|<image-path>|Add a background image|run_background_install|complete_files|filenames"
+  "background remove|<filename>|Remove a background image|run_background_remove|complete_backgrounds|"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_list() {
+  omadora_exec omadora-theme-list
+}
+
+run_list_user() {
+  omadora_exec omadora-theme-list-user
+}
+
+run_current() {
+  omadora_exec omadora-theme-current
+}
+
+run_set() {
+  omadora_exec omadora-theme-set "$@"
+}
+
+run_install() {
+  omadora_exec omadora-theme-install "$@"
+}
+
+run_remove() {
+  omadora_exec omadora-theme-remove "$@"
+}
+
+run_update() {
+  omadora_exec omadora-theme-update "$@"
+}
+
+run_background_next() {
+  omadora_exec omadora-theme-bg-next "$@"
+}
+
+run_background_install() {
+  omadora_exec omadora-theme-bg-install "$@"
+}
+
+run_background_remove() {
+  omadora_exec omadora-theme-bg-remove "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+complete_themes() {
+  local cur="$1"
+
+  theme_list_all | cli_complete_lines "$cur"
+}
+
+complete_user_themes() {
+  local cur="$1"
+
+  theme_list_user | cli_complete_lines "$cur"
+}
+
+complete_files() {
+  local cur="$1"
+
+  compgen -f -- "$cur"
+}
+
+complete_backgrounds() {
+  local cur="$1"
+  local current_theme_name
+
+  current_theme_name="$(theme_current)" || return
+  theme_list_backgrounds "$current_theme_name" | cli_complete_lines "$cur"
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

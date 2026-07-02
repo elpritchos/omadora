@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
 # Watch Hyprland monitor events and recover monitor toggles when a monitor is removed
 
 SOCKET="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
@@ -7,8 +10,8 @@ SOCKET="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
 socat -U - "UNIX-CONNECT:$SOCKET" | while read -r event; do
   case "$event" in
   monitorremovedv2\>\>*)
-    omadora-hyprland-monitor-internal recover
-    omadora-hyprland-monitor-internal-mirror recover
+    omadora_run omadora-hyprland-monitor-internal recover
+    omadora_run omadora-hyprland-monitor-internal-mirror recover
     ;;
   monitoraddedv2\>\>*)
     # HACK: Temporary fix for multiple waybar issues with external monitors

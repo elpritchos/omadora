@@ -1,7 +1,3 @@
-workspace_toggle_waybar() {
-  killall -SIGUSR1 waybar
-}
-
 workspace_windows_close_all() {
   local -a windows=()
 

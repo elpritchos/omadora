@@ -51,17 +51,16 @@
   },
   "custom/omadora": {
     "format": "",
-    "on-click": "omadora-menu",
+    "on-click": "omadora-exec omadora-menu",
     "on-click-right": "xdg-terminal-exec",
     "tooltip-format": "Omadora Menu\r\rSuper + Alt + Space"
   },
   "custom/update": {
     "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-update",
-    "exec-if": "test ! -f ~/.local/state/omadora/toggles/update-check-off",
     "return-type": "json",
     "interval": 60,
     "signal": 7,
-    "on-click": "omadora-launch-floating-terminal-with-presentation omactl update all",
+    "on-click": "omadora-exec omadora-launch-floating-terminal-with-presentation \"omactl update all\"",
     "format": "{icon}",
     "format-icons": {
       "updated": "󰏗",
@@ -75,18 +74,18 @@
   "cpu": {
     "interval": 5,
     "format": "󰍛",
-    "on-click": "omadora-launch-system-monitor",
+    "on-click": "omadora-exec omadora-launch-system-monitor",
     "on-click-right": "xdg-terminal-exec"
   },
   "clock": {
     "format": "{:L%A %H:%M}",
     "format-alt": "{:L%d %B W%V %Y}",
     "tooltip-format": "{:%Z:%Ez}",
-    "on-click-right": "omadora-launch-floating-terminal-with-presentation omadora-tz-select"
+    "on-click-right": "omadora-exec omadora-launch-floating-terminal-with-presentation \"omactl system timezone select\""
   },
   "custom/weather": {
     "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-weather",
-    "exec-if": "test ! -f ~/.local/state/omadora/toggles/weather-check-off",
+    "exec-if": "! omactl state toggles exists weather-check-off",
     "return-type": "json",
     "interval": 60,
     "signal": 11,
@@ -158,7 +157,7 @@
     "tooltip-format-disconnected": "Disconnected",
     "interval": 3,
     "spacing": 1,
-    "on-click": "omadora-launch-wifi"
+    "on-click": "omadora-exec omadora-launch-wifi"
   },
   "battery": {
     "format": "{capacity}% {icon}",
@@ -195,8 +194,8 @@
     "tooltip-format-discharging": "{power:>1.0f}W↓ {capacity}%",
     "tooltip-format-charging": "{power:>1.0f}W↑ {capacity}%",
     "interval": 5,
-    "on-click": "omadora-menu power",
-    "on-click-right": "notify-send -u low \"$(omadora-battery-status)\"",
+    "on-click": "omadora-exec omadora-menu power",
+    "on-click-right": "notify-send -u low \"$(omactl info battery)\"",
     "states": {
       "warning": 20,
       "critical": 10
@@ -209,11 +208,11 @@
     "format-connected": "󰂱",
     "format-no-controller": "",
     "tooltip-format": "Devices connected: {num_connections}",
-    "on-click": "omadora-launch-bluetooth"
+    "on-click": "omadora-exec omadora-launch-bluetooth"
   },
   "pulseaudio": {
     "format": "{icon}",
-    "on-click": "omadora-launch-audio",
+    "on-click": "omadora-exec omadora-launch-audio",
     "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
     "tooltip-format": "Playing at {volume}%",
     "scroll-step": 5,
@@ -248,19 +247,19 @@
     "on-scroll-right": ""
   },
   "custom/screenrecording-indicator": {
-    "on-click": "omadora-capture-screenrecording >/dev/null 2>&1",
+    "on-click": "omactl capture screenrecording >/dev/null 2>&1",
     "exec": "$OMADORA_PATH/default/waybar/indicators/screen-recording.sh",
     "signal": 8,
     "return-type": "json"
   },
   "custom/idle-indicator": {
-    "on-click": "omadora-toggle-idle",
+    "on-click": "omactl toggle idle-lock",
     "exec": "$OMADORA_PATH/default/waybar/indicators/idle.sh",
     "signal": 9,
     "return-type": "json"
   },
   "custom/notification-silencing-indicator": {
-    "on-click": "omadora-toggle-notification-silencing",
+    "on-click": "omactl toggle notification-silencing",
     "exec": "$OMADORA_PATH/default/waybar/indicators/notification-silencing.sh",
     "signal": 10,
     "return-type": "json"

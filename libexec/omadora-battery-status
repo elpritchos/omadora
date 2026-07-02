@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Returns a formatted battery status string with percentage and power draw/charge.
 
 battery_info=$(upower -i "$(upower -e | grep BAT)")
@@ -17,8 +20,8 @@ power_rate=$(echo "$battery_info" | awk '/energy-rate/ {
 }')
 
 state=$(echo "$battery_info" | awk '/state/ { print $2; exit }')
-time_remaining=$(omadora-battery-remaining-time)
-capacity=$(omadora-battery-capacity)
+time_remaining=$(omadora_run omadora-battery-remaining-time)
+capacity=$(omadora_run omadora-battery-capacity)
 
 if [[ $state == "charging" ]]; then
   echo "󰁹    Battery ${percentage}% · ${time_remaining} to full ·  ${power_rate}W / ${capacity}Wh"

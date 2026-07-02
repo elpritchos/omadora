@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Install an npx wrapper for a given npm package.
 
 if [[ -z $1 ]]; then
@@ -32,7 +35,7 @@ ensure_bin_runtime() {
   IFS= read -r shebang < "\$bin_path"
 
   if [[ \$shebang == "#!"*"/bun"* || \$shebang == "#!"*"/env bun"* ]]; then
-    if omadora-cmd-missing bun; then
+    if $(omadora_command omadora-cmd-missing bun); then
       echo "Installing bun runtime for \$package..."
       curl -fsSL https://bun.com/install | bash
       hash -r

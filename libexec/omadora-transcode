@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Transcode pictures and videos for sharing
 
 set -euo pipefail
@@ -121,7 +124,7 @@ copy_to_clipboard() {
   local uri
 
   uri="file://$(realpath -- "$output")"
-  printf '%s\n' "$uri" | wl-copy --type text/uri-list
+  printf '%s\n' "$uri" | wl-copy --type text/uri-list >/dev/null 2>&1
 }
 
 main() {
@@ -212,14 +215,14 @@ main() {
   output=$(output_path "$input" "$format" "$resolution")
 
   if [[ $type == "video" ]]; then
-    omadora-notification-send "" "Transcoding video…" "$(basename -- "$input") to $format ($resolution)"
+    omadora_run omadora-notification-send "" "Transcoding video…" "$(basename -- "$input") to $format ($resolution)"
     transcode_video "$input" "$format" "$resolution" "$output"
     copy_to_clipboard "$output"
-    omadora-notification-send "" "Transcoded to $resolution $format" "Saved and copied to clipboard."
+    omadora_run omadora-notification-send "" "Transcoded to $resolution $format" "Saved and copied to clipboard."
   else
     transcode_picture "$input" "$format" "$resolution" "$output"
     copy_to_clipboard "$output"
-    omadora-notification-send "" "Transcoded to $resolution $format" "Saved and copied to clipboard."
+    omadora_run omadora-notification-send "" "Transcoded to $resolution $format" "Saved and copied to clipboard."
   fi
 }
 

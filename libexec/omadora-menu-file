@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Pick a file with Wofi
 
 set -euo pipefail
@@ -44,4 +47,4 @@ done
 find_args+=(")" -printf '%T@\t%p\n')
 
 find "${find_args[@]}" 2>/dev/null | sort -rn | cut -f2- |
-  omadora-launch-wofi --dmenu --width 800 --lines 10 -p "$label…" "$@" 2>/dev/null
+  omadora_run omadora-launch-wofi --dmenu --width 800 --lines 10 -p "$label…" "$@" 2>/dev/null

@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="display"
+CLI_SUMMARY="Hardware display functions"
+
+CLI_NAMESPACES=(
+  "scale|Display scaling"
+)
+
+CLI_COMMANDS=(
+  "brightness||Modify display brightness|run_brightness||"
+  "scale cycle||Cycle display scale|run_scale_cycle||"
+  "internal||Internal monitor on/off/toggle|run_internal||"
+  "internal-mirror||Toggle internal mirroring|run_internal_mirror||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_brightness() {
+  omadora_exec omadora-brightness-display "$@"
+}
+
+run_scale_cycle() {
+  omadora_exec omadora-hyprland-monitor-scaling-cycle "$@"
+}
+
+run_internal() {
+  omadora_exec omadora-hyprland-monitor-internal "$@"
+}
+
+run_internal_mirror() {
+  omadora_exec omadora-hyprland-monitor-internal-mirror "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

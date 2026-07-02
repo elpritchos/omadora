@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="update"
+CLI_SUMMARY="Run Omadora update functions"
+CLI_DEFAULT_COMMAND="all"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "all||Omadora system update all (default)|run_all||"
+  "check||Run an Omadora system updates check|run_check||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_all() {
+  omadora_exec omadora-update
+}
+
+run_check() {
+  omadora_exec 'systemd/omadora-update-check'
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

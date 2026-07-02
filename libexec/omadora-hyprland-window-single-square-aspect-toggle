@@ -1,8 +1,11 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Toggle single-window square aspect ratio.
 
-omadora-hyprland-toggle \
+omadora_run omadora-hyprland-toggle \
   --enabled-notification "    Enable single-window square aspect ratio" \
   --disabled-notification "    Disable single-window square aspect ratio" \
   single-window-aspect-ratio

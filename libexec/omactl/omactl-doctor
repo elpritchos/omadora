@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="doctor"
+CLI_SUMMARY="Run debug functions"
+
+CLI_NAMESPACES=(
+  "follow|Follow Journal entries"
+)
+
+CLI_COMMANDS=(
+  "status||Show the Omadora session status|run_status||"
+  "follow session||Follow the Omadora session units|run_follow_session||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_status() {
+  printf "Omadora Session Target Status:\n------------------------------\n"
+  systemctl --user --legend=false --no-pager status omadora-session.target
+  printf "\nOmadora Session Dependencies:\n-----------------------------\n"
+  systemctl --user --legend=false --no-pager list-dependencies omadora-session.target
+  printf "\nOmadora Session Units:\n----------------------\n"
+  systemctl --user --legend=false --no-pager --all list-units 'omadora-*'
+  printf "\nOmadora Session Timers:\n-----------------------\n"
+  systemctl --user --legend=false --no-pager --all list-timers 'omadora-*'
+}
+
+run_follow_session() {
+  # TODO: Should follow all omadora-session.target units
+  journalctl --user -fu omadora-*
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

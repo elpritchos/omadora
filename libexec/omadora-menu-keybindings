@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Display Hyprland keybindings defined in your configuration using wofi for an interactive search menu.
 
 declare -A KEYCODE_SYM_MAP
@@ -243,5 +246,5 @@ output_keybindings() {
 if [[ "$1" == "--print" || "$1" == "-p" ]]; then
   output_keybindings
 else
-  output_keybindings | omadora-launch-wofi --dmenu -p 'Search keybindings…'
+  output_keybindings | omadora_run omadora-launch-wofi --dmenu -p 'Search keybindings…'
 fi

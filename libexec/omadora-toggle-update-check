@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Toggle Update Checks
 
 readonly flag="update-check-off"
 readonly unit="omadora-update-check.timer"
 
-omadora-toggle "$flag"
+omadora_run omadora-toggle "$flag"
 
-if omadora-toggle-enabled "$flag"; then
+if omadora_run omadora-toggle-enabled "$flag"; then
   systemctl --quiet --user stop "$unit"
   notify-send -u low "󰏗    Update checks disabled"
 else

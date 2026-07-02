@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 : "${OMADORA_APP_NAME:=${0##*/}}"
 
 : "${OMADORA_DEBUG:=0}"
@@ -42,6 +44,50 @@ require_cmd() {
 
   for cmd in "$@"; do
     has_cmd "$cmd" || die "missing required command: $cmd"
+  done
+}
+
+omadora_run() {
+  local command="$1"
+  shift
+
+  local script="$OMADORA_LIBEXEC_DIR/$command"
+
+  if [[ -x "$script" ]]; then
+    "$script" "$@"
+  else
+    return 1
+  fi
+}
+
+omadora_exec() {
+  local command="$1"
+  shift
+
+  local script="$OMADORA_LIBEXEC_DIR/$command"
+
+  if [[ -x "$script" ]]; then
+    exec "$script" "$@"
+  fi
+
+  die "omadora command not found: $command"
+}
+
+omadora_command() {
+  local command="$1"
+  shift
+
+  local script="$OMADORA_LIBEXEC_DIR/$command"
+
+  if [[ ! -x "$script" ]]; then
+    die "omadora command not found: $command"
+  fi
+
+  printf '%q' "$script"
+
+  local arg
+  for arg in "$@"; do
+    printf ' %q' "$arg"
   done
 }
 

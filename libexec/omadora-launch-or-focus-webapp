@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Launch or focus on a given web app identified by the window-pattern.
 
 if (($# == 0)); then
@@ -9,6 +12,6 @@ fi
 
 WINDOW_PATTERN="$1"
 shift
-LAUNCH_COMMAND="omadora-launch-webapp $*"
+LAUNCH_COMMAND="$(omadora_command omadora-launch-webapp "$@")"
 
-exec omadora-launch-or-focus "$WINDOW_PATTERN" "$LAUNCH_COMMAND"
+omadora_exec omadora-launch-or-focus "$WINDOW_PATTERN" "$LAUNCH_COMMAND"

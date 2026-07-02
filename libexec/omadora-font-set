@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Set the terminal monospace fonts
 
 font_name="$1"
@@ -24,7 +27,7 @@ if [[ -n "$font_name" ]]; then
       notify-send "    You must restart Ghostty to see font change"
     fi
 
-    omadora-hook font-set "$font_name"
+    omadora_run omadora-hook font-set "$font_name"
   else
     echo "Font '$font_name' not found."
     exit 1

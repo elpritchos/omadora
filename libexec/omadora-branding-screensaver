@@ -1,21 +1,24 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Edit, set, or reset screensaver branding
 
 set -euo pipefail
 
 case "${1:-}" in
 image)
-  image=$(omadora-menu-file "Logo image" "$HOME" "svg png")
-  if [[ -n $image ]] && omadora-transcode-ascii "$image" ~/.config/omadora/branding/screensaver.txt; then
-    omadora-launch-screensaver force >/dev/null 2>&1
+  image=$(omadora_run omadora-menu-file "Logo image" "$HOME" "svg png")
+  if [[ -n $image ]] && omadora_run omadora-transcode-ascii "$image" ~/.config/omadora/branding/screensaver.txt; then
+    omadora_run omadora-launch-screensaver force >/dev/null 2>&1
   fi
   ;;
 text)
-  omadora-launch-editor ~/.config/omadora/branding/screensaver.txt >/dev/null 2>&1 && omadora-launch-screensaver force >/dev/null 2>&1
+  omadora_run omadora-launch-editor ~/.config/omadora/branding/screensaver.txt >/dev/null 2>&1 && omadora_run omadora-launch-screensaver force >/dev/null 2>&1
   ;;
 reset)
-  cp "$OMADORA_PATH/logo.txt" ~/.config/omadora/branding/screensaver.txt && omadora-launch-screensaver force >/dev/null 2>&1
+  cp "$OMADORA_PATH/logo.txt" ~/.config/omadora/branding/screensaver.txt && omadora_run omadora-launch-screensaver force >/dev/null 2>&1
   ;;
 *)
   echo "Usage: omadora-branding-screensaver <image|text|reset>" >&2

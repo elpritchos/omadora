@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 if [[ -z "${OMADORA_ROOT:-}" ]]; then
   printf 'error: OMADORA_ROOT must be set before sourcing paths.sh\n' >&2
   return 1

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="menu"
+CLI_SUMMARY="Open Omadora menus"
+CLI_DEFAULT_COMMAND="main"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "main||Open the Omadora menu|run_menu_main||"
+  "apps||Open the apps menu|run_menu_apps||"
+  "theme||Open the theme select menu|run_menu_theme||"
+  "share||Open the share menu|run_menu_share||"
+  "capture||Open the capture menu|run_menu_capture||"
+  "power||Open the power menu|run_menu_power||"
+  "system||Open the system menu|run_menu_system||"
+  "font||Open the terminal fonts menu|run_menu_font||"
+  "keybindings||Open the keybindings menu|run_menu_keybindings||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_menu_main() {
+  omadora_exec omadora-menu "$@"
+}
+
+run_menu_apps() {
+  run_menu_main apps
+}
+
+run_menu_theme() {
+  run_menu_main theme
+}
+
+run_menu_share() {
+  run_menu_main share
+}
+
+run_menu_capture() {
+  run_menu_main capture
+}
+
+run_menu_power() {
+  run_menu_main power
+}
+
+run_menu_system() {
+  run_menu_main system
+}
+
+run_menu_font() {
+  run_menu_main font
+}
+
+run_menu_keybindings() {
+  omadora_exec omadora-menu-keybindings
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

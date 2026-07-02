@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Launch the screensaver in a terminal with the correct font configuration.
 
 if ! command -v tte &>/dev/null; then
@@ -10,11 +13,11 @@ fi
 pgrep -f org.omadora.screensaver && exit 0
 
 # Allow screensaver to be turned off but also force started
-if omadora-toggle-enabled screensaver-off && [[ $1 != "force" ]]; then
+if omadora_run omadora-toggle-enabled screensaver-off && [[ $1 != "force" ]]; then
   exit 1
 fi
 
-focused=$(omadora-hyprland-monitor-focused)
+focused=$(omadora_run omadora-hyprland-monitor-focused)
 
 for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
   hyprctl dispatch focusmonitor "$m"
@@ -25,7 +28,7 @@ for m in $(hyprctl monitors -j | jq -r '.[] | .name'); do
     --override window_padding_width=0 \
     --override cursor=#000000 \
     --override cursor_trail=0 \
-    -e omadora-screensaver
+    -e "$OMADORA_LIBEXEC_DIR/omadora-screensaver"
 done
 
 hyprctl dispatch focusmonitor "$focused"

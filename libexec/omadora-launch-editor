@@ -1,13 +1,16 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Launch the default editor as determined by $EDITOR (set via ~/.config/uwsm/default) (or nvim if missing).
 # Starts suitable editors in a terminal window and otherwise as a regular application.
 
-omadora-cmd-present "$EDITOR" || EDITOR=nvim
+omadora_run omadora-cmd-present "$EDITOR" || EDITOR=nvim
 
 case "$EDITOR" in
 nvim | vim | nano | micro | hx | helix | fresh)
-  exec omadora-launch-tui "$EDITOR" "$@"
+  omadora_exec omadora-launch-tui "$EDITOR" "$@"
   ;;
 *)
   exec setsid uwsm-app -- "$EDITOR" "$@"

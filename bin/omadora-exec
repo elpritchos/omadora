@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  omadora-exec <script> [args...]
+  omadora-exec --list
+
+Runs an executable script from Omadora's libexec directory.
+EOF
+}
+
+script_names() {
+  find "$OMADORA_LIBEXEC_DIR" -type f -executable -printf '%P\n' | sort
+}
+
+complete_scripts() {
+  local cur="${1:-}"
+
+  compgen -W "$(script_names)" -- "$cur"
+}
+
+valid_script_name() {
+  local name="$1"
+
+  [[ -n "$name" ]] || return 1
+  [[ "$name" != /* ]] || return 1
+  [[ "$name" != *'/../'* ]] || return 1
+  [[ "$name" != ../* ]] || return 1
+  [[ "$name" != */.. ]] || return 1
+}
+
+command="${1:-}"
+
+case "$command" in
+"" | -h | --help | help)
+  usage
+  ;;
+
+--list | list)
+  script_names
+  ;;
+
+__complete)
+  shift
+  complete_scripts "${1:-}"
+  ;;
+
+*)
+  shift
+
+  if ! valid_script_name "$command"; then
+    die "invalid libexec script name: $command"
+  fi
+
+  script="$OMADORA_LIBEXEC_DIR/$command"
+
+  if [[ ! -x "$script" || ! -f "$script" ]]; then
+    die "libexec script not found: $command"
+  fi
+
+  exec "$script" "$@"
+  ;;
+esac

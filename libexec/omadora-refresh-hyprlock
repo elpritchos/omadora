@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Overwrite the user config for hyprlock with the default.
 
-omadora-refresh-config hypr/hyprlock.conf
+omadora_run omadora-refresh-config hypr/hyprlock.conf

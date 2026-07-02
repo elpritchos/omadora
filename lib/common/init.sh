@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+
 if [[ -n "${OMADORA_INITIALIZED:-}" ]]; then
   return 0
 fi

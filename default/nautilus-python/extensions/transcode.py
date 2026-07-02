@@ -1,5 +1,6 @@
+import os
 import shlex
-import shutil
+from pathlib import Path
 
 from gi import require_version
 
@@ -25,11 +26,21 @@ SUPPORTED_EXTENSIONS = {
     ".avi",
 }
 
+OMADORA_ROOT = Path(os.environ.get("OMADORA_PATH", Path.home() / ".local/share/omadora"))
+OMADORA_LIBEXEC = OMADORA_ROOT / "libexec"
+
+
+def omadora_tool(name):
+    path = OMADORA_LIBEXEC / name
+    if path.is_file() and os.access(path, os.X_OK):
+        return str(path)
+    return None
+
 
 class TranscodeAction(GObject.GObject, Nautilus.MenuProvider):
     def _launch_transcode(self, paths):
-        wrapper = shutil.which("omadora-launch-floating-terminal-with-presentation")
-        binary = shutil.which("omadora-transcode")
+        wrapper = omadora_tool("omadora-launch-floating-terminal-with-presentation")
+        binary = omadora_tool("omadora-transcode")
         if not wrapper or not binary:
             return
 
@@ -89,8 +100,8 @@ class TranscodeAction(GObject.GObject, Nautilus.MenuProvider):
 
     def _tools_available(self):
         return bool(
-            shutil.which("omadora-launch-floating-terminal-with-presentation")
-            and shutil.which("omadora-transcode")
+            omadora_tool("omadora-launch-floating-terminal-with-presentation")
+            and omadora_tool("omadora-transcode")
         )
 
     def get_file_items(self, *args):

@@ -1,20 +1,28 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Print the current working directory of the active terminal window
+active_pid="$(hyprctl activewindow -j | jq -r '.pid // empty')"
 
-terminal_pid=$(hyprctl activewindow | awk '/pid:/ {print $2}')
-shell_pid=$(pgrep -P "$terminal_pid" | tail -n1)
+fallback() {
+  printf '%s\n' "$HOME"
+}
 
-if [[ -n $shell_pid ]]; then
-  cwd=$(readlink -f "/proc/$shell_pid/cwd" 2>/dev/null)
-  shell=$(readlink -f "/proc/$shell_pid/exe" 2>/dev/null)
+[[ -n "$active_pid" ]] || fallback
 
-  # Check if $shell is a valid shell and $cwd is a directory.
-  if grep -qs "$shell" /etc/shells && [[ -d $cwd ]]; then
-    echo "$cwd"
-  else
-    echo "$HOME"
+# Find descendant processes of the terminal.
+mapfile -t pids < <(
+  pstree -p "$active_pid" |
+    grep -oP '\(\K[0-9]+(?=\))' |
+    tail -n +2
+)
+
+for pid in "${pids[@]}"; do
+  cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null)" || continue
+  exe="$(readlink -f "/proc/$pid/exe" 2>/dev/null)" || continue
+
+  if [[ -d "$cwd" ]] && grep -Fxqs "$exe" /etc/shells; then
+    printf '%s\n' "$cwd"
+    exit 0
   fi
-else
-  echo "$HOME"
-fi
+done
+
+fallback

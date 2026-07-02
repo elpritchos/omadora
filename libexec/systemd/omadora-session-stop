@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
 info "Omadora session stop"

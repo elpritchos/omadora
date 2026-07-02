@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Toggle nightlight screen temperature
 
 ON_TEMP=4000
@@ -16,7 +19,7 @@ CURRENT_TEMP=$(hyprctl hyprsunset temperature 2>/dev/null | grep -oE '[0-9]+')
 
 restart_nightlighted_waybar() {
   if grep -q "custom/nightlight" ~/.config/waybar/config.jsonc; then
-    omadora-restart-waybar # restart waybar in case user has waybar module for hyprsunset
+    omadora_run omadora-restart-waybar # restart waybar in case user has waybar module for hyprsunset
   fi
 }
 

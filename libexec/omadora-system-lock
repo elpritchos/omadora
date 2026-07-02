@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Lock the computer and turn off the display
+
+systemctl --user start omadora-hyprlock.service

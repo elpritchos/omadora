@@ -68,13 +68,13 @@
       "type": "command",
       "key": "󰣛 OS",
       "keyColor": "blue",
-      "text": "version=$(omadora-version); echo \"Omadora $version\""
+      "text": "version=$(omactl info version); echo \"Omadora $version\""
     },
     {
       "type": "command",
       "key": "│ ├󰘬",
       "keyColor": "blue",
-      "text": "branch=$(omadora-version-branch); echo \"$branch\""
+      "text": "branch=$(omactl info branch); echo \"$branch\""
     },
     {
       "type": "kernel",

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="system"
+CLI_SUMMARY="Execute system level functions"
+
+CLI_NAMESPACES=(
+  "timezone|Manage the system timezone"
+)
+
+CLI_COMMANDS=(
+  "reboot||Reboot the system|run_reboot||"
+  "shutdown||Shutdown the system|run_shutdown||"
+  "timezone select||Select the system timezone|run_timezone_select||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_reboot() {
+  systemctl reboot --no-wall
+}
+
+run_shutdown() {
+  systemctl poweroff --no-wall
+}
+
+run_timezone_select() {
+  omadora_exec omadora-tz-select
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

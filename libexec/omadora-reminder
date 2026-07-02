@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
 # Set and show lightweight desktop notification reminders
 
 set -euo pipefail
@@ -69,9 +72,9 @@ show_reminders() {
   done
 
   if [[ -z $body ]]; then
-    omadora-notification-send "󰔛" "Upcoming reminders" "No outstanding reminders" -u low
+    omadora_run omadora-notification-send "󰔛" "Upcoming reminders" "No outstanding reminders" -u low
   else
-    omadora-notification-send "󰔛" "Upcoming reminders" "${body%$'\n'}" -u low
+    omadora_run omadora-notification-send "󰔛" "Upcoming reminders" "${body%$'\n'}" -u low
   fi
 }
 
@@ -86,7 +89,7 @@ clear_reminders() {
   fi
 
   rm -f "$reminder_dir"/omadora-reminder-*.message 2>/dev/null || true
-  omadora-notification-send "󰔛" "All reminders have been cleared" -u low
+  omadora_run omadora-notification-send "󰔛" "All reminders have been cleared" -u low
 }
 
 case ${1:-} in
@@ -132,6 +135,6 @@ if [[ -n $custom_message ]]; then
 fi
 
 systemd-run --user --quiet --collect --on-active="${minutes}m" --unit="$unit" \
-  bash -c 'omadora-notification-send "󰔛" "Reminder" "$1" -u critical; rm -f "$2"' bash "$message" "$message_file"
+  bash -c "$(omadora_command omadora-notification-send "󰔛" "Reminder") \"\$1\" -u critical; rm -f \"\$2\"" bash "$message" "$message_file"
 
-omadora-notification-send "󰔛" "$confirmation_title" "$confirmation" -u low
+omadora_run omadora-notification-send "󰔛" "$confirmation_title" "$confirmation" -u low

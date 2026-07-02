@@ -12,10 +12,10 @@ gsettings set org.gnome.desktop.interface monospace-font-name "JetBrains Mono 10
 mkdir -p ~/.config/omadora/themes
 
 # Install Omarchy themes
-omadora-theme-install-omarchy -y
+omadora-exec omadora-theme-install-omarchy -y
 
 # Set initial theme
-omactl theme set "Rose Pine Darker"
+omadora-exec omadora-theme-set "Rose Pine Darker"
 
 # Set specific app links for current theme
 ln -snf ~/.config/omadora/current/theme/neovim.lua ~/.config/nvim/lua/plugins/omadora-theme.lua
