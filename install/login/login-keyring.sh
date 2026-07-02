@@ -5,8 +5,6 @@ profile_dir="/etc/authselect/custom/$profile_name"
 postlogin="$profile_dir/postlogin"
 keyring_auth_line='auth        optional                   pam_gnome_keyring.so only_if=login                   {include if "with-pam-gnome-keyring"}'
 
-sudo dnf install -y gnome-keyring gnome-keyring-pam libsecret
-
 if ! sudo test -d "$profile_dir"; then
   sudo authselect create-profile "$profile_name" -b local --symlink-meta
 fi

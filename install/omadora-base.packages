@@ -74,6 +74,7 @@ slurp
 socat
 sushi
 switcheroo-control
+systemd-networkd-defaults
 tar
 tesseract
 thermald
