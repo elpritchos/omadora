@@ -6,7 +6,7 @@ export BAT_THEME=ansi
 export MANROFFOPT="-c"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
-# Duplicated from .config/uwsm/env so SSH works too
+# Update environment
 export OMADORA_PATH=$HOME/.local/share/omadora
 _prepend_path() {
   local dir="$1"

@@ -1,4 +1,4 @@
-adwaita-fonts-all
+adwaita-sans-fonts
 alacritty
 bash-color-prompt
 bat
@@ -7,12 +7,10 @@ bolt
 brightnessctl
 btop
 cargo
-cascadia-code-nf-fonts
-cascadia-mono-nf-fonts
 chromium
 clang
 dbus-tools
-du-dust
+dua-cli
 evince
 eza
 fastfetch
@@ -23,15 +21,12 @@ fcitx5-qt
 fd-find
 flatpak
 flatseal
-fontawesome-fonts-all
 fprintd-pam
 fzf
 git
 gnome-calculator
 gnome-keyring-pam
 gnome-themes-extra
-google-noto-emoji-fonts
-google-noto-fonts-all
 gum
 gvfs
 gvfs-afc

@@ -3,7 +3,7 @@ fonts_dir="$HOME/.local/share/fonts"
 
 mkdir -p "$fonts_dir"
 
-fonts=(JetBrainsMono CascadiaCode CascadiaMono FiraCode FiraMono)
+fonts=(JetBrainsMono CascadiaCode FiraCode)
 
 for font in "${fonts[@]}"; do
   echo "Installing font: ${font}..."
