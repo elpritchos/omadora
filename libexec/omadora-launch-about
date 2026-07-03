@@ -5,4 +5,4 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # Launch the fastfetch TUI that gives information about the current system.
 
-omadora_exec omadora-launch-or-focus-tui "bash -c 'fastfetch; read -n 1 -s'"
+omadora_exec omadora-launch-or-focus-tui bash -c 'fastfetch; read -n 1 -s'
