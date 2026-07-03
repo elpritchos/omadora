@@ -26,4 +26,4 @@ for arg in "$@"; do
   esac
 done
 
-exec setsid uwsm-app -- "${browser_exec[@]}" "${args[@]}"
+exec uwsm-app -S both -- "${browser_exec[@]}" "${args[@]}"

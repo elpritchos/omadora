@@ -3,4 +3,14 @@
 # Launch Wofi
 
 cd "$HOME" || exit 1
-pkill wofi || exec wofi --width 600 --height 400 "$@"
+
+is_dmenu=false
+for arg in "$@"; do
+  [[ "$arg" == "--dmenu" ]] && is_dmenu=true
+done
+
+if $is_dmenu; then
+  pkill wofi || exec uwsm-app -- wofi --width 600 --height 400 "$@"
+else
+  pkill wofi || exec uwsm-app -S both -- wofi --width 600 --height 400 "$@"
+fi

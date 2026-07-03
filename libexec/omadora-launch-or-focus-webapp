@@ -6,12 +6,15 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 # Launch or focus on a given web app identified by the window-pattern.
 
 if (($# == 0)); then
-  echo "Usage: omadora-launch-or-focus-webapp [window-pattern] [url-and-flags...]"
+  echo "Usage: omadora-launch-or-focus-webapp <window-pattern> [url] [browser-flags...]" >&2
   exit 1
 fi
 
 WINDOW_PATTERN="$1"
 shift
-LAUNCH_COMMAND="$(omadora_command omadora-launch-webapp "$@")"
 
-omadora_exec omadora-launch-or-focus "$WINDOW_PATTERN" "$LAUNCH_COMMAND"
+if (($# == 0)); then
+  omadora_exec omadora-launch-or-focus "$WINDOW_PATTERN"
+fi
+
+omadora_exec omadora-launch-or-focus "$WINDOW_PATTERN" -- "$OMADORA_LIBEXEC_DIR/omadora-launch-webapp" "$@"

@@ -5,7 +5,11 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # Launch a TUI or focus an existing terminal window for it
 
-APP_ID="org.omadora.$(basename "$1")"
-LAUNCH_COMMAND="$(omadora_command omadora-launch-tui "$@")"
+if (($# == 0)); then
+  echo "Usage: omadora-launch-or-focus-tui <command> [args...]" >&2
+  exit 1
+fi
 
-omadora_exec omadora-launch-or-focus "$APP_ID" "$LAUNCH_COMMAND"
+APP_ID="org.omadora.$(basename "$1")"
+
+omadora_exec omadora-launch-or-focus "$APP_ID" -- "$OMADORA_LIBEXEC_DIR/omadora-launch-tui" "$@"

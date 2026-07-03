@@ -5,5 +5,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # Launch a floating terminal with the Omadora presentation wrapper
 
+if (($# == 0)); then
+  echo "Usage: omadora-launch-floating-terminal-with-presentation <command>" >&2
+  exit 1
+fi
+
 cmd="$*"
-exec setsid uwsm-app -- xdg-terminal-exec --app-id=org.omadora.terminal --title=Omadora -- bash -c "$(omadora_command omadora-show-logo); $cmd; status=\$?; if (( status != 130 )); then $(omadora_command omadora-show-done); fi; exit \"\$status\""
+exec uwsm-app -S both -- xdg-terminal-exec --app-id=org.omadora.terminal --title=Omadora -- bash -c "$(omadora_command omadora-show-logo); $cmd; status=\$?; if (( status != 130 )); then $(omadora_command omadora-show-done); fi; exit \"\$status\""

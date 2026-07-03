@@ -19,4 +19,4 @@ if ! omadora_browser_resolve "$browser" "webapp-launch.cache"; then
   exit 1
 fi
 
-exec setsid uwsm-app -- "$OMADORA_BROWSER_COMMAND" --app="$1" "${@:2}"
+exec uwsm-app -S both -- "$OMADORA_BROWSER_COMMAND" --app="$1" "${@:2}"

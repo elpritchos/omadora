@@ -13,6 +13,6 @@ nvim | vim | nano | micro | hx | helix | fresh)
   omadora_exec omadora-launch-tui "$EDITOR" "$@"
   ;;
 *)
-  exec setsid uwsm-app -- "$EDITOR" "$@"
+  exec uwsm-app -S both -- "$EDITOR" "$@"
   ;;
 esac

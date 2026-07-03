@@ -3,16 +3,23 @@
 # Launch an app or focus an existing window matching a pattern
 
 if (($# == 0)); then
-  echo "Usage: omadora-launch-or-focus [window-pattern] [launch-command]"
+  echo "Usage: omadora-launch-or-focus <window-pattern> [-- <launch-command> [args...]]"
   exit 1
 fi
 
 WINDOW_PATTERN="$1"
-LAUNCH_COMMAND="${2:-"uwsm-app -- $WINDOW_PATTERN"}"
+shift
+
+if [[ ${1:-} == "--" ]]; then
+  shift
+fi
+
 WINDOW_ADDRESS=$(hyprctl clients -j | jq -r --arg p "$WINDOW_PATTERN" '.[]|select((.class|test("\\b" + $p + "\\b";"i")) or (.title|test("\\b" + $p + "\\b";"i")))|.address' | head -n1)
 
 if [[ -n $WINDOW_ADDRESS ]]; then
   hyprctl dispatch focuswindow "address:$WINDOW_ADDRESS"
+elif (($# > 0)); then
+  exec "$@"
 else
-  eval exec setsid "$LAUNCH_COMMAND"
+  exec uwsm-app -S both -- "$WINDOW_PATTERN"
 fi
