@@ -13,8 +13,5 @@ PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=false
 
-# allow writing state/cache
-ReadWritePaths=%h/.local/state/omadora/weather %h/.cache/omadora/weather
-
 Nice=10
 TimeoutStartSec=5m
