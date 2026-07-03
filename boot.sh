@@ -19,6 +19,7 @@ ansi_art='
 clear
 echo -e "\n$ansi_art\n"
 
+echo "Installing git to clone the Omadora repo..."
 sudo dnf install -y git
 
 # Use custom repo if specified, otherwise default
