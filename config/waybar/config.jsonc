@@ -248,19 +248,19 @@
   },
   "custom/screenrecording-indicator": {
     "on-click": "omactl capture screenrecording >/dev/null 2>&1",
-    "exec": "$OMADORA_PATH/default/waybar/indicators/screen-recording.sh",
+    "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-screen-recording",
     "signal": 8,
     "return-type": "json"
   },
   "custom/idle-indicator": {
     "on-click": "omactl toggle idle-lock",
-    "exec": "$OMADORA_PATH/default/waybar/indicators/idle.sh",
+    "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-idle",
     "signal": 9,
     "return-type": "json"
   },
   "custom/notification-silencing-indicator": {
     "on-click": "omactl toggle notification-silencing",
-    "exec": "$OMADORA_PATH/default/waybar/indicators/notification-silencing.sh",
+    "exec": "$OMADORA_PATH/libexec/waybar/omadora-waybar-notification-silencing",
     "signal": 10,
     "return-type": "json"
   },
