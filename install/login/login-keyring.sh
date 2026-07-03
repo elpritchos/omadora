@@ -4,7 +4,7 @@ default_keyring="login"
 
 mkdir -p "$keyrings_dir"
 chmod 700 "$keyrings_dir"
-printf '%s\n' "$default_keyring"
+printf '%s\n' "$default_keyring" >"$keyrings_dir/default"
 
 profile_name="omadora"
 profile_id="custom/$profile_name"

@@ -16,7 +16,7 @@ mkdir -p ~/.config/omadora/themes
 omadora-exec omadora-theme-install-omarchy -y
 
 # Set initial theme
-omadora-exec omadora-theme-set "Rose Pine Darker"
+omadora-exec omadora-theme-set "Rose Pine Darker" 2>/dev/null
 
 # Set specific app links for current theme
 ln -snf ~/.config/omadora/current/theme/neovim.lua ~/.config/nvim/lua/plugins/omadora-theme.lua
