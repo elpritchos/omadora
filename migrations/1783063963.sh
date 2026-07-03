@@ -239,4 +239,17 @@ omadora omadora-refresh-plymouth
 echo "Mark reboot required"
 sudo touch /run/reboot-required
 
+cat <<'EOF'
+
+************************************************************
+*                                                          *
+*                    REBOOT REQUIRED                       *
+*                                                          *
+*        Omadora v3.8.2 migration has completed, but       *
+*      these changes require a system reboot to apply.     *
+*                                                          *
+************************************************************
+
+EOF
+
 echo "Completed Omadora v3.8.2 migration at $(date -Is)"
