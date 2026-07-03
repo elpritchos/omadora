@@ -46,6 +46,9 @@ sudo dnf remove -y hyprpolkitagent || true
 echo "Remove dnf-installed satty"
 sudo dnf remove -y satty || true
 
+echo "Remove old disk usage TUI"
+omadora omadora-tui-remove "Disk Usage"
+
 echo "Install updated packages and wrappers"
 source_install_script packaging/base.sh
 source_install_script packaging/cargo.sh
@@ -53,8 +56,6 @@ source_install_script packaging/flatpak.sh
 source_install_script packaging/fonts.sh
 source_install_script packaging/icons.sh
 source_install_script packaging/npm.sh
-
-omadora omadora-tui-remove "Disk Usage"
 source_install_script packaging/tuis.sh
 
 echo "Apply updated hardware configuration"
