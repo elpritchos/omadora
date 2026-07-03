@@ -18,6 +18,7 @@ install_cargo_bin() {
   cargo install "$package"
 }
 
-install_cargo_bin bluetui
 install_cargo_bin cargo-update cargo-install-update
+install_cargo_bin bluetui
 install_cargo_bin impala
+install_cargo_bin satty
