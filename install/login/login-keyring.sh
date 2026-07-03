@@ -1,4 +1,11 @@
 # Setup login keyring
+keyrings_dir="$HOME/.local/share/keyrings"
+default_keyring="login"
+
+mkdir -p "$keyrings_dir"
+chmod 700 "$keyrings_dir"
+printf '%s\n' "$default_keyring"
+
 profile_name="omadora"
 profile_id="custom/$profile_name"
 profile_dir="/etc/authselect/custom/$profile_name"
@@ -20,8 +27,4 @@ sudo authselect select "$profile_id" \
 
 sudo authselect apply-changes
 
-unset profile_name
-unset profile_id
-unset profile_dir
-unset postlogin
-unset keyring_auth_line
+unset keyrings_dir default_keyring profile_name profile_id profile_dir postlogin keyring_auth_line
