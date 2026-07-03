@@ -7,15 +7,24 @@ source ~/.config/uwsm/default
 export XCURSOR_SIZE=24
 export HYPRCURSOR_SIZE=24
 
+# Prompt
+export PROMPT_STYLE="starship"
+
 # Force all apps to use Wayland
 export GDK_BACKEND="wayland,x11,*"
 export QT_QPA_PLATFORM="wayland;xcb"
-export QT_STYLE_OVERRIDE="kvantum"
-export SDL_VIDEODRIVER="wayland"
 export MOZ_ENABLE_WAYLAND=1
 export ELECTRON_OZONE_PLATFORM_HINT="wayland"
 export OZONE_PLATFORM="wayland"
 export XDG_SESSION_TYPE="wayland"
+export SDL_VIDEODRIVER="wayland"
+export CLUTTER_BACKEND="wayland"
+
+# Set Qt variables
+export QT_AUTO_SCREEN_SCALE_FACTOR="1"
+export QT_WAYLAND_DISABLE_WINDOWDECORATION="1"
+export QT_QPA_PLATFORMTHEME="qt6ct"
+export QT_STYLE_OVERRIDE="kvantum"
 
 # Allow better support for screen sharing (Google Meet, Discord, etc)
 export XDG_CURRENT_DESKTOP="Hyprland"
@@ -23,6 +32,12 @@ export XDG_SESSION_DESKTOP="Hyprland"
 
 # Use XCompose file
 export XCOMPOSEFILE=$HOME/.XCompose
+
+# Set fcitx input method
+export INPUT_METHOD=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export SDL_IM_MODULE=fcitx
 
 # Gum Style Variables
 export GUM_CHOOSE_CURSOR_FOREGROUND="12"
