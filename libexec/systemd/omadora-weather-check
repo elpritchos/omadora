@@ -16,11 +16,19 @@ RAW_FILE="$CACHE_DIR/raw.json"
 
 ensure_dir "$STATE_DIR" "$CACHE_DIR"
 
+CURL_OPTS=(
+  -fsS
+  --connect-timeout 5
+  --max-time 15
+  --retry 1
+  --retry-delay 1
+)
+
 # ---------------------------------------
 # IP geolocation
 # ---------------------------------------
 get_location() {
-  curl -fsS https://ipapi.co/json/ |
+  curl "${CURL_OPTS[@]}" https://ipapi.co/json/ |
     jq -r '{
       source: "ipapi",
       lat: .latitude,
@@ -83,7 +91,7 @@ fetch_weather() {
     precipitation_unit="inch"
   fi
 
-  curl -fsS \
+  curl "${CURL_OPTS[@]}" \
     "https://api.open-meteo.com/v1/forecast?\
 latitude=${lat}\
 &longitude=${lon}\
@@ -310,7 +318,12 @@ compile_output() {
 info 'Starting weather check...'
 
 info 'Fetching location data...'
-loc=$(get_location || true)
+if ! loc=$(get_location); then
+  error "Failed to fetch location data, writing fallback state."
+  fallback_state >"$STATE_FILE"
+  exit 0
+fi
+
 info 'Getting unit preference...'
 units=$(get_units || true)
 
