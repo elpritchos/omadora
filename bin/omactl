@@ -115,7 +115,6 @@ if ! omactl_fast_path "$@"; then
 fi
 
 # shellcheck source=lib/common/init.sh
-# shellcheck disable=SC1091
 source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # shellcheck source=lib/common/cli.sh
