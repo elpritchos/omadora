@@ -18,23 +18,39 @@ In general, Omadora reimplements much of the same functionality, keybindings, et
 
 The [Hyprland Wiki](https://wiki.hypr.land) is also great reference documentation for the configuration of Hyprland.
 
-However, the best resource for understanding Omadora is to read and understand the scripts within this repository with which you are executing.
+However, the best resource for understanding Omadora is to read and understand the scripts within this repository.
+
+## How do I run the Omadora scripts?
+
+In comparison to Omarchy, Omadora doesn't expose all scripts to the user to avoid cluttering bash completion.
+Instead, any of the scripts can be executed by using the exposed `omadora-exec` tool, e.g. `omadora-exec omadora-update`, which also has bash completion to help.
+
+There is also an exposed `omactl` frontend CLI tool which is intended to be used to interact with most Omadora functionality, however it's still a WIP which I'll continue to improve upon.
+This also has help and bash completion to make things a bit nicer.
 
 ## How do I keep Omadora updated?
 
-There is an update indicator which appears in the top right of the Waybar that indicates update status; clicking this will pop a terminal and execute `omadora-update`.
-The `omadora-update` script can also be run manually, and in both cases will update Omadora to the latest version, along with system packages, firmware, flatpaks, and cargo-installed binaries.
+There is an update indicator which appears in the top right of the Waybar that indicates update status; clicking this will pop a terminal and execute the update script.
+The script can be manually run via `omactl update`, and will update Omadora to the latest version, along with system packages, firmware, flatpaks, and cargo-installed binaries.
+The update check will be performed a few times per day, however you can force an update check with `omactl update check`.
 
 ## Where are all the apps that are provided by default in Omarchy?
 
-This is a conscious decision not to include all the applications and configuration options provided by Omarchy to minimise bloat and only install functionality that would be expected of a minimal desktop environment, leaving software installation choices to the user.
+This is a conscious decision not to include all the applications and configuration options provided by Omarchy and only install functionality that would be expected of a minimal desktop environment, leaving software installation choices to the user.
 
-Many of these additional apps can be installed via the default official Fedora repositories or as a flatpak via [Flathub](https://flathub.org) if needed.
+## Do I have to use the LazyVim Neovim starter?
 
-## Do I have to use the LazyVim starter?
+No, not at all.
+You can still use the [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager configured to disable the 'LazyVim/LazyVim' plugin, and ensure the theme plugin from `~/.config/omadora/current/theme/neovim.lua` is symlinked to the your lazy plugins directory.
+Other than that, just use the same plugins from the `default/nvim` directory in your Neovim configuration.
 
-No. You can still use the [lazy.nvim](https://github.com/folke/lazy.nvim) plugin manager configured to disable the 'LazyVim/LazyVim' plugin, and ensure the theme plugin from `~/.config/omadora/current/theme/neovim.lua` is symlinked to the your lazy plugins directory.
+Theme hot reload is provided by a forked version of the [Aether.nvim](https://github.com/bjarneo/aether.nvim) plugin, and my forked version can be seen [here](https://github.com/elpritchos/aether.nvim).
+
+## How do I turn off the weather updates?
+
+You can use the default keybinding <kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>W</kbd>, or run `omactl toggle weather` to disable/enable the weather feature.
 
 ## Where is the Omadora default plymouth theme from?
 
-The default theme installed is from the great plymouth theme collection at [adi1090x/plymouth-themes](https://github.com/adi1090x/plymouth-themes).
+The default plymouth theme installed is from the great theme collection at [adi1090x/plymouth-themes](https://github.com/adi1090x/plymouth-themes).
+I've modified the theme to ensure it displays correctly on multi-monitor setups.

@@ -1,10 +1,10 @@
 # Omadora
 
-This is a minimal functional install of Hyprland for Fedora 43, based on the Omarchy implementation and patterns.
+This is a minimal install of Hyprland for Fedora 43, based on the Omarchy implementation and patterns.
 It provides a more stable release cycle with tested and curated packages.
 
 Omadora purposely does not include all the apps and features included with Omarchy, as it's intended to be a minimal install that provides core desktop functionality to allow users to build from.
-However, as the implementation closely matches Omarchy, adding extra features from Omarchy should be simple if you wish to do so.
+However, as the implementation closely matches Omarchy, adding the extra features from Omarchy should be simple if you wish to do so.
 
 Read more about Omarchy itself at [omarchy.org](https://omarchy.org).
 
@@ -20,7 +20,7 @@ Similar to Omarchy, it is recommended to use drive encryption, disable root, and
 To install, run the following:
 
 ```
-wget -qO- https://raw.githubusercontent.com/elpritchos/omadora/master/boot.sh | bash
+curl -fsSL https://raw.githubusercontent.com/elpritchos/omadora/master/boot.sh | bash
 ```
 
 Or install manually:
@@ -40,7 +40,7 @@ Run `~/.local/share/omadora/install.sh` to install.
 
 Omadora does not use the seamless login implemented in Omarchy, therefore once logged in, start Omadora using `omadora`.
 
-Stop Omadora by using the power menu or executing `omactl system stop`.
+Stop Omadora by using the power menu or executing `omactl session logout`.
 
 ## Frequently Asked Questions
 
@@ -48,9 +48,9 @@ Check out the [FAQ.md](FAQ.md).
 
 ## Contribution
 
-Feel free to submit issues and PRs for improvement, I'll do my best to address them.
+Please feel free to submit issues and PRs for improvement, I'll do my best to address them.
 
-If you like this project then please feel free to help me out and [Sponsor via Github](https://github.com/sponsors/elpritchos) or ...
+If you like this project then please help me out by [Sponsoring via Github](https://github.com/sponsors/elpritchos) or ...
 
 [![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/elpritchos)
 
