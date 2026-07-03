@@ -54,11 +54,9 @@ source_install_script packaging/base.sh
 source_install_script packaging/cargo.sh
 source_install_script packaging/flatpak.sh
 source_install_script packaging/fonts.sh
-source_install_script packaging/npm.sh
-
-echo "Install bundled application icons and TUI launchers"
 source_install_script packaging/icons.sh
 source_install_script packaging/tuis.sh
+source_install_script packaging/npm.sh
 
 echo "Apply updated hardware configuration"
 remove_old_networkd_file() {
