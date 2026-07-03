@@ -27,6 +27,7 @@ git
 gnome-calculator
 gnome-keyring-pam
 gnome-themes-extra
+gtk4-devel
 gum
 gvfs
 gvfs-afc
@@ -45,6 +46,8 @@ jetbrains-mono-fonts
 jq
 kvantum
 kvantum-qt5
+libadwaita-devel
+libepoxy-devel
 libinput
 libxkbcommon
 libxkbcommon-utils

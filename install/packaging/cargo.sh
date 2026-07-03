@@ -1,5 +1,6 @@
 # Build cargo bins
-# INFO: Dnf packages added for cargo builds: cargo, clang
+# INFO: Dnf packages added for cargo builds:
+#   cargo clang gtk4-devel libadwaita-devel libepoxy-devel
 cargo_bin_dir="$HOME/.cargo/bin"
 case ":$PATH:" in
 *":$cargo_bin_dir:"*) ;;
