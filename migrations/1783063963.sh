@@ -46,8 +46,8 @@ sudo dnf remove -y hyprpolkitagent || true
 echo "Remove dnf-installed satty"
 sudo dnf remove -y satty || true
 
-echo "Remove old disk usage TUI"
-omadora omadora-tui-remove "Disk Usage"
+echo "Remove old disk usage TUI launcher"
+rm -f "$HOME/.local/share/applications/Disk Usage.desktop"
 
 echo "Install updated packages and wrappers"
 source_install_script packaging/base.sh
