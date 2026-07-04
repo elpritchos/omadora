@@ -39,7 +39,6 @@ run_status() {
 }
 
 run_follow_session() {
-  # TODO: Should follow all omadora-session.target units
   journalctl --user -fu omadora-*
 }
 

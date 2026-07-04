@@ -107,7 +107,6 @@ update_state_refresh() {
 update_restart_check() {
   if [[ -f "/run/reboot-required" ]]; then
     printf '\n'
-    # TODO: call reboot/logout script internally?
     confirm "Updates require reboot. Ready?" && omadora_exec omadora-system-reboot
   fi
 
