@@ -1,0 +1,13 @@
+[Unit]
+Description=Omadora Weather Check Timer
+PartOf=omadora-session.target
+ConditionPathExists=!%h/.local/state/omadora/toggles/weather-check-off
+
+[Timer]
+OnBootSec=30s
+OnUnitActiveSec=5min
+AccuracySec=30s
+RandomizedDelaySec=15s
+
+[Install]
+WantedBy=omadora-session.target

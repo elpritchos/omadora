@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Toggle Weather Checks
+
+readonly flag="weather-check-off"
+readonly unit="omadora-weather-check.timer"
+
+omadora_run omadora-toggle "$flag"
+
+if omadora_run omadora-toggle-enabled "$flag"; then
+  systemctl --quiet --user stop "$unit"
+  notify-send -u low "    Weather disabled"
+else
+  systemctl --quiet --user start "$unit"
+  notify-send -u low "    Weather enabled"
+fi
+
+pkill -RTMIN+11 waybar || true

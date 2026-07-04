@@ -1,67 +1,54 @@
 /* Colors are defined by theme file and can be referenced via @base, @text, @selected-text, and @border */
+@import ".config/omadora/current/theme/wofi.css";
 
 * {
-  font-family: monospace;
-  font-size: 16px;
+  font-family: 'Adwaita Sans', 'JetBrainsMono Nerd Font';
+  font-size: 11pt;
+}
+
+window,
+#outer-box,
+#inner-box,
+#scroll,
+#input,
+#entry {
+  color: @text;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 
 window {
-  margin: 0;
-  padding: 0;
-  background-color: @base;
-}
-
-#inner-box {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background-color: @base;
-}
-
-#outer-box {
-  margin: 0;
-  padding: 10px 20px;
-  border: none;
-  background-color: @base;
-}
-
-#scroll {
-  margin: 0;
-  padding: 0;
-  border: none;
-  background-color: @base;
+  background-color: alpha(@base, 0.95);
+  border: 1px solid alpha(@selected-text, 0.5);
 }
 
 #input {
-  margin: 0;
-  margin-bottom: 2px;
-  padding: 3px;
-  border: none;
-  background-color: @base;
-  color: @text;
+  margin: 10px;
 }
 
-#input:focus {
-  outline: none;
-  box-shadow: none;
-  border: none;
+#scroll {
+  margin: 0 10px 10px 10px;
 }
 
-#text {
-  margin: 0;
-  padding: 0px 5px;
-  border: none;
-  color: @text;
+#entry {
+  padding: 5px 10px;
 }
 
 #entry:selected {
-  outline: none;
-  border: none;
-  background-color: alpha(@selected-text, 0.2);
+  background-color: alpha(@selected-text, 0.15);
 }
 
 #entry:selected #text {
   color: @selected-text;
 }
 
-@import ".config/omadora/current/theme/walker.css";
+#entry #img {
+  padding: 0 10px 0 0;
+  opacity: 0.8;
+}
+
+#entry:selected #img {
+  opacity: 1;
+}

@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+active_pid="$(hyprctl activewindow -j | jq -r '.pid // empty')"
+
+fallback() {
+  printf '%s\n' "$HOME"
+}
+
+[[ -n "$active_pid" ]] || fallback
+
+# Find descendant processes of the terminal.
+mapfile -t pids < <(
+  pstree -p "$active_pid" |
+    grep -oP '\(\K[0-9]+(?=\))' |
+    tail -n +2
+)
+
+for pid in "${pids[@]}"; do
+  cwd="$(readlink -f "/proc/$pid/cwd" 2>/dev/null)" || continue
+  exe="$(readlink -f "/proc/$pid/exe" 2>/dev/null)" || continue
+
+  if [[ -d "$cwd" ]] && grep -Fxqs "$exe" /etc/shells; then
+    printf '%s\n' "$cwd"
+    exit 0
+  fi
+done
+
+fallback

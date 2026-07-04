@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+if ! has_cmd flatpak; then
+  info "flatpak not installed. Skipping."
+  exit 0
+fi
+
+flatpak update -y ||
+  die "failed to update flatpaks"

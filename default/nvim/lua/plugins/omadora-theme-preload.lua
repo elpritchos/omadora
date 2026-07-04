@@ -1,0 +1,22 @@
+-- Preloaded themes for hot reload. Add themes here as needed.
+return {
+  { "bjarneo/ethereal.nvim", lazy = true },
+  { "bjarneo/hackerman.nvim", lazy = true },
+  { "bjarneo/vantablack.nvim", lazy = true },
+  { "bjarneo/white.nvim", lazy = true },
+  { "catppuccin/nvim", name = "catppuccin", lazy = true },
+  { "EdenEast/nightfox.nvim", lazy = true },
+  { "ellisonleao/gruvbox.nvim", lazy = true },
+  { "folke/tokyonight.nvim", lazy = true },
+  { "kepano/flexoki-neovim", lazy = true },
+  { "loctvl842/monokai-pro.nvim", lazy = true },
+  { "OldJobobo/miasma.nvim", lazy = true },
+  { "OldJobobo/retro-82.nvim", lazy = true },
+  { "omacom-io/lumon.nvim", lazy = true },
+  { "rebelot/kanagawa.nvim", lazy = true },
+  { "ribru17/bamboo.nvim", lazy = true },
+  { "rose-pine/neovim", name = "rose-pine", lazy = true },
+  { "sainnhe/everforest", lazy = true },
+  { "shaunsingh/nord.nvim", lazy = true },
+  { "tahayvr/matteblack.nvim", lazy = true },
+}

@@ -1,0 +1,21 @@
+[Unit]
+Description=Omadora Weather Check Service
+PartOf=omadora-session.target
+After=graphical-session.target network-online.target
+
+[Service]
+Type=oneshot
+Environment=OMADORA_STATE_HOME=%S/omadora
+Environment=OMADORA_CACHE_HOME=%C/omadora
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-weather-check
+
+# hardening (safe, minimal)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+StateDirectory=omadora/weather
+CacheDirectory=omadora/weather
+
+Nice=10
+TimeoutStartSec=45s

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Ensure all default .desktop, web apps, TUIs, and npm wrappers are installed.
+
+mkdir -p ~/.local/share/icons/hicolor/48x48/apps/
+cp ~/.local/share/omadora/applications/icons/*.png ~/.local/share/icons/hicolor/48x48/apps/
+gtk-update-icon-cache ~/.local/share/icons/hicolor &>/dev/null
+
+# Copy .desktop declarations
+mkdir -p ~/.local/share/applications
+cp ~/.local/share/omadora/applications/*.desktop ~/.local/share/applications/
+cp ~/.local/share/omadora/applications/hidden/*.desktop ~/.local/share/applications/
+
+# Refresh the webapps, TUIs, and npx wrappers
+bash "$OMADORA_PATH/install/packaging/icons.sh"
+bash "$OMADORA_PATH/install/packaging/webapps.sh"
+bash "$OMADORA_PATH/install/packaging/tuis.sh"
+bash "$OMADORA_PATH/install/packaging/npm.sh"
+
+update-desktop-database ~/.local/share/applications

@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
+
+image_path="${1:-}"
+
+[[ -n "$image_path" ]] ||
+  die "missing image path"
+
+[[ -f "$image_path" ]] ||
+  die "invalid image path: $image_path"
+
+current_theme_name="$(theme_current)" ||
+  die "no current theme set"
+
+dest_dir="${OMADORA_USER_BACKGROUNDS_DIR}/${current_theme_name}"
+
+ensure_dir "$dest_dir"
+
+cp "$image_path" "$dest_dir/"
+
+background_file="${image_path##*/}"
+
+ln -nsf \
+  "$dest_dir/$background_file" \
+  "$OMADORA_CURRENT_BACKGROUND_LINK"
+
+theme_apply_background ||
+  die "failed to apply background"
+
+info "Installed background: $background_file"

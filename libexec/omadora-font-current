@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Show current monospace font
+
+# TODO: move to a state file similar to theme
+awk '/^font_family / { $1=""; sub(/^ /, ""); print; exit }' ~/.config/kitty/kitty.conf

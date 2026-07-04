@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="info"
+CLI_SUMMARY="Print info for use in notifications etc."
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "battery||Print battery status|run_battery||"
+  "weather||Print weather status|run_weather||"
+  "version||Print the current Omadora version|run_version||"
+  "branch||Print the current Omadora branch|run_branch||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_battery() {
+  omadora_exec omadora-battery-status
+}
+
+run_weather() {
+  omadora_exec omadora-weather-status
+}
+
+run_version() {
+  omadora_exec omadora-version
+}
+
+run_branch() {
+  omadora_exec omadora-version-branch
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

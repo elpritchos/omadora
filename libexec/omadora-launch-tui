@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Launch the TUI command passed in as an argument in the default terminal with an org.omadora.COMMAND app id for styling.
+
+if (($# == 0)); then
+  echo "Usage: omadora-launch-tui <command> [args...]" >&2
+  exit 1
+fi
+
+exec uwsm-app -S both -- xdg-terminal-exec --app-id=org.omadora."${1##*/}" -e "$1" "${@:2}"

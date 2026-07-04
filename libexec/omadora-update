@@ -1,0 +1,149 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/update.sh
+source "$OMADORA_LIB_DIR/update.sh"
+
+# shellcheck source=lib/state.sh
+source "$OMADORA_LIB_DIR/state.sh"
+
+require_cmd gum
+
+# -----------------------------------------------------------------------------
+# Confirmation
+# -----------------------------------------------------------------------------
+update_confirm() {
+  gum style \
+    --border normal \
+    --padding "1 2" \
+    "Ready to update?" \
+    "" \
+    "The update process includes: Omadora, DNF packages, Flatpaks, Cargo bins, and firmware." \
+    "" \
+    "• You cannot stop the update once you start!" \
+    "• Make sure you're connected to power or have a full battery"
+
+  confirm "Continue with update?"
+}
+
+# -----------------------------------------------------------------------------
+# Cleanup
+# -----------------------------------------------------------------------------
+
+cleanup() {
+  local exit_code=$?
+
+  if [[ -n "${sudo_pid:-}" ]]; then
+    kill "$sudo_pid" 2>/dev/null || true
+  fi
+
+  hyprctl dispatch tagwindow -- -noidle >/dev/null 2>&1 || true
+
+  state_clear "update-running" || true
+
+  exit "$exit_code"
+}
+
+# -----------------------------------------------------------------------------
+# Update
+# -----------------------------------------------------------------------------
+
+update_perform() {
+  info_heading "Starting update..."
+
+  state_set "update-running"
+
+  hyprctl dispatch tagwindow +noidle >/dev/null 2>&1 || true
+
+  info_heading "Updating git..."
+  "$OMADORA_LIBEXEC_DIR/omadora-update-git"
+
+  info_heading "Running migrations..."
+  "$OMADORA_LIBEXEC_DIR/omadora-update-migrate"
+
+  info_heading "Updating system packages..."
+  "$OMADORA_LIBEXEC_DIR/omadora-update-system-pkgs"
+
+  info_heading "Updating cargo packages..."
+  "$OMADORA_LIBEXEC_DIR/omadora-update-cargo"
+
+  info_heading "Updating flatpaks..."
+  "$OMADORA_LIBEXEC_DIR/omadora-update-flatpak"
+
+  info_heading "Updating firmware..."
+  "$OMADORA_LIBEXEC_DIR/omadora-update-firmware"
+
+  info_heading "Running post-update hooks..."
+  "$OMADORA_LIBEXEC_DIR/omadora-hook" post-update
+  info 'Done.'
+}
+
+# -----------------------------------------------------------------------------
+# State Refresh
+# -----------------------------------------------------------------------------
+
+update_state_refresh() {
+  info_heading "Refreshing update state..."
+
+  if ! flock -u 9; then
+    info "Could not drop update lock. Skipping."
+    return 0
+  fi
+
+  if "$OMADORA_LIBEXEC_DIR/systemd/omadora-update-check" >/dev/null 2>&1; then
+    info "Update state refreshed."
+  else
+    info "Failed to refresh update state. Skipped."
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Reboot/Restart Check
+# -----------------------------------------------------------------------------
+
+update_restart_check() {
+  if [[ -f "/run/reboot-required" ]]; then
+    printf '\n'
+    confirm "Updates require reboot. Ready?" && omadora_exec omadora-system-reboot
+  fi
+
+  if state_exists "relaunch-required"; then
+    printf '\n'
+    confirm "Updates require Hyprland relaunch. Ready?" && omadora_exec omadora-system-logout
+  fi
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+trap cleanup EXIT
+
+if [[ "${1:-}" != "-y" ]]; then
+  update_confirm || {
+    info "Update cancelled."
+    exit 0
+  }
+fi
+
+sudo_keepalive
+sudo_pid=$!
+
+update_dirs_init ||
+  die "failed to initialize update dirs"
+
+exec 9>"$OMADORA_UPDATE_LOCK_FILE"
+
+flock -n 9 ||
+  die "another update operation is already running"
+
+update_perform
+
+update_state_refresh
+
+info_heading "Update complete."
+
+update_restart_check

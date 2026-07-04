@@ -1,9 +1,6 @@
-#!/bin/bash
-
 clear
-tte -i ~/.local/share/omadora/logo.txt --frame-rate 920 laseretch
+cat ~/.local/share/omadora/logo.txt
 echo
-echo "You're done! So we're ready to reboot now..." | tte --frame-rate 640 wipe
-
+echo "You're done! So we're rebooting now..."
 sleep 5
 reboot

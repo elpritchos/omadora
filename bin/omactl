@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+omactl_init_fast_paths() {
+  if [[ -z "${OMADORA_ROOT:-}" ]]; then
+    OMADORA_ROOT="$(
+      cd -- "$(dirname "${BASH_SOURCE[0]}")/.." &&
+        pwd
+    )"
+  fi
+
+  OMADORA_LIBEXEC_DIR="$OMADORA_ROOT/libexec"
+}
+
+omactl_exec_libexec() {
+  local command="$1"
+  shift
+
+  omactl_init_fast_paths
+
+  local script="$OMADORA_LIBEXEC_DIR/$command"
+  [[ -x "$script" ]] || return 1
+
+  exec "$script" "$@"
+}
+
+omactl_fast_path() {
+  local group="${1:-}"
+  local command="${2:-}"
+
+  case "$group" in
+  menu)
+    case "$command" in
+    "")
+      shift "$#"
+      omactl_exec_libexec omadora-menu
+      ;;
+    main)
+      shift 2
+      omactl_exec_libexec omadora-menu "$@"
+      ;;
+    apps | theme | share | capture | power | system | font)
+      omactl_exec_libexec omadora-menu "$command"
+      ;;
+    keybindings)
+      omactl_exec_libexec omadora-menu-keybindings
+      ;;
+    esac
+    ;;
+
+  launch)
+    case "$command" in
+    about) omactl_exec_libexec omadora-launch-about ;;
+    system-monitor) omactl_exec_libexec omadora-launch-system-monitor ;;
+    wifi) omactl_exec_libexec omadora-launch-wifi ;;
+    audio) omactl_exec_libexec omadora-launch-audio ;;
+    bluetooth) omactl_exec_libexec omadora-launch-bluetooth ;;
+    editor)
+      shift 2
+      omactl_exec_libexec omadora-launch-editor "$@"
+      ;;
+    browser)
+      shift 2
+      omactl_exec_libexec omadora-launch-browser "$@"
+      ;;
+    wofi)
+      shift 2
+      omactl_exec_libexec omadora-launch-wofi "$@"
+      ;;
+    floating-window)
+      shift 2
+      omactl_exec_libexec omadora-launch-floating-terminal-with-presentation "$@"
+      ;;
+    terminal)
+      shift 2
+      exec uwsm-app -- xdg-terminal-exec "$@"
+      ;;
+    terminal-cwd)
+      shift 2
+      omactl_init_fast_paths
+      exec uwsm-app -- xdg-terminal-exec --dir="$("$OMADORA_LIBEXEC_DIR/omadora-cmd-terminal-cwd")" "$@"
+      ;;
+    file-explorer)
+      exec uwsm-app -- nautilus --new-window
+      ;;
+    file-explorer-cwd)
+      omactl_init_fast_paths
+      exec uwsm-app -- nautilus --new-window "$("$OMADORA_LIBEXEC_DIR/omadora-cmd-terminal-cwd")"
+      ;;
+    webapp)
+      shift 2
+      omactl_exec_libexec omadora-launch-webapp "$@"
+      ;;
+    webapp-or-focus)
+      shift 2
+      omactl_exec_libexec omadora-launch-or-focus-webapp "$@"
+      ;;
+    tui)
+      shift 2
+      omactl_exec_libexec omadora-launch-tui "$@"
+      ;;
+    tui-or-focus)
+      shift 2
+      omactl_exec_libexec omadora-launch-or-focus-tui "$@"
+      ;;
+    esac
+    ;;
+  esac
+
+  return 1
+}
+
+if ! omactl_fast_path "$@"; then
+  :
+fi
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+cli_root_main "$@"

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
+
+url="${1:-}"
+
+[[ -n "$url" ]] || {
+  die "missing theme repository URL"
+}
+
+theme_name="$(
+  basename "$url" .git |
+    sed -E 's/^(omarchy|omadora)-//; s/-theme$//'
+)"
+
+theme_path="$OMADORA_USER_THEMES_DIR/$theme_name"
+
+info "Installing theme: $theme_name"
+
+# Remove existing theme if present
+if [ -d "$theme_path" ]; then
+  rm -rf "$theme_path"
+fi
+
+# Clone the repo directly into the user themes directory
+git clone "$url" "$theme_path" ||
+  die "failed to clone theme repository"
+
+# Apply the new theme
+"$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$theme_name" ||
+  die "failed to apply theme"
+
+info "Installed theme: $theme_name"

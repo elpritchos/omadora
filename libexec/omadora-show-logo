@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Display the Omadora logo in the terminal using green color.
+
+logo_path=~/.local/share/omadora/logo.txt
+
+mapfile -t logo <"$logo_path"
+
+logo_width=0
+for line in "${logo[@]}"; do
+  ((${#line} > logo_width)) && logo_width=${#line}
+done
+
+term_width=$(tput cols 2>/dev/null || echo 0)
+
+left_padding=$(((term_width - logo_width) / 2))
+
+((left_padding < 0)) && left_padding=0
+
+clear
+printf "\033[32m"
+echo
+
+for line in "${logo[@]}"; do
+  printf "%*s%s\n" "$left_padding" "" "$line"
+done
+
+printf "\033[0m\n"
+echo

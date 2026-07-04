@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Overwrite the user config for hyprlock with the default.
-
-omadora-refresh-config hypr/hyprlock.conf

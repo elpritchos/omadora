@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Set the terminal monospace fonts
+
+font_name="$1"
+
+if [[ -n "$font_name" ]]; then
+  if fc-list | grep -iq "$font_name"; then
+    if [[ -f ~/.config/alacritty/alacritty.toml ]]; then
+      sed -i "s/family = \"[^\"]*\"/family = \"$font_name\"/g" ~/.config/alacritty/alacritty.toml
+    fi
+
+    if [[ -f ~/.config/kitty/kitty.conf ]]; then
+      sed -i "s/^font_family .*/font_family $font_name/g" ~/.config/kitty/kitty.conf
+      pkill -USR1 kitty
+    fi
+
+    if [[ -f ~/.config/ghostty/config ]]; then
+      sed -i "s/^\(font-family[^=]*=\) \".*\"$/\1 \"$font_name\"/" ~/.config/ghostty/config
+      pkill -SIGUSR2 ghostty
+    fi
+
+    if pgrep -x ghostty; then
+      notify-send "    You must restart Ghostty to see font change"
+    fi
+
+    omadora_run omadora-hook font-set "$font_name"
+  else
+    echo "Font '$font_name' not found."
+    exit 1
+  fi
+else
+  echo "Usage: omadora-font-set <font-name>"
+fi

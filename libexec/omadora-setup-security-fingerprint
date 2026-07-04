@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Set up fingerprint authentication for sudo, polkit, and lock screen
+
+echo -e "\e[32mSetting up fingerprint reader for authentication.\e[0m"
+
+sudo -v || exit 1
+
+echo
+echo -e "\e[32mChecking required packages installed...\e[0m"
+sudo dnf install -y fprintd fprintd-pam lsusb
+
+echo
+echo -e "\e[32mChecking for fingerprint reader...\e[0m"
+if busctl tree net.reactivated.Fprint 2>/dev/null | grep -q '/Device/'; then
+  echo "Fingerprint reader detected."
+else
+  echo -e "\e[31mNo fingerprint reader detected by fprintd.\e[0m"
+  exit 1
+fi
+
+echo
+echo -e "\e[32mEnabling fingerprint authentication...\e[0m"
+if ! authselect current | grep -q "with-fingerprint"; then
+  sudo authselect enable-feature with-fingerprint
+  sudo authselect apply-changes
+fi
+echo "Done."
+
+echo
+echo -e "\e[32mConfiguring hyprlock...\e[0m"
+sed -i 's/placeholder_text = .*/placeholder_text = 󰈷  Locked/' "$HOME"/.config/hypr/hyprlock.conf
+sed -i 's/fingerprint:enabled = .*/fingerprint:enabled = true/' "$HOME"/.config/hypr/hyprlock.conf
+echo "Done."
+
+echo
+echo -e "\e[32mLet's enroll your right index finger as the first fingerprint...\e[0m"
+if fprintd-list "$USER" 2>/dev/null | grep -q "right-index-finger"; then
+  echo "Fingerprint(s) already enrolled."
+  echo
+  gum confirm "Enroll again?" || exit 0
+fi
+
+echo -e "Tap your finger multiple times on reader until the process completes..."
+if sudo fprintd-enroll "$USER"; then
+  echo
+  echo -e "Fingerprint enrolled successfully."
+else
+  echo -e "\e[31mEnrollment failed. Please try again.\e[0m"
+  exit 1
+fi
+
+echo
+echo -e "\e[32mNow let's verify the fingerprint works correctly...\e[0m"
+if fprintd-verify; then
+  echo
+  echo -e "Fingerprint verified."
+else
+  echo -e "\e[31mVerification failed. You may want to try enrolling again.\e[0m"
+  exit 1
+fi
+
+echo
+echo -e "\e[32mFingerprint authentication is configured.\e[0m"

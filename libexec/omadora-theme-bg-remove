@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# shellcheck source=lib/theme.sh
+source "$OMADORA_LIB_DIR/theme.sh"
+
+background_file="${1:-}"
+
+[[ -n "$background_file" ]] ||
+  die "missing background file name"
+
+current_theme_name="$(theme_current)" ||
+  die "no current theme set"
+
+background_path="${OMADORA_USER_BACKGROUNDS_DIR}/${current_theme_name}/${background_file}"
+
+[[ -f "$background_path" ]] ||
+  die "background not found: $background_file"
+
+current_background=""
+
+if [[ -L "$OMADORA_CURRENT_BACKGROUND_LINK" ]]; then
+  current_background="$(readlink "$OMADORA_CURRENT_BACKGROUND_LINK")"
+fi
+
+is_current=false
+
+if [[ "$current_background" == "$background_path" ]]; then
+  is_current=true
+fi
+
+rm -f "$background_path"
+
+if $is_current; then
+  rm -f "$OMADORA_CURRENT_BACKGROUND_LINK"
+
+  if ! "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next"; then
+    die "failed to select replacement background"
+  fi
+fi
+
+info "Removed background: $background_file"

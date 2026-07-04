@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# Launch the system monitor (provided by btop).
-
-exec omadora-launch-or-focus-tui btop

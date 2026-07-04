@@ -2,10 +2,10 @@ abort() {
   echo -e "\e[31mOmadora install requires: $1\e[0m"
   echo
 
-  read -p "Proceed anyway on your own accord and without assistance? [y/N] " response
+  read -rp "Proceed anyway on your own accord and without assistance? [y/N] " response
   case "$response" in
-    [yY][eE][sS]|[yY]) ;;
-    *) exit 1 ;;
+  [yY][eE][sS] | [yY]) ;;
+  *) exit 1 ;;
   esac
 }
 

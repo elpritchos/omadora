@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Launch the passed in URL as a web app in the default browser, or Chromium if the default does not support --app.
+
+if (($# == 0)); then
+  echo "Usage: omadora-launch-webapp <url> [browser-flags...]"
+  exit 1
+fi
+
+# shellcheck source=lib/browser.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/browser.sh"
+
+default_browser="$(xdg-settings get default-web-browser)"
+browser="$(omadora_browser_app_mode_browser "$default_browser")"
+
+if ! omadora_browser_resolve "$browser" "webapp-launch.cache"; then
+  printf 'Browser desktop file not found or invalid: %s\n' "$browser" >&2
+  exit 1
+fi
+
+exec uwsm-app -S both -- "$OMADORA_BROWSER_COMMAND" --app="$1" "${@:2}"

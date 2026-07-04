@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="audio"
+CLI_SUMMARY="Hardware audio functions"
+
+CLI_NAMESPACES=(
+  "output|Audio output device"
+  "input|Audio input device"
+)
+
+CLI_COMMANDS=(
+  "output volume||Modify audio output volume|run_output_volume||"
+  "output switch||Switch audio outputs|run_output_switch||"
+  "input mute||Toggle microphone mute|run_input_mute||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_output_volume() {
+  omadora_exec omadora-audio-output-volume "$@"
+}
+
+run_output_switch() {
+  omadora_exec omadora-audio-output-switch "$@"
+}
+
+run_input_mute() {
+  omadora_exec omadora-audio-input-mute "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

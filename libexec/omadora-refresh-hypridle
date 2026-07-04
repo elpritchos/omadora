@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Overwrite the user config for hypridle with the default and restart the service.
+
+omadora_run omadora-refresh-config hypr/hypridle.conf
+omadora_run omadora-restart-hypridle

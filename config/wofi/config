@@ -1,12 +1,10 @@
 show=drun
-height=600
-width=875
 prompt=Search...
 allow_images=true
 insensitive=true
 parse_search=true
 no_actions=true
-normal_window=true
+normal_window=false
 key_forward=Ctrl-j
 key_backward=Ctrl-k
 key_submit=Ctrl-Return

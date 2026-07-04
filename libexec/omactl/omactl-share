@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="share"
+CLI_SUMMARY="Share clipboard, files, or folders via LocalSend"
+CLI_DEFAULT_COMMAND="file"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "clipboard||Share clipboard contents|run_clipboard||"
+  "file|[path...]|Share files|run_file|complete_files|filenames"
+  "folder|[path...]|Share folders|run_folder|complete_folders|filenames"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_clipboard() {
+  omadora_exec omadora-menu-share clipboard
+}
+
+run_file() {
+  omadora_exec omadora-menu-share file "$@"
+}
+
+run_folder() {
+  omadora_exec omadora-menu-share folder "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+complete_files() {
+  local cur="$1"
+
+  compgen -f -- "$cur"
+}
+
+complete_folders() {
+  local cur="$1"
+
+  compgen -d -- "$cur"
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

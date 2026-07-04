@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Select a drive from a list with info that includes space and brand. Used by omadora-drive-set-password.
+
+if (($# == 0)); then
+  drives=$(lsblk -dpno NAME | grep -E '/dev/(sd|hd|vd|nvme|mmcblk|xv)')
+else
+  drives=$(printf '%s\n' "$@")
+fi
+
+drives_with_info=""
+while IFS= read -r drive; do
+  [[ -n "$drive" ]] || continue
+  drives_with_info+="$(omadora_run omadora-drive-info "$drive")"$'\n'
+done <<<"$drives"
+
+selected_drive="$(printf "%s" "$drives_with_info" | gum choose --header "Select drive")" || exit 1
+printf "%s\n" "$selected_drive" | awk '{print $1}'

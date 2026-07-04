@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="toggle"
+CLI_SUMMARY="Toggle Omadora features"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "waybar||Waybar (top bar) UI component [enable/disable]|run_waybar||"
+  "weather||Weather module [enable/disable]|run_weather||"
+  "update-checks||Regular system update checks [enable/disable]|run_update_checks||"
+  "nightlight||Nightlight service [enable/disable]|run_nightlight||"
+  "idle-lock||Idle locking [enable/disable]|run_lock||"
+  "idle-screensaver||Idle screensaver [enable/disable]|run_screensaver||"
+  "notification-silencing||Notification silencing [enable/disable]|run_notifications||"
+  "touchpad||Touchpad [enable/disable]|run_touchpad||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_waybar() {
+  omadora_exec omadora-toggle-waybar "$@"
+}
+
+run_weather() {
+  omadora_exec omadora-toggle-weather-check "$@"
+}
+
+run_update_checks() {
+  omadora_exec omadora-toggle-update-check "$@"
+}
+
+run_nightlight() {
+  omadora_exec omadora-toggle-nightlight "$@"
+}
+
+run_lock() {
+  omadora_exec omadora-toggle-idle "@"
+}
+
+run_screensaver() {
+  omadora_exec omadora-toggle-screensaver "$@"
+}
+
+run_notifications() {
+  omadora_exec omadora-toggle-notification-silencing "@"
+}
+
+run_touchpad() {
+  omadora_exec omadora-toggle-touchpad "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

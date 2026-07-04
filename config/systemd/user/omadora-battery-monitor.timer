@@ -1,11 +1,11 @@
 [Unit]
 Description=Omadora Battery Monitor Timer
-Requires=omadora-battery-monitor.service
+PartOf=omadora-session.target
 
 [Timer]
-OnBootSec=1min
-OnUnitActiveSec=30sec
+OnBootSec=15sec
+OnUnitActiveSec=1min
 AccuracySec=10sec
 
 [Install]
-WantedBy=timers.target
+WantedBy=omadora-session.target

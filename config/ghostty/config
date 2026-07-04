@@ -2,14 +2,14 @@
 config-file = ?"~/.config/omadora/current/theme/ghostty.conf"
 
 # Font
-font-family = "Cascadia Mono NF"
+font-family = "JetBrainsMono Nerd Font"
 font-style = Regular
-font-size = 9
+font-size = 10.5
 
 # Window
 window-theme = ghostty
-window-padding-x = 12
-window-padding-y = 12
+window-padding-x = 14
+window-padding-y = 14
 confirm-close-surface=false
 resize-overlay = never
 gtk-toolbar-style = flat

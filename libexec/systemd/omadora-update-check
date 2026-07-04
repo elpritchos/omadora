@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/update.sh
+source "$OMADORA_LIB_DIR/update.sh"
+
+require_cmd dnf5 jq
+
+# -----------------------------------------------------------------------------
+# Init
+# -----------------------------------------------------------------------------
+update_dirs_init ||
+  die "failed to initialize update dirs"
+
+# -----------------------------------------------------------------------------
+# Locking
+# -----------------------------------------------------------------------------
+exec 9>"$OMADORA_UPDATE_LOCK_FILE"
+
+# Exit silently if another check/update is already running
+flock -n 9 || exit 0
+
+# -----------------------------------------------------------------------------
+# Helpers
+# -----------------------------------------------------------------------------
+waybar_module_refresh() {
+  pkill -RTMIN+7 waybar
+}
+
+# -----------------------------------------------------------------------------
+# Perform Update Check
+# -----------------------------------------------------------------------------
+info 'Starting update check...'
+
+info 'Collecting omadora updates...'
+update_collect_omadora ||
+  error "failed to collect omadora updates"
+
+info 'Collecting dnf updates...'
+update_collect_dnf ||
+  error "failed to collect dnf updates"
+
+info 'Collecting cargo updates...'
+update_collect_cargo ||
+  error "failed to collect cargo updates"
+
+info 'Collecting flatpak updates...'
+update_collect_flatpak ||
+  error "failed to collect flatpak updates"
+
+info 'Collecting firmware updates...'
+update_collect_firmware ||
+  error "failed to collect firmware updates"
+
+info 'Writing update state...'
+update_write_state ||
+  die "failed to write update state"
+
+waybar_module_refresh ||
+  debug "Failed to update Waybar module"
+
+info "Finished update check."

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Show a fuzzy-finder TUI for picking packages installed on the system to be removed.
+
+fzf_args=(
+  --multi
+  --preview 'dnf info {1} 2>/dev/null'
+  --preview-label='alt-p: toggle description, alt-j/k: scroll, tab: multi-select'
+  --preview-label-pos='bottom'
+  --preview-window 'down:65%:wrap'
+  --bind 'alt-p:toggle-preview'
+  --bind 'alt-d:preview-half-page-down,alt-u:preview-half-page-up'
+  --bind 'alt-k:preview-up,alt-j:preview-down'
+  --color 'pointer:red,marker:red'
+)
+
+pkg_names=$(dnf repoquery --installed --qf "%{name}\n" 2>/dev/null | fzf "${fzf_args[@]}")
+
+if [[ -n "$pkg_names" ]]; then
+  # Convert newline-separated list into an array
+  readarray -t pkgs <<<"$pkg_names"
+  sudo dnf remove "${pkgs[@]}"
+  omadora_run omadora-show-done
+fi

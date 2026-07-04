@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/browser.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/browser.sh"
+
+default_browser="$(xdg-settings get default-web-browser)"
+
+if ! omadora_browser_resolve "$default_browser" "browser-launch.cache" "flatpak-app-id"; then
+  printf 'Default browser desktop file not found or invalid: %s\n' "$default_browser" >&2
+  exit 1
+fi
+
+read -ra browser_exec <<<"$OMADORA_BROWSER_COMMAND"
+
+args=()
+
+for arg in "$@"; do
+  case "$arg" in
+  --private)
+    args+=("$OMADORA_BROWSER_PRIVATE_FLAG")
+    ;;
+  *)
+    args+=("$arg")
+    ;;
+  esac
+done
+
+exec uwsm-app -S both -- "${browser_exec[@]}" "${args[@]}"

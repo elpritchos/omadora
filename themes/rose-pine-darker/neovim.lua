@@ -1,6 +1,7 @@
 return {
   {
     "rose-pine/neovim",
+    name = "rose-pine",
     lazy = false,
     priority = 1000,
     config = function()
@@ -9,7 +10,12 @@ return {
           transparency = true,
         },
       })
-      vim.cmd.colorscheme("rose-pine")
     end,
+  },
+  {
+    "LazyVim/LazyVim",
+    opts = {
+      colorscheme = "rose-pine-moon",
+    },
   },
 }

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Toggle hypridle idle locking
+
+if systemctl --quiet --user is-active hypridle.service; then
+  systemctl --user stop hypridle.service
+  notify-send -u low "󱫖    Stop locking computer when idle"
+else
+  systemctl --user start hypridle.service
+  notify-send -u low "󱫖    Now locking computer when idle"
+fi
+
+pkill -RTMIN+9 waybar

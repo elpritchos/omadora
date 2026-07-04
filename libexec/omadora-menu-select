@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Pick one option with Wofi
+
+set -euo pipefail
+
+if (($# < 2)); then
+  echo "Usage: omadora-menu-select <prompt> <option>... [-- wofi args...]" >&2
+  exit 1
+fi
+
+prompt="$1"
+shift
+
+options=()
+args=()
+
+while (($# > 0)); do
+  if [[ $1 == "--" ]]; then
+    shift
+    args=("$@")
+    break
+  fi
+
+  options+=("$1")
+  shift
+done
+
+if ((${#options[@]} == 0)); then
+  echo "Usage: omadora-menu-select <prompt> <option>... [-- wofi args...]" >&2
+  exit 1
+fi
+
+printf '%s\n' "${options[@]}" | omadora_run omadora-launch-wofi --dmenu --width 295 --lines 10 -p "$prompt…" "${args[@]}" 2>/dev/null

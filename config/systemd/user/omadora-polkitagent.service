@@ -1,0 +1,14 @@
+[Unit]
+Description=Omadora Polkit Authentication Agent
+PartOf=omadora-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+
+[Service]
+ExecStart=/usr/libexec/xfce-polkit
+Slice=session.slice
+TimeoutStopSec=5sec
+Restart=on-failure
+
+[Install]
+WantedBy=omadora-session.target

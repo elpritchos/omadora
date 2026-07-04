@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="ui"
+CLI_SUMMARY="Trigger UI functions"
+
+CLI_NAMESPACES=(
+  "toggle|Toggle UI functions"
+  "window|Hyprland window functions"
+)
+
+CLI_COMMANDS=(
+  "toggle gaps||Hide/show window gaps|run_toggle_gaps||"
+  "toggle window-transparency||Toggle window transparency|run_toggle_transparency||"
+  "toggle single-window-aspect||Toggle single window aspect ratio|run_toggle_aspect||"
+  "toggle workspace-layout||Toggle workspace layout|run_toggle_layout||"
+  "toggle waybar||Hide/show waybar visibility|run_toggle_waybar||"
+  "window killactive||Close launcher or kill active window|run_window_killactive||"
+  "window close-all||Close all windows|run_window_close_all||"
+  "window pop||Pop active window|run_window_pop||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_toggle_gaps() {
+  omadora_exec omadora-hyprland-window-gaps-toggle "$@"
+}
+
+run_toggle_transparency() {
+  omadora_exec omadora-hyprland-window-transparency-toggle "$@"
+}
+
+run_toggle_aspect() {
+  omadora_exec omadora-hyprland-window-single-square-aspect-toggle "$@"
+}
+
+run_toggle_layout() {
+  omadora_exec omadora-hyprland-workspace-layout-toggle "$@"
+}
+
+run_toggle_waybar() {
+  killall -SIGUSR1 waybar
+}
+
+run_window_killactive() {
+  omadora_exec omadora-hyprland-window-killactive "$@"
+}
+
+run_window_close_all() {
+  omadora_exec omadora-hyprland-window-close-all "$@"
+}
+
+run_window_pop() {
+  omadora_exec omadora-hyprland-window-pop "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

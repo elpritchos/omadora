@@ -1,6 +1,0 @@
-#!/bin/bash
-
-# Overwrite the user config for hypridle with the default and restart the service.
-
-omadora-refresh-config hypr/hypridle.conf
-omadora-restart-hypridle

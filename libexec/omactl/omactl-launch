@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="launch"
+CLI_SUMMARY="Launch Omadora windows and apps"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "about||Open the about window|run_about||"
+  "system-monitor||Open the system monitor window|run_system_monitor||"
+  "wifi||Open the wifi window|run_wifi||"
+  "audio||Open the audio window|run_audio||"
+  "bluetooth||Open the bluetooth window|run_bluetooth||"
+  "editor||Open an editor window|run_editor||"
+  "browser||Open a browser window|run_browser||"
+  "wofi||Open a wofi window|run_wofi||"
+  "floating-window||Launch a command in a floating window|run_floating||"
+  "tui||Launch a TUI|run_tui||"
+  "tui-or-focus||Launch or focus a TUI|run_tui_or_focus||"
+  "terminal||Launch a default terminal|run_terminal||"
+  "terminal-cwd||Launch a default terminal in the CWD|run_terminal_cwd||"
+  "file-explorer||Launch a file explorer window|run_file_explorer||"
+  "file-explorer-cwd||Launch a file explorer window in the CWD|run_file_explorer_cwd||"
+  "webapp||Launch a webapp|run_webapp||"
+  "webapp-or-focus||Launch or focus a webapp|run_webapp_or_focus||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_about() {
+  omadora_exec omadora-launch-about
+}
+
+run_system_monitor() {
+  omadora_exec omadora-launch-system-monitor
+}
+
+run_wifi() {
+  omadora_exec omadora-launch-wifi
+}
+
+run_audio() {
+  omadora_exec omadora-launch-audio
+}
+
+run_bluetooth() {
+  omadora_exec omadora-launch-bluetooth
+}
+
+run_editor() {
+  omadora_exec omadora-launch-editor "$@"
+}
+
+run_browser() {
+  omadora_exec omadora-launch-browser "$@"
+}
+
+run_wofi() {
+  omadora_exec omadora-launch-wofi "$@"
+}
+
+run_floating() {
+  omadora_exec omadora-launch-floating-terminal-with-presentation "$@"
+}
+
+run_terminal() {
+  exec uwsm-app -- xdg-terminal-exec "$@"
+}
+
+run_terminal_cwd() {
+  exec uwsm-app -- xdg-terminal-exec --dir="$(omadora_run omadora-cmd-terminal-cwd)" "$@"
+}
+
+run_file_explorer() {
+  exec uwsm-app -- nautilus --new-window
+}
+
+run_file_explorer_cwd() {
+  exec uwsm-app -- nautilus --new-window "$(omadora_run omadora-cmd-terminal-cwd)"
+}
+
+run_webapp() {
+  omadora_exec omadora-launch-webapp "$@"
+}
+
+run_webapp_or_focus() {
+  omadora_exec omadora-launch-or-focus-webapp "$@"
+}
+
+run_tui() {
+  omadora_exec omadora-launch-tui "$@"
+}
+
+run_tui_or_focus() {
+  omadora_exec omadora-launch-or-focus-tui "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

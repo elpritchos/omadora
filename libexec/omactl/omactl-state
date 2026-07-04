@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# shellcheck source=lib/state.sh
+source "$OMADORA_LIB_DIR/state.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="state"
+CLI_SUMMARY="Manage Omadora state flags"
+
+CLI_NAMESPACES=(
+  "toggles|Omadora feature toggles"
+)
+
+CLI_COMMANDS=(
+  "list||List current state flags|run_list||"
+  "set|<name>|Set a state flag|run_set||"
+  "clear|<name>|Remove a state flag|run_clear|complete_list_flags|"
+  "exists|<name>|Test a flag is set|run_exists||"
+  "toggles list||List toggles|run_toggles_list||"
+  "toggles set|<name>|Set a toggle|run_toggles_set||"
+  "toggles clear|<name>|Remove a toggle|run_toggles_clear|complete_list_toggles|"
+  "toggles exists|<name>|Test a toggle exists|run_toggles_exists||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_list() {
+  state_list
+}
+
+run_set() {
+  state_set "$@"
+}
+
+run_clear() {
+  state_clear "$@"
+}
+
+run_exists() {
+  state_exists "$@"
+}
+
+run_toggles_list() {
+  state_toggles_list
+}
+
+run_toggles_set() {
+  state_toggles_set "$@"
+}
+
+run_toggles_clear() {
+  state_toggles_clear "$@"
+}
+
+run_toggles_exists() {
+  state_toggles_exists "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+complete_list_flags() {
+  local cur="$1"
+
+  state_list | cli_complete_lines "$cur"
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

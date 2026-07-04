@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Adjust brightness on the most likely display device.
+
+step="${1:-+5%}"
+
+# Start with the first possible output, then refine to the most likely given an order heuristic.
+device="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
+for candidate in amdgpu_bl* intel_backlight acpi_video*; do
+  if [[ -e /sys/class/backlight/$candidate ]]; then
+    device="$candidate"
+    break
+  fi
+done
+
+if [[ $step == "off" ]]; then
+  hyprctl dispatch dpms off >/dev/null 2>&1
+  exit 0
+elif [[ $step == "on" ]]; then
+  hyprctl dispatch dpms on >/dev/null 2>&1
+  exit 0
+fi
+
+# Current brightness percentage
+current=$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')
+
+# Apply non-uniform step size: 1% steps if at or below 5%, otherwise set an
+# absolute target percentage to avoid raw backlight rounding causing uneven OSD steps.
+if [[ $step == "+5%" ]]; then
+  if ((current < 5)); then
+    ((target = current + 1))
+  else
+    ((target = current + 5))
+  fi
+
+  ((target > 100)) && target=100
+  step="$target%"
+elif [[ $step == "5%-" ]]; then
+  if ((current <= 5)); then
+    ((target = current - 1))
+  else
+    ((target = current - 5))
+  fi
+
+  ((target < 1)) && target=1
+  step="$target%"
+fi
+
+# Set the actual brightness of the display device.
+brightnessctl -d "$device" set "$step" >/dev/null
+
+# Display the new brightness setting.
+notify-send -h string:x-canonical-private-synchronous:brightness -u low -t 2000 "Monitor Brightness" "$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')"

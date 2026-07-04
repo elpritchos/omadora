@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="restart"
+CLI_SUMMARY="Restart Omadora session components"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "waybar||Restart Waybar|run_waybar||"
+  "hypridle||Restart Hypridle|run_hypridle||"
+  "hyprpaper||Restart Hyprpaper|run_hyprpaper||"
+  "hyprsunset||Restart Hyprsunset|run_hyprsunset||"
+  "mako||Restart Mako|run_mako||"
+  "fcitx5||Restart Fcitx5|run_fcitx5||"
+  "polkitagent||Restart the polkit authentication agent|run_polkitagent||"
+  "session||Restart the full Omadora session target|run_session||"
+  "omadora-session||Restart the full Omadora session target|run_session||"
+  "omadora-session.target||Restart the full Omadora session target|run_session||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+restart_unit() {
+  local unit="$1"
+
+  systemctl --user restart "$unit"
+}
+
+run_waybar() {
+  restart_unit waybar.service
+}
+
+run_hypridle() {
+  restart_unit hypridle.service
+}
+
+run_hyprpaper() {
+  restart_unit hyprpaper.service
+}
+
+run_hyprsunset() {
+  restart_unit hyprsunset.service
+}
+
+run_mako() {
+  restart_unit mako.service
+}
+
+run_fcitx5() {
+  restart_unit omadora-fcitx5.service
+}
+
+run_polkitagent() {
+  restart_unit omadora-polkitagent.service
+}
+
+run_session() {
+  restart_unit omadora-session.target
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

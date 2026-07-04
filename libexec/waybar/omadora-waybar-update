@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+require_cmd jq
+
+readonly STATE_FILE="${OMADORA_STATE_HOME}/update/state.json"
+
+[[ -f "$STATE_FILE" ]] || exit 0
+
+if ! jq empty "$STATE_FILE" >/dev/null 2>&1; then
+  warn "Invalid update state file"
+  exit 0
+fi
+
+reboot_required=false
+[[ -e /run/reboot-required ]] && reboot_required=true
+
+jq -c \
+  --argjson reboot_required "$reboot_required" \
+  '
+def update_section:
+  (
+    [
+      (.updates.omadora.count
+        | select(. > 0)
+        | tostring + " omadora"),
+
+      (.updates.dnf.count
+        | select(. > 0)
+        | tostring + " dnf"),
+
+      (.updates.flatpak.count
+        | select(. > 0)
+        | tostring + " flatpak"),
+
+      (.updates.cargo.count
+        | select(. > 0)
+        | tostring + " cargo"),
+
+      (.updates.firmware.count
+        | select(. > 0)
+        | tostring + " firmware")
+    ]
+    | map(select(. != null))
+  )
+  | if length > 0 then
+      ["Updates:"] + .
+    else
+      []
+    end;
+
+def advisory_section:
+  (
+    [
+      (.advisories.dnf.security
+        | select(. > 0)
+        | tostring + " security"),
+
+      (.advisories.dnf.bugfix
+        | select(. > 0)
+        | tostring + " bugfix"),
+
+      (.advisories.dnf.enhancement
+        | select(. > 0)
+        | tostring + " enhancement"),
+
+      (.advisories.dnf.other
+        | select(. > 0)
+        | tostring + " other")
+    ]
+    | map(select(. != null))
+  )
+  | if length > 0 then
+      ["Advisories:"] + .
+    else
+      []
+    end;
+
+def full_summary:
+  (update_section + [""] + advisory_section)
+  | join("\n");
+
+if $reboot_required then
+  {
+    text:
+      (if .updates.total > 0
+       then (.updates.total | tostring)
+       else ""
+       end),
+    alt: "reboot-required",
+    tooltip:
+      "Reboot required\n\n"
+      + (.updates.total | tostring)
+      + " Updates Available\n\n"
+      + full_summary,
+    class: ["reboot-required"]
+  }
+
+elif .updates.total > 0 then
+  {
+    text: (.updates.total | tostring),
+
+    alt:
+      (if .advisories.dnf.security > 0
+       then "security"
+       else "updates"
+       end),
+
+    tooltip:
+      (.updates.total | tostring)
+      + " Updates Available\n\n"
+      + full_summary,
+
+    class:
+      (if .advisories.dnf.security > 0
+       then ["updates", "security"]
+       else ["updates"]
+       end)
+  }
+
+else
+  {
+    text: "",
+    alt: "updated",
+    tooltip: "System fully updated",
+    class: ["updated"]
+  }
+
+end
+' "$STATE_FILE"

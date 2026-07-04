@@ -1,0 +1,157 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+require_cmd jq
+
+readonly STATE_FILE="${OMADORA_STATE_HOME}/weather/state.json"
+
+now="$(date +%s)"
+
+if [[ ! -f "$STATE_FILE" ]]; then
+  jq -nc '
+    {
+      text: "--",
+      alt: "unknown",
+      class: ["error"],
+      tooltip: "Weather data unavailable: state file missing"
+    }
+  '
+  exit 0
+fi
+
+if ! jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null 2>&1; then
+  jq -nc '
+    {
+      text: "--",
+      alt: "unknown",
+      class: ["error"],
+      tooltip: "Weather data invalid"
+    }
+  '
+  exit 0
+fi
+
+jq -c --argjson now "$now" '
+  def cardinal:
+  [
+    "N","NNE","NE","ENE",
+    "E","ESE","SE","SSE",
+    "S","SSW","SW","WSW",
+    "W","WNW","NW","NNW"
+  ][((. + 11.25) / 22.5 | floor) % 16];
+
+  def time_only:
+    split("T")[1];
+
+  def titlecase_words:
+    gsub("_"; " ")
+    | split(" ")
+    | map(
+        if length > 0 then
+          (.[0:1] | ascii_upcase) + .[1:]
+        else
+          .
+        end
+      )
+    | join(" ");
+
+  .meta.timestamp as $timestamp
+
+  | ($now - $timestamp) as $age_seconds
+  | ($age_seconds / 60 | floor) as $age_minutes
+  | ($age_seconds > 1800) as $stale
+
+  | .location as $loc
+  | .weather as $w
+
+  | ($w.current.is_day * 100) as $is_day_percentage
+
+  | $w.derived.condition as $condition
+  | ($condition | titlecase_words) as $condition_text
+
+  | ($w.current.temperature_2m | round) as $temp_now
+  | ($w.current.apparent_temperature | round) as $temp_feels
+
+  | ($w.daily.temperature_2m_max | round) as $temp_max
+  | ($w.daily.temperature_2m_min | round) as $temp_min
+
+  | ($w.current.relative_humidity_2m | round) as $humidity
+
+  | ($w.current.pressure_msl | round) as $pressure
+
+  | ($w.current.wind_speed_10m | round) as $wind_speed
+  | ($w.current.wind_gusts_10m | round) as $wind_gusts
+  | ($w.current.wind_direction_10m | cardinal) as $wind_dir
+
+  | ($w.current.uv_index * 10 | round / 10) as $uv_index
+  | ($w.daily.uv_index_max * 10 | round / 10) as $uv_index_max
+  | ($w.current.precipitation * 10 | round / 10) as $precipitation
+
+  | {
+      text:
+        "\($temp_now)\($w.current_units.temperature_2m)",
+
+      percentage:
+        $is_day_percentage,
+
+      alt:
+        $condition,
+
+      class:
+        (
+          ["active", $condition]
+          + (if $stale then ["stale"] else [] end)
+        ),
+
+      tooltip:
+        [
+          "Location: \($loc.city), \($loc.country)",
+
+          (
+            if $stale then
+              "Updated: \($age_minutes) min ago (STALE)"
+            else
+              "Updated: \($age_minutes) min ago"
+            end
+          ),
+
+          "",
+
+          "Condition: \($condition_text)",
+
+          "",
+
+          "Current",
+
+          "Temperature: \($temp_now)\($w.current_units.temperature_2m) (feels \($temp_feels)\($w.current_units.apparent_temperature))",
+
+          "Precipitation: \($precipitation)\($w.current_units.precipitation)",
+
+          "Humidity: \($humidity)\($w.current_units.relative_humidity_2m)",
+
+          "Pressure: \($pressure)\($w.current_units.pressure_msl)",
+
+          "Wind: from \($wind_dir) at \($wind_speed)\($w.current_units.wind_speed_10m) (gusts \($wind_gusts)\($w.current_units.wind_gusts_10m))",
+
+          "UV Index: \($w.derived.uv_index_class | titlecase_words) (\($uv_index))",
+
+          "",
+
+          "Today",
+
+          "High / Low: \($temp_max)\($w.daily_units.temperature_2m_max) / \($temp_min)\($w.daily_units.temperature_2m_min)",
+
+          "Rain Chance: \($w.daily.precipitation_probability_max)\($w.daily_units.precipitation_probability_max)",
+
+          "UV Index Max: \($w.derived.uv_index_max_class | titlecase_words) (\($uv_index_max))",
+
+          "Sunrise: \($w.daily.sunrise | time_only)",
+
+          "Sunset: \($w.daily.sunset | time_only)"
+        ]
+        | join("\r")
+    }
+' "$STATE_FILE"

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Set install mode to online since boot.sh is used for curl installations
 export OMADORA_ONLINE_INSTALL=true
 
@@ -17,6 +19,7 @@ ansi_art='
 clear
 echo -e "\n$ansi_art\n"
 
+echo "Installing git to clone the Omadora repo..."
 sudo dnf install -y git
 
 # Use custom repo if specified, otherwise default

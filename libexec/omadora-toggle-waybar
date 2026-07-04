@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Toggle Waybar Service
+
+readonly flag="waybar-off"
+readonly unit="waybar.service"
+
+omadora_run omadora-toggle "$flag"
+
+if omadora_run omadora-toggle-enabled "$flag"; then
+  systemctl --quiet --user stop "$unit"
+  notify-send -u low "󰍜    Waybar disabled"
+else
+  systemctl --quiet --user start "$unit"
+  notify-send -u low "󰍜    Waybar enabled"
+fi

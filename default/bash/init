@@ -1,16 +1,27 @@
-if command -v mise &> /dev/null; then
+if command -v mise &>/dev/null; then
   eval "$(mise activate bash)"
 fi
 
-if command -v starship &> /dev/null; then
+if [[ ${TERM:-} != "dumb" ]] &&
+  [[ "$TERM" != "linux" ]] &&
+  [[ "${PROMPT_STYLE:-}" == "starship" ]] &&
+  command -v starship &>/dev/null; then
   eval "$(starship init bash)"
 fi
 
-if command -v zoxide &> /dev/null; then
+if command -v zoxide &>/dev/null; then
   eval "$(zoxide init bash)"
 fi
 
-if command -v fzf &> /dev/null; then
+if command -v try &>/dev/null; then
+  try() {
+    unset -f try
+    eval "$(SHELL=/bin/bash command try init ~/Work/tries)"
+    try "$@"
+  }
+fi
+
+if command -v fzf &>/dev/null; then
   if [[ -f /usr/share/fzf/completion.bash ]]; then
     source /usr/share/fzf/completion.bash
   fi
@@ -18,3 +29,5 @@ if command -v fzf &> /dev/null; then
     source /usr/share/fzf/key-bindings.bash
   fi
 fi
+
+source "$OMADORA_PATH/default/bash/completions"

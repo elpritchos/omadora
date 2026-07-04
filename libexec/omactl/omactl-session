@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="session"
+CLI_SUMMARY="Execute login session level functions"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "screensaver||Launch the screensaver|run_screensaver||"
+  "lock||Lock the screen|run_lock||"
+  "logout||Stop the session and logout|run_logout||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_screensaver() {
+  omadora_exec omadora-launch-screensaver
+}
+
+run_lock() {
+  omadora_exec omadora-system-lock
+}
+
+run_logout() {
+  omadora_exec omadora-system-logout
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

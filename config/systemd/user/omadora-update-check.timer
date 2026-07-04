@@ -1,0 +1,13 @@
+[Unit]
+Description=Omadora Update Check Timer
+PartOf=omadora-session.target
+ConditionPathExists=!%h/.local/state/omadora/toggles/update-check-off
+
+[Timer]
+OnBootSec=15min
+OnCalendar=*-*-* 0/6:00
+RandomizedDelaySec=30min
+Persistent=true
+
+[Install]
+WantedBy=omadora-session.target

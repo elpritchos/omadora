@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Shut down
+
+systemctl poweroff --no-wall

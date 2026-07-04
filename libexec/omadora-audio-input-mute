@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Toggle microphone mute. Drives the hardware mic-mute LED on laptops that expose one.
+
+wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle >/dev/null
+
+if wpctl get-volume @DEFAULT_SOURCE@ | grep -q MUTED; then
+  led=on
+  osd_message='Microphone muted'
+  osd_icon='microphone-sensitivity-muted-symbolic'
+else
+  led=off
+  osd_message='Microphone on'
+  osd_icon='audio-input-microphone-symbolic'
+fi
+
+omadora_run omadora-brightness-keyboard-mute "$led"
+
+notify-send -h string:x-canonical-private-synchronous:audio -i "$osd_icon" -u low -t 2000 "Microphone" "$osd_message"

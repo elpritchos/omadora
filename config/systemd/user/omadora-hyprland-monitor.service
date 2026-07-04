@@ -1,0 +1,16 @@
+[Unit]
+Description=Omadora Hyprland Monitor Service
+PartOf=omadora-session.target
+After=graphical-session.target
+ConditionEnvironment=WAYLAND_DISPLAY
+ConditionEnvironment=HYPRLAND_INSTANCE_SIGNATURE
+
+[Service]
+Type=simple
+ExecCondition=/usr/bin/sh -c 'test -S "$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"'
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-hyprland-monitor-watch
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=omadora-session.target

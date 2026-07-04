@@ -1,3 +1,24 @@
 # Editor used by CLI
 export SUDO_EDITOR="$EDITOR"
 export BAT_THEME=ansi
+
+# Color man pages with bat
+export MANROFFOPT="-c"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+# Update environment
+export OMADORA_PATH=$HOME/.local/share/omadora
+_prepend_path() {
+  local dir="$1"
+  case ":$PATH:" in
+  *":$dir:"*) return ;;
+  *) PATH="$dir:$PATH" ;;
+  esac
+}
+[[ -d "$HOME/.cargo/bin" ]] && _prepend_path "$HOME/.cargo/bin"
+[[ -d "$OMADORA_PATH/bin" ]] && _prepend_path "$OMADORA_PATH/bin"
+[[ -d "$HOME/.local/bin" ]] && _prepend_path "$HOME/.local/bin"
+unset -f _prepend_path
+
+# Uncomment the following line if you don't like systemctl's auto-paging feature:
+export SYSTEMD_PAGER=

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+require_cmd dnf5
+
+info "Updating system packages"
+
+sudo dnf5 --refresh makecache ||
+  die "failed to update cache"
+
+sudo dnf5 upgrade -y ||
+  die "failed to upgrade system packages"
+
+# Fedora: use dnf needs-restarting to detect if a reboot is recommended/required.
+# Non-zero exit status indicates a reboot is needed.
+if ! dnf5 needs-restarting >/dev/null 2>&1; then
+  sudo touch /run/reboot-required
+fi

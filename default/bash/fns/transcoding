@@ -1,0 +1,33 @@
+# Transcoding helpers have moved to omactl cmd transcode.
+
+transcode-video-1080p() {
+  omactl cmd transcode "$1" mp4 1080p
+}
+
+transcode-video-4K() {
+  omactl cmd transcode "$1" mp4 4k
+}
+
+transcode-video-gif() {
+  omactl cmd transcode "$1" gif 1080p
+}
+
+img2jpg() {
+  omactl cmd transcode "$1" jpg high
+}
+
+img2jpg-small() {
+  omactl cmd transcode "$1" jpg low
+}
+
+img2jpg-medium() {
+  omactl cmd transcode "$1" jpg medium
+}
+
+img2jpg-large() {
+  omactl cmd transcode "$1" jpg high
+}
+
+img2png() {
+  omactl cmd transcode "$1" png high
+}

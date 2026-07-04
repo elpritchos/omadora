@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Set up FIDO2 authentication for sudo and polkit
+
+echo -e "\e[32mSetting up FIDO U2F device for authentication.\e[0m"
+
+sudo -v || exit 1
+
+echo
+echo -e "\e[32mChecking required packages installed...\e[0m"
+sudo dnf install -y fido2-tools pamu2fcfg
+
+echo
+echo -e "\e[32mChecking for device...\e[0m"
+tokens=$(fido2-token -L 2>/dev/null)
+if [[ -z $tokens ]]; then
+  echo -e "\e[31mNo U2F device detected. Please plug it in (you may need to unlock it as well).\e[0m"
+  exit 1
+fi
+echo "U2F device detected."
+
+echo
+echo -e "\e[32mEnabling U2F authentication...\e[0m"
+if ! authselect current | grep -q "with-pam-u2f"; then
+  sudo authselect enable-feature with-pam-u2f
+  sudo authselect apply-changes
+fi
+echo "Done."
+
+echo
+echo -e "\e[32mLet's setup your device...\e[0m"
+
+key_dir="$HOME"/.config/Yubico
+key_file="$key_dir/u2f_keys"
+
+if [[ ! -f $key_file ]]; then
+  mkdir -p "$key_dir"
+  chmod 700 "$key_dir"
+
+  echo "Touch your U2F device when it lights up..."
+  if pamu2fcfg >"$key_file"; then
+    echo "U2F device registered successfully."
+  else
+    echo -e "\e[31mU2F registration failed. Please try again.\e[0m"
+    exit 1
+  fi
+else
+  echo "U2F device already registered."
+fi
+
+echo
+echo -e "\e[32mTesting U2F authentication with sudo...\e[0m"
+sudo -k
+if ! sudo echo "U2F authentication test successful."; then
+  echo -e "\e[31mVerification failed. You may want to check your configuration.\e[0m"
+  exit 1
+fi
+
+echo
+echo -e "\e[32mFIDO U2F authentication is now configured.\e[0m"

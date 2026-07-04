@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Select and set the system timezone
+
+timezone=$(timedatectl list-timezones | gum filter --height 15 --header "Set timezone") || exit 1
+
+if [[ -z "$timezone" ]]; then
+  echo "No timezone selected"
+  exit 1
+fi
+
+echo "Setting timezone to $timezone..."
+
+if sudo timedatectl set-timezone "$timezone"; then
+  omadora_run omadora-restart-waybar
+else
+  echo "Failed to set time zone to $timezone"
+  exit 1
+fi

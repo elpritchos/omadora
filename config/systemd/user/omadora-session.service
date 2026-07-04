@@ -1,0 +1,16 @@
+[Unit]
+Description=Omadora Session Service
+PartOf=omadora-session.target
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-session-start
+ExecStop=%h/.local/share/omadora/libexec/systemd/omadora-session-stop
+
+TimeoutStopSec=10
+
+[Install]
+WantedBy=omadora-session.target

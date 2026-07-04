@@ -1,9 +1,9 @@
 # Changes require a restart to take effect.
 
-# Set default TERMINAL env var
+# Set default TERMINAL
 export TERMINAL=xdg-terminal-exec
 
-# Set default EDITOR env var
+# Set default EDITOR
 export EDITOR=nvim
 
 # Use a custom directory for screenshots (remember to make the directory!)

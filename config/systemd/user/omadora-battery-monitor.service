@@ -1,9 +1,10 @@
 [Unit]
 Description=Omadora Battery Monitor Check
+PartOf=omadora-session.target
 After=graphical-session.target
 
 [Service]
 Type=oneshot
-ExecStart=%h/.local/share/omadora/bin/omadora-battery-monitor
-Environment=DISPLAY=:0
+ExecCondition=%h/.local/share/omadora/libexec/omadora-battery-present
+ExecStart=%h/.local/share/omadora/libexec/systemd/omadora-battery-monitor
 LogLevelMax=warning

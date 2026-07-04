@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+hyprctl switchxkblayout all 0 || true
+
+playerctl pause || true
+
+pkill -f org.omadora.screensaver || true
+
+if pgrep -i 1password >/dev/null; then
+  1password --lock || true
+fi

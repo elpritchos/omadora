@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Print the current Omadora git branch
+
+git -C "$OMADORA_PATH" rev-parse --abbrev-ref HEAD

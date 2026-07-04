@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="service"
+CLI_SUMMARY="Manage Omadora user services"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "start|<unit>|Start a user unit|run_start|complete_units|"
+  "stop|<unit>|Stop a user unit|run_stop|complete_units|"
+  "restart|<unit>|Restart a user unit|run_restart|complete_units|"
+  "reload|<unit>|Reload a user unit|run_reload|complete_units|"
+  "reset|<unit>|Reset a failed user unit|run_reset|complete_units|"
+  "status|<unit>|Show a user unit status|run_status|complete_units|"
+  "logs|<unit>|Show recent user unit logs|run_logs|complete_units|"
+  "follow|<unit>|Follow user unit logs|run_follow|complete_units|"
+  "cat|<unit>|Show a user unit definition|run_cat|complete_units|"
+  "list||List supported user units|run_list||"
+  "failed||List failed supported user units|run_failed||"
+  "daemon-reload||Reload the user systemd manager|run_daemon_reload||"
+)
+
+SERVICE_UNITS=(
+  omadora-session.target
+  omadora-session.service
+  waybar.service
+  hypridle.service
+  hyprpaper.service
+  hyprsunset.service
+  mako.service
+  omadora-fcitx5.service
+  omadora-hyprland-monitor.service
+  omadora-hyprlock.service
+  omadora-polkitagent.service
+  omadora-recover-internal-monitor.service
+  omadora-battery-monitor.service
+  omadora-battery-monitor.timer
+  omadora-update-check.service
+  omadora-update-check.timer
+  omadora-weather-check.service
+  omadora-weather-check.timer
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+require_supported_unit() {
+  local unit="${1:-}"
+  local supported
+
+  [[ $# -gt 0 ]] || die "missing service unit"
+  [[ $# -eq 1 ]] || die "expected exactly one service unit"
+
+  for supported in "${SERVICE_UNITS[@]}"; do
+    [[ "$supported" == "$unit" ]] || continue
+    printf '%s\n' "$unit"
+    return 0
+  done
+
+  die "unsupported service unit: $unit"
+}
+
+run_systemctl_unit() {
+  local action="$1"
+  shift
+
+  local unit
+  unit="$(require_supported_unit "$@")"
+
+  systemctl --user "$action" "$unit"
+}
+
+run_start() {
+  run_systemctl_unit start "$@"
+}
+
+run_stop() {
+  run_systemctl_unit stop "$@"
+}
+
+run_restart() {
+  run_systemctl_unit restart "$@"
+}
+
+run_reload() {
+  run_systemctl_unit reload "$@"
+}
+
+run_reset() {
+  run_systemctl_unit reset-failed "$@"
+}
+
+run_status() {
+  local unit
+  unit="$(require_supported_unit "$@")"
+
+  systemctl --user --no-pager status "$unit"
+}
+
+run_logs() {
+  local unit
+  unit="$(require_supported_unit "$@")"
+
+  journalctl --user --no-pager -n 200 -u "$unit"
+}
+
+run_follow() {
+  local unit
+  unit="$(require_supported_unit "$@")"
+
+  journalctl --user -fu "$unit"
+}
+
+run_cat() {
+  local unit
+  unit="$(require_supported_unit "$@")"
+
+  systemctl --user --no-pager cat "$unit"
+}
+
+run_list() {
+  printf '%s\n' "${SERVICE_UNITS[@]}"
+}
+
+run_failed() {
+  systemctl --user --failed --no-pager --plain list-units "${SERVICE_UNITS[@]}"
+}
+
+run_daemon_reload() {
+  systemctl --user daemon-reload
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+complete_units() {
+  local cur="$1"
+
+  printf '%s\n' "${SERVICE_UNITS[@]}" | cli_complete_lines "$cur"
+}
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

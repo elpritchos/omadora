@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Returns a formatted weather status string with temperature and wind speed.
+
+STATE_FILE="$HOME/.local/state/omadora/weather/state.json"
+
+if [[ ! -f "$STATE_FILE" ]]; then
+  echo "Weather unavailable"
+  exit 0
+fi
+
+if ! jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null 2>&1; then
+  echo "Weather information invalid"
+  exit 0
+fi
+
+read -r icon city country temperature temp_unit wind wind_unit < <(
+  jq -r '
+    [
+      .weather.derived.icon,
+      .location.city,
+      .location.country,
+      .weather.current.temperature_2m,
+      .weather.current_units.temperature_2m,
+      .weather.current.wind_speed_10m,
+      .weather.current_units.wind_speed_10m
+    ] | @tsv
+  ' "$STATE_FILE"
+)
+
+echo "$icon    $city, $country · Temp ${temperature}${temp_unit} · Wind ${wind}${wind_unit}"

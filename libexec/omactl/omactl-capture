@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
+
+# shellcheck source=lib/common/cli.sh
+source "$OMADORA_LIB_DIR/common/cli.sh"
+
+# -----------------------------------------------------------------------------
+# CLI Definition
+# -----------------------------------------------------------------------------
+
+CLI_GROUP="capture"
+CLI_SUMMARY="Screen capture functions"
+
+CLI_NAMESPACES=()
+
+CLI_COMMANDS=(
+  "screenshot||Capture a screenshot|run_screenshot||"
+  "screenrecording||Start/stop a screen recording|run_screenrecording||"
+  "text-extraction||Extract text from a screenshot|run_text_extraction||"
+)
+
+# -----------------------------------------------------------------------------
+# Commands
+# -----------------------------------------------------------------------------
+
+run_screenshot() {
+  omadora_exec omadora-capture-screenshot "$@"
+}
+
+run_screenrecording() {
+  omadora_exec omadora-capture-screenrecording "$@"
+}
+
+run_text_extraction() {
+  omadora_exec omadora-capture-text-extraction "$@"
+}
+
+# -----------------------------------------------------------------------------
+# Completion
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Main
+# -----------------------------------------------------------------------------
+
+cli_main "$@"

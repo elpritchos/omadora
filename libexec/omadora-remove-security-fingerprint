@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Remove fingerprint authentication from sudo, polkit, and lock screen
+
+echo -e "\e[32mRemoving fingerprint authentication...\e[0m"
+
+sudo -v || exit 1
+
+echo
+echo -e "\e[32mRemoving fingerprints for $USER...\e[0m"
+sudo fprintd-delete "$USER"
+echo "Done."
+
+echo
+echo -e "\e[32mDisabling fingerprint authentication...\e[0m"
+sudo authselect disable-feature with-fingerprint
+sudo authselect apply-changes
+echo "Done."
+
+echo
+echo -e "\e[32mConfiguring hyprlock...\e[0m"
+sed -i 's/placeholder_text = .*/placeholder_text =   Locked/' "$HOME"/.config/hypr/hyprlock.conf
+sed -i 's/fingerprint:enabled = .*/fingerprint:enabled = false/' "$HOME"/.config/hypr/hyprlock.conf
+echo "Done."
+
+echo
+echo -e "\e[32mFingerprint authentication removed.\e[0m"

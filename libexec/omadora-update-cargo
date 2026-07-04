@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+require_cmd cargo
+
+cargo install-update --version >/dev/null 2>&1 ||
+  die "cargo install-update missing"
+
+info "Updating cargo packages"
+
+cargo install-update --all ||
+  die "failed to update cargo packages"
