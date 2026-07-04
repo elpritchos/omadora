@@ -50,6 +50,11 @@ Theme hot reload is provided by a forked version of the [Aether.nvim](https://gi
 
 You can use the default keybinding <kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>W</kbd>, or run `omactl toggle weather` to disable/enable the weather feature.
 
+## I can't see the login keyring?
+
+Try logging out and back in again.
+This should recreate the `login` keyring if it doesn't already exist in `~/.local/share/keyrings`.
+
 ## Where is the Omadora default plymouth theme from?
 
 The default plymouth theme installed is from the great theme collection at [adi1090x/plymouth-themes](https://github.com/adi1090x/plymouth-themes).
