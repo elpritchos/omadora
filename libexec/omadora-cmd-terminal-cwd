@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 
-active_pid="$(hyprctl activewindow -j | jq -r '.pid // empty')"
+active_window="$(hyprctl activewindow -j)"
+active_pid="$(jq -r '.pid // empty' <<<"$active_window")"
+active_class="$(jq -r '.class // empty' <<<"$active_window")"
 
 fallback() {
   printf '%s\n' "$HOME"
+  exit 0
 }
 
 [[ -n "$active_pid" ]] || fallback
+
+case "$active_class" in
+Alacritty | kitty | com.mitchellh.ghostty | foot) ;;
+*) fallback ;;
+esac
 
 # Find descendant processes of the terminal.
 mapfile -t pids < <(
