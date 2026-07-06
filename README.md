@@ -1,6 +1,6 @@
 # Omadora
 
-This is a minimal install of Hyprland for Fedora 43, based on the Omarchy implementation and patterns.
+This is a minimal install of Hyprland for Fedora 44, based on the Omarchy implementation and patterns.
 It provides a more stable release cycle with tested and curated packages.
 
 Omadora purposely does not include all the apps and features included with Omarchy, as it's intended to be a minimal install that provides core desktop functionality to allow users to build from.
@@ -14,7 +14,7 @@ Read more about Omarchy itself at [omarchy.org](https://omarchy.org).
 
 ## Installation
 
-Install the Fedora 43 Custom Operating System base install using the [Everything Network Installer](https://download.fedoraproject.org/pub/fedora/linux/releases/43/Everything).
+Install the Fedora 44 Custom Operating System base install using the [Everything Network Installer](https://download.fedoraproject.org/pub/fedora/linux/releases/44/Everything).
 Similar to Omarchy, it is recommended to use drive encryption, disable root, and add a privileged user.
 
 To install, run the following:

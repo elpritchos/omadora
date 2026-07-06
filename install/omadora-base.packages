@@ -26,7 +26,6 @@ fzf
 git
 gnome-calculator
 gnome-keyring-pam
-gnome-themes-extra
 gtk4-devel
 gum
 gvfs
