@@ -25,10 +25,10 @@ curl -fsSL https://raw.githubusercontent.com/elpritchos/omadora/master/boot.sh |
 
 Or install manually:
 
-Install git (`sudo dnf install -y git`) and clone this repo to the `~/.local/share/omadora` directory.
+Install git (`sudo dnf install -y git`) and shallow clone this repo to the `~/.local/share/omadora` directory.
 
 ```
-git clone https://github.com/elpritchos/omadora ~/.local/share/omadora
+git clone --depth 1 https://github.com/elpritchos/omadora ~/.local/share/omadora
 ```
 
 Run `~/.local/share/omadora/install.sh` to install.
