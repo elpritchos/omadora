@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Show a fuzzy-finder TUI for picking new Flatpak apps to install.
+
+require_cmd flatpak fzf
+
+list_available_flatpaks() {
+  (
+    flatpak remote-ls --system --app --columns=application,name,description,version,branch,origin 2>/dev/null ||
+      flatpak remote-ls --system --cached --app --columns=application,name,description,version,branch,origin 2>/dev/null
+  ) | sort -t $'\t' -k2,2f
+}
+
+format_flatpak_rows() {
+  awk -F '\t' -v OFS='\t' '{
+    display = sprintf("%-52.52s  %-18.18s  %s", $2, $4, $6)
+    print display, $1, $2, $3, $4, $5, $6
+  }'
+}
+
+fzf_args=(
+  --multi
+  --delimiter=$'\t'
+  --with-nth '1'
+  --preview 'flatpak remote-info --system --app {7} {2} 2>/dev/null || flatpak remote-info --system --cached --app {7} {2} 2>/dev/null || printf "No preview available for %s from %s\n" {2} {7}'
+  --preview-label='alt-p: toggle description, alt-j/k: scroll, tab: multi-select'
+  --preview-label-pos='bottom'
+  --preview-window 'down:65%:wrap'
+  --bind 'alt-p:toggle-preview'
+  --bind 'alt-d:preview-half-page-down,alt-u:preview-half-page-up'
+  --bind 'alt-k:preview-up,alt-j:preview-down'
+  --color 'pointer:green,marker:green'
+)
+
+selected_apps=$(list_available_flatpaks | format_flatpak_rows | fzf "${fzf_args[@]}")
+
+if [[ -n "$selected_apps" ]]; then
+  origins=()
+  app_ids=()
+
+  while IFS=$'\t' read -r _display app_id _name _description _version _branch origin; do
+    [[ -n "$app_id" ]] || continue
+    [[ -n "$origin" ]] || continue
+
+    app_ids+=("$app_id")
+
+    known_origin=0
+    for known in "${origins[@]}"; do
+      if [[ "$known" == "$origin" ]]; then
+        known_origin=1
+        break
+      fi
+    done
+
+    if ((known_origin == 0)); then
+      origins+=("$origin")
+    fi
+  done <<<"$selected_apps"
+
+  if ((${#app_ids[@]})); then
+    for origin in "${origins[@]}"; do
+      origin_app_ids=()
+
+      while IFS=$'\t' read -r _display app_id _name _description _version _branch app_origin; do
+        [[ "$app_origin" == "$origin" ]] || continue
+        origin_app_ids+=("$app_id")
+      done <<<"$selected_apps"
+
+      flatpak install --system "$origin" "${origin_app_ids[@]}" </dev/tty
+    done
+
+    omadora_run omadora-show-done
+  fi
+fi
