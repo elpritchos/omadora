@@ -128,26 +128,20 @@ theme_set_gnome() {
   local light_mode_file="${OMADORA_CURRENT_THEME_DIR}/light.mode"
   local icons_file="${OMADORA_CURRENT_THEME_DIR}/icons.theme"
 
-  local color_scheme
-  local gtk_theme
+  local gtk_theme="Adwaita"
+  local icon_theme="Yaru-blue"
+  local color_scheme="prefer-dark"
 
   if [[ -f "$light_mode_file" ]]; then
     color_scheme="prefer-light"
-    gtk_theme="Adwaita"
-  else
-    color_scheme="prefer-dark"
-    gtk_theme="Adwaita-dark"
   fi
-
-  gsettings set org.gnome.desktop.interface color-scheme "$color_scheme"
-  gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme"
-
-  local icon_theme="Yaru-blue"
 
   if [[ -f "$icons_file" ]]; then
     icon_theme="$(<"$icons_file")"
   fi
 
+  gsettings set org.gnome.desktop.interface color-scheme "$color_scheme"
+  gsettings set org.gnome.desktop.interface gtk-theme "$gtk_theme"
   gsettings set org.gnome.desktop.interface icon-theme "$icon_theme"
 }
 

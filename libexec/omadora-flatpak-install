@@ -17,7 +17,7 @@ list_available_flatpaks() {
 format_flatpak_rows() {
   awk -F '\t' -v OFS='\t' '{
     display = sprintf("%-52.52s  %-18.18s  %s", $2, $4, $6)
-    print display, $1, $2, $3, $4, $5, $6
+    print display, $1, $6
   }'
 }
 
@@ -25,7 +25,7 @@ fzf_args=(
   --multi
   --delimiter=$'\t'
   --with-nth '1'
-  --preview 'flatpak remote-info --system --app {7} {2} 2>/dev/null || flatpak remote-info --system --cached --app {7} {2} 2>/dev/null || printf "No preview available for %s from %s\n" {2} {7}'
+  --preview 'flatpak remote-info --system --app {3} {2} 2>/dev/null || flatpak remote-info --system --cached --app {3} {2} 2>/dev/null || printf "No preview available for %s from %s\n" {2} {3}'
   --preview-label='alt-p: toggle description, alt-j/k: scroll, tab: multi-select'
   --preview-label-pos='bottom'
   --preview-window 'down:65%:wrap'
@@ -41,7 +41,7 @@ if [[ -n "$selected_apps" ]]; then
   origins=()
   app_ids=()
 
-  while IFS=$'\t' read -r _display app_id _name _description _version _branch origin; do
+  while IFS=$'\t' read -r _display app_id origin; do
     [[ -n "$app_id" ]] || continue
     [[ -n "$origin" ]] || continue
 
@@ -64,7 +64,7 @@ if [[ -n "$selected_apps" ]]; then
     for origin in "${origins[@]}"; do
       origin_app_ids=()
 
-      while IFS=$'\t' read -r _display app_id _name _description _version _branch app_origin; do
+      while IFS=$'\t' read -r _display app_id app_origin; do
         [[ "$app_origin" == "$origin" ]] || continue
         origin_app_ids+=("$app_id")
       done <<<"$selected_apps"
