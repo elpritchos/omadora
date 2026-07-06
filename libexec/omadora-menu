@@ -346,8 +346,9 @@ show_setup_config_menu() {
 }
 
 show_install_menu() {
-  case $(menu "Install" "  Package\n  Web App\n  TUI\n  Style") in
+  case $(menu "Install" "  Package\n  Flatpak\n  Web App\n  TUI\n  Style") in
   *Package*) terminal "$OMADORA_LIBEXEC_DIR/omadora-pkg-install" ;;
+  *Flatpak*) terminal "$OMADORA_LIBEXEC_DIR/omadora-flatpak-install" ;;
   *Web*) present_omadora_terminal omadora-webapp-install ;;
   *TUI*) present_omadora_terminal omadora-tui-install ;;
   *Style*) show_install_style_menu ;;
@@ -372,8 +373,9 @@ show_install_style_menu() {
 }
 
 show_remove_menu() {
-  case $(menu "Remove" "  Package\n  Web App\n  TUI\n󰸌  Theme\n  Security") in
+  case $(menu "Remove" "  Package\n  Flatpak\n  Web App\n  TUI\n󰸌  Theme\n  Security") in
   *Package*) terminal "$OMADORA_LIBEXEC_DIR/omadora-pkg-remove" ;;
+  *Flatpak*) terminal "$OMADORA_LIBEXEC_DIR/omadora-flatpak-remove" ;;
   *Web*) present_omadora_terminal omadora-webapp-remove ;;
   *TUI*) present_omadora_terminal omadora-tui-remove ;;
   *Theme*) present_terminal "$(omadora_command omadora-theme-remove) \"\$($(omadora_command omadora-theme-list-user) | gum choose --header=\"Remove user theme:\")\"" ;;
