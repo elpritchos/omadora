@@ -9,8 +9,11 @@ abort() {
   esac
 }
 
-# Must be a Fedora distro
-[[ -f /etc/fedora-release ]] || abort "Fedora"
+# Must be Fedora 44
+[[ -f /etc/os-release ]] || abort "Fedora 44"
+# shellcheck source=/dev/null
+source /etc/os-release
+[[ "${ID:-}" == "fedora" && "${VERSION_ID:-}" == "44" ]] || abort "Fedora 44"
 
 # Must not be running as root
 if [ "$EUID" -eq 0 ]; then

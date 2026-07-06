@@ -50,6 +50,7 @@
 #network,
 #pulseaudio,
 #workspaces button {
+  color: @foreground;
   min-width: 2em;
   padding: 0;
 }
