@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+# shellcheck source=lib/common/init.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
+
+# Configure the system DNS provider
+
+DNS_CONF="/etc/systemd/resolved.conf.d/50-omadora-dns.conf"
+NETWORK_CONF="/etc/systemd/network/00-omadora-no-dhcp-dns.network"
+ROLLBACK_DNS_CONFIG=0
+PROFILES=(cloudflare google quad9 custom default)
+
+rollback_dns_config() {
+  local status=$?
+
+  ((ROLLBACK_DNS_CONFIG)) || exit "$status"
+  ROLLBACK_DNS_CONFIG=0
+
+  set +e
+
+  echo
+  info_heading "Restoring default DNS config after error..."
+  remove_managed_configs
+  restart_services
+
+  exit "$status"
+}
+
+restart_services() {
+  echo
+  info_heading "Restarting services..."
+  sudo systemctl restart systemd-networkd.service
+  sudo systemctl restart systemd-resolved.service
+}
+
+remove_managed_configs() {
+  sudo rm -f "$DNS_CONF" "$NETWORK_CONF"
+}
+
+write_network_conf() {
+  echo
+  info_heading "Writing network config..."
+
+  sudo install -d -m 0755 /etc/systemd/network
+
+  sudo tee "$NETWORK_CONF" <<'EOF'
+# Managed by Omadora.
+# Prevents DHCP and IPv6 Router Advertisements from overriding Omadora DNS.
+# Use the Omadora DNS setup to restore system defaults.
+
+[Match]
+Name=en* eth* wl* wlan*
+
+[Network]
+DHCP=yes
+IPv6AcceptRA=yes
+
+[DHCPv4]
+UseDNS=no
+
+[DHCPv6]
+UseDNS=no
+
+[IPv6AcceptRA]
+UseDNS=no
+EOF
+}
+
+write_resolved_conf() {
+  local label="$1"
+  local dns_servers="$2"
+  local fallback_servers="$3"
+  local dns_over_tls="${4:-}"
+
+  echo
+  info_heading "Writing $label DNS config..."
+
+  ROLLBACK_DNS_CONFIG=1
+  sudo install -d -m 0755 /etc/systemd/resolved.conf.d
+
+  {
+    cat <<'EOF'
+# Managed by Omadora.
+# Use the Omadora DNS setup to restore system defaults.
+
+[Resolve]
+EOF
+    printf 'DNS=%s\n' "$dns_servers"
+    printf 'FallbackDNS=%s\n' "$fallback_servers"
+
+    if [[ -n $dns_over_tls ]]; then
+      printf 'DNSOverTLS=%s\n' "$dns_over_tls"
+    fi
+  } | sudo tee "$DNS_CONF"
+}
+
+configure_profile() {
+  local profile="$1"
+  local label
+  local dns_servers
+  local fallback_servers
+  local dns_over_tls=yes
+
+  case "$profile" in
+  cloudflare)
+    label="Cloudflare"
+    dns_servers="1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com"
+    fallback_servers="9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net"
+    ;;
+  google)
+    label="Google"
+    dns_servers="8.8.8.8#dns.google 8.8.4.4#dns.google 2001:4860:4860::8888#dns.google 2001:4860:4860::8844#dns.google"
+    fallback_servers="9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net"
+    ;;
+  quad9)
+    label="Quad9"
+    dns_servers="9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net"
+    fallback_servers="1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com"
+    ;;
+
+  custom)
+    label="custom"
+    fallback_servers="9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net"
+    dns_over_tls=""
+
+    echo "Enter your DNS servers (space-separated, e.g. '192.168.1.1 1.1.1.1'):"
+    read -r dns_servers || die "no DNS servers provided"
+    [[ -n $dns_servers ]] || die "no DNS servers provided"
+    ;;
+
+  default)
+    echo
+    info_heading "Restoring default DNS config..."
+    remove_managed_configs
+    restart_services
+    return
+    ;;
+
+  *)
+    die "unknown DNS profile: $profile"
+    ;;
+  esac
+
+  write_resolved_conf "$label" "$dns_servers" "$fallback_servers" "$dns_over_tls"
+  write_network_conf
+  restart_services
+}
+
+info_heading "Setting up system DNS provider."
+
+sudo -v || exit 1
+trap rollback_dns_config ERR
+
+profile=${1:-}
+
+if [[ -z $profile ]]; then
+  require_cmd gum
+  profile=$(gum choose --height 6 --header "Select DNS provider" "${PROFILES[@]}") || die "no DNS profile selected"
+fi
+
+if [[ -z $profile ]]; then
+  die "no DNS profile selected"
+fi
+
+configure_profile "$profile"
+ROLLBACK_DNS_CONFIG=0
+trap - ERR
+
+echo
+info_heading "System DNS provider configured."
