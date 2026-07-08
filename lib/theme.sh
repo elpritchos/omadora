@@ -128,12 +128,13 @@ theme_set_gnome() {
   local light_mode_file="${OMADORA_CURRENT_THEME_DIR}/light.mode"
   local icons_file="${OMADORA_CURRENT_THEME_DIR}/icons.theme"
 
-  local gtk_theme="Adwaita"
+  local gtk_theme="adw-gtk3-dark"
   local icon_theme="Yaru-blue"
   local color_scheme="prefer-dark"
 
   if [[ -f "$light_mode_file" ]]; then
     color_scheme="prefer-light"
+    gtk_theme="adw-gtk3"
   fi
 
   if [[ -f "$icons_file" ]]; then

@@ -4,6 +4,8 @@ sudo flatpak remote-add --system --if-not-exists flathub https://dl.flathub.org/
 # Install default flatpaks
 sudo flatpak install --system --noninteractive -y flathub com.dec05eba.gpu_screen_recorder
 sudo flatpak install --system --noninteractive -y flathub org.localsend.localsend_app
+sudo flatpak install --system --noninteractive -y flathub org.gtk.Gtk3theme.adw-gtk3
+sudo flatpak install --system --noninteractive -y flathub org.gtk.Gtk3theme.adw-gtk3-dark
 
 # Add flatpak overrides
 flatpak override --user --filesystem=home --filesystem=/tmp/localsend org.localsend.localsend_app
