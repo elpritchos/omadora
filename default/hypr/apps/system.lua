@@ -11,8 +11,14 @@ o.window({
 o.window("org.gnome.Calculator", { float = true })
 
 -- Screen saver should always cover the screen and not be tiled.
--- TODO: confirm against old
-o.window("org.omadora.screensaver", { fullscreen = true, float = true, animation = "slide" })
+o.window("org.omadora.screensaver", {
+  fullscreen = true,
+  float = true,
+  no_anim = true,
+  border_size = 0,
+  no_shadow = true,
+  decorate = false,
+})
 
 -- Media/image/video apps should be opaque.
 o.window(

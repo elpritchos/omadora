@@ -1,7 +1,5 @@
 -- Menus.
 o.bind("SUPER + SPACE", "Launch apps", o.libexec("omadora-menu apps"))
--- Not in utilities.conf; keep visible for review.
--- o.bind("SUPER + CTRL + E", "Emoji picker", { omarchy = "walker -m symbols" })
 o.bind("SUPER + CTRL + C", "Capture menu", o.libexec("omadora-menu capture"))
 o.bind("SUPER + CTRL + O", "Toggle menu", o.libexec("omadora-menu toggle"))
 o.bind("SUPER + CTRL + H", "Hardware menu", o.libexec("omadora-menu hardware"))
@@ -10,18 +8,11 @@ o.bind("SUPER + SHIFT + code:201", "Omadora menu", o.libexec("omadora-menu"))
 o.bind("SUPER + ESCAPE", "System menu", o.libexec("omadora-menu system"))
 o.bind("XF86PowerOff", "Power menu", o.libexec("omadora-menu system"), { locked = true })
 o.bind("SUPER + K", "Show key bindings", o.libexec("omadora-menu-keybindings"))
--- Not in utilities.conf; keep visible for review.
--- o.bind("SUPER + ALT + K", "Show Tmux key bindings", "omarchy-menu-tmux-keybindings")
+o.bind("SUPER + ALT + K", "Show Tmux key bindings", o.libexec("omadora-menu-tmux-keybindings"))
 o.bind("XF86Calculator", "Calculator", "gnome-calculator")
 
 -- Aesthetics.
-o.bind("SUPER + SHIFT + SPACE", "Toggle top bar", o.libexec("omadora-toggle-waybar"))
--- Not in utilities.conf; keep visible for review.
--- o.bind("SUPER + SHIFT + CTRL + UP", "Move Waybar to top", "omarchy-style-waybar-position top")
--- o.bind("SUPER + SHIFT + CTRL + DOWN", "Move Waybar to bottom", "omarchy-style-waybar-position bottom")
--- o.bind("SUPER + SHIFT + CTRL + LEFT", "Move Waybar to left", "omarchy-style-waybar-position left")
--- o.bind("SUPER + SHIFT + CTRL + RIGHT", "Move Waybar to right", "omarchy-style-waybar-position right")
--- Omarchy used this binding for a background switcher menu; utilities.conf cycles to the next background.
+o.bind("SUPER + SHIFT + SPACE", "Toggle top bar", "omactl ui toggle waybar")
 o.bind("SUPER + CTRL + SPACE", "Next theme background", o.libexec("omadora-theme-bg-next"))
 o.bind("SUPER + SHIFT + CTRL + SPACE", "Theme menu", o.libexec("omadora-menu theme"))
 o.bind(
@@ -89,9 +80,12 @@ o.bind(
   "Extract text (OCR) from screenshot",
   o.libexec("omadora-capture-text-extraction")
 )
--- Not in utilities.conf; keep visible for review.
 o.bind("SUPER + CTRL + S", "Share", o.libexec("omadora-menu share"))
--- o.bind("SUPER + CTRL + PERIOD", "Transcode", "omarchy-transcode")
+o.bind(
+  "SUPER + CTRL + PERIOD",
+  "Transcode",
+  o.libexec("omadora-launch-floating-terminal-with-presentation omadora-exec omadora-transcode")
+)
 
 -- Reminders.
 o.bind("SUPER + CTRL + R", "Set reminder", o.libexec("omadora-menu reminder-set"))
@@ -119,16 +113,17 @@ o.bind(
 o.bind("SUPER + CTRL + A", "Audio controls", o.libexec("omadora-launch-audio"))
 o.bind("SUPER + CTRL + B", "Bluetooth controls", o.libexec("omadora-launch-bluetooth"))
 o.bind("SUPER + CTRL + W", "Wifi controls", o.libexec("omadora-launch-wifi"))
--- Omarchy launched a btop TUI here; utilities.conf launches Omadora's system monitor.
 o.bind("SUPER + CTRL + T", "Activity", o.libexec("omadora-launch-system-monitor"))
 
 -- Zoom.
-o.bind(
-  "SUPER + CTRL + Z",
-  "Zoom in",
-  "hyprctl keyword cursor:zoom_factor $(hyprctl getoption cursor:zoom_factor -j | jq '.float + 1')"
-)
-o.bind("SUPER + CTRL + ALT + Z", "Reset zoom", "hyprctl keyword cursor:zoom_factor 1")
+o.bind("SUPER + CTRL + Z", "Zoom in", function()
+  local zoom = hl.get_config("cursor.zoom_factor") or 1
+  hl.config({ cursor = { zoom_factor = zoom + 1 } })
+end)
+
+o.bind("SUPER + CTRL + ALT + Z", "Reset zoom", function()
+  hl.config({ cursor = { zoom_factor = 1 } })
+end)
 
 -- Lock system.
 o.bind("SUPER + CTRL + L", "Lock system", o.libexec("omadora-system-lock"))
