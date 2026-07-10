@@ -20,6 +20,7 @@ CLI_COMMANDS=(
   "edit|<component>|Edit config|run_edit|complete_edit_components|"
   "reload|<component>|Reload config|run_reload|complete_reload_components|"
   "restore|<component>|Restore config|run_restore|complete_restore_components|"
+  "restore-path|<path>|Restore config by path|run_restore_path|complete_restore_paths|"
 )
 
 #  name | user config path | config reload script | config restore script
@@ -115,6 +116,10 @@ run_restore() {
   run_component_command "$component" restore "$command"
 }
 
+run_restore_path() {
+  omadora_exec omadora-refresh-config "$@"
+}
+
 # -----------------------------------------------------------------------------
 # Completion
 # -----------------------------------------------------------------------------
@@ -157,6 +162,15 @@ complete_restore_components() {
   local cur="$1"
 
   complete_components_for_action restore "$cur"
+}
+
+complete_restore_paths() {
+  local cur="$1"
+  local file
+
+  while IFS= read -r file; do
+    printf '%s\n' "${file#"$OMADORA_ROOT/config/"}"
+  done < <(find "$OMADORA_ROOT/config" -type f | sort) | cli_complete_lines "$cur"
 }
 
 # -----------------------------------------------------------------------------

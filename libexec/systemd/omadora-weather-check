@@ -313,6 +313,13 @@ compile_output() {
 }
 
 # ---------------------------------------
+# Waybar
+# ---------------------------------------
+waybar_module_refresh() {
+  pkill -RTMIN+11 waybar
+}
+
+# ---------------------------------------
 # Main
 # ---------------------------------------
 info 'Starting weather check...'
@@ -362,5 +369,8 @@ fi
 
 info 'Writing state...'
 printf '%s' "$compiled" >"$STATE_FILE"
+
+waybar_module_refresh ||
+  debug "Failed to update Waybar module"
 
 info 'Finished weather check.'

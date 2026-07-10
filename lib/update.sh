@@ -115,7 +115,6 @@ update_collect_dnf() {
 }
 
 update_collect_cargo() {
-
   if ! has_cmd cargo; then
     with_errors=true
     return 1
@@ -145,18 +144,24 @@ update_collect_flatpak() {
     return 1
   fi
 
-  if ! flatpak remote-ls \
-    --updates \
-    --columns=ref \
-    2>/dev/null \
-    >"$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST"; then
-    with_errors=true
-    return 1
+  if ! output="$(printf 'n\n' | LC_ALL=C flatpak update 2>&1)"; then
+    if ! grep -Eq '^[[:space:]]*[0-9]+[.)][[:space:]]' <<<"$output"; then
+      with_errors=true
+      return 1
+    fi
   fi
 
+  awk '
+    /^[[:space:]]*[0-9]+[.)][[:space:]]/ {
+      line = $0
+      sub(/^[[:space:]]*[0-9]+[.)][[:space:]]*/, "", line)
+      sub(/^\[[^]]+\][[:space:]]*/, "", line)
+      print line
+    }
+  ' <<<"$output" >"$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST"
+
   flatpak_total="$(
-    grep -cE '^[a-zA-Z0-9._-]+/.+/.+/.+$' \
-      "$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST" ||
+    grep -cve '^[[:space:]]*$' "$OMADORA_UPDATE_FLATPAK_UPGRADES_LIST" ||
       true
   )"
 }

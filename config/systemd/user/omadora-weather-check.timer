@@ -4,10 +4,10 @@ PartOf=omadora-session.target
 ConditionPathExists=!%h/.local/state/omadora/toggles/weather-check-off
 
 [Timer]
-OnBootSec=30s
-OnUnitActiveSec=5min
-AccuracySec=30s
+OnActiveSec=5s
+OnUnitActiveSec=5m
 RandomizedDelaySec=15s
+AccuracySec=1s
 
 [Install]
 WantedBy=omadora-session.target
