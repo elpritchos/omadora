@@ -40,7 +40,7 @@ cleanup() {
     kill "$sudo_pid" 2>/dev/null || true
   fi
 
-  hyprctl dispatch tagwindow -- -noidle >/dev/null 2>&1 || true
+  hyprctl dispatch 'hl.dsp.window.tag({ tag = "-noidle" })' &>/dev/null || hyprctl dispatch tagwindow -- -noidle &>/dev/null || true
 
   state_clear "update-running" || true
 
@@ -56,7 +56,7 @@ update_perform() {
 
   state_set "update-running"
 
-  hyprctl dispatch tagwindow +noidle >/dev/null 2>&1 || true
+  hyprctl dispatch 'hl.dsp.window.tag({ tag = "+noidle" })' &>/dev/null || hyprctl dispatch tagwindow +noidle &>/dev/null || true
 
   info_heading "Updating git..."
   "$OMADORA_LIBEXEC_DIR/omadora-update-git"

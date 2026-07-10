@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Launch Files in the active terminal's current directory
+
+exec setsid uwsm-app -- nautilus --new-window "$(omadora-exec omadora-cmd-terminal-cwd)"

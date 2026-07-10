@@ -81,7 +81,7 @@ run_terminal() {
 }
 
 run_terminal_cwd() {
-  exec uwsm-app -- xdg-terminal-exec --dir="$(omadora_run omadora-cmd-terminal-cwd)" "$@"
+  omadora_exec omadora-launch-terminal "$@"
 }
 
 run_file_explorer() {

@@ -31,7 +31,7 @@ CONFIG_COMPONENTS=(
 
   "tmux|tmux/tmux.conf|omadora-restart-tmux|omadora-refresh-tmux"
 
-  "hyprland|hypr/hyprland.conf|omadora-restart-hyprctl|omadora-refresh-hyprland"
+  "hyprland|hypr/hyprland.lua|omadora-restart-hyprctl|omadora-refresh-hyprland"
   "hypridle|hypr/hypridle.conf|omadora-restart-hypridle|omadora-refresh-hypridle"
   "hyprlock|hypr/hyprlock.conf||omadora-refresh-hyprlock"
   "hyprsunset|hypr/hyprsunset.conf|omadora-restart-hyprsunset|omadora-refresh-hyprsunset"

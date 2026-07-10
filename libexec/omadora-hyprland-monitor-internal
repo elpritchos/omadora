@@ -6,25 +6,26 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 # Enable, disable, toggle, or recover the internal laptop display
 
 TOGGLE="internal-monitor-disable"
-TOGGLE_FLAG="$HOME/.local/state/omadora/toggles/hypr/$TOGGLE.conf"
+TOGGLE_FLAG="$HOME/.local/state/omadora/toggles/hypr/$TOGGLE.lua"
 MIRROR_TOGGLE="internal-monitor-mirror"
 
 # Get internal monitor name dynamically
 INTERNAL=$(hyprctl monitors -j | jq -r '.[] | select(.name | contains("eDP")).name' | head -n 1)
 
-enable() {
+on() {
   if omadora_run omadora-hyprland-toggle-enabled "$TOGGLE"; then
-    omadora_run omadora-hyprland-toggle --disabled-notification "󰍹    Laptop display enabled" "$TOGGLE"
+    omadora_run omadora-hyprland-toggle "$TOGGLE" off
+    notify-send -u low "󰍹    Laptop display enabled"
   fi
 }
 
-disable() {
+off() {
   if ! omadora_run omadora-hw-external-monitors; then
     notify-send -u low "󰍹    Can't disable the only active display"
     exit 1
   fi
   if omadora_run omadora-hyprland-toggle-disabled "$TOGGLE" && omadora_run omadora-hyprland-toggle-disabled "$MIRROR_TOGGLE"; then
-    echo "monitor=$INTERNAL,disable" >"$TOGGLE_FLAG"
+    printf 'hl.monitor({ output = "%s", disabled = true })\n' "$INTERNAL" >"$TOGGLE_FLAG"
     notify-send -u low "󰍹    Laptop display disabled"
     hyprctl reload
   fi
@@ -32,14 +33,14 @@ disable() {
 
 recover() {
   if ! omadora_run omadora-hw-external-monitors && omadora_run omadora-hyprland-toggle-enabled "$TOGGLE"; then
-    omadora_run omadora-hyprland-toggle "$TOGGLE"
+    omadora_run omadora-hyprland-toggle "$TOGGLE" off
   fi
 }
 
 case "$1" in
-on) enable ;;
-off) disable ;;
-toggle) if omadora_run omadora-hyprland-toggle-enabled "$TOGGLE"; then enable; else disable; fi ;;
+on) on ;;
+off) off ;;
+toggle) if omadora_run omadora-hyprland-toggle-enabled "$TOGGLE"; then on; else off; fi ;;
 recover) recover ;;
 *)
   echo "Usage: $(basename "$0") {on|off|toggle|recover}" >&2
