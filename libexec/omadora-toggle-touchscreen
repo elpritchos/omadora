@@ -5,7 +5,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # Enable, disable, or toggle the touch functionality of the screen
 
-STATE_CONF="$HOME/.local/state/omadora/toggles/hypr/touchscreen-disabled.lua"
+STATE_FILE="$HOME/.local/state/omadora/toggles/hypr/touchscreen-disabled.lua"
 
 device="$(omadora_run omadora-hw-touchscreen)"
 
@@ -16,13 +16,13 @@ fi
 
 enable() {
   hyprctl eval "hl.device({ name = \"$device\", enabled = true })" >/dev/null
-  rm -f "$STATE_CONF"
+  rm -f "$STATE_FILE"
   notify-send -u low "󰆽    Touchscreen enabled"
 }
 
 disable() {
   hyprctl eval "hl.device({ name = \"$device\", enabled = false })" >/dev/null
-  mkdir -p "$(dirname "$STATE_CONF")"
+  mkdir -p "$(dirname "$STATE_FILE")"
   printf 'hl.device({ name = "%s", enabled = false })\n' "$device" >"$STATE_FILE"
   notify-send -u low "󰆽    Touchscreen disabled"
 }
@@ -30,5 +30,5 @@ disable() {
 case "${1:-toggle}" in
 on) enable ;;
 off) disable ;;
-toggle) if [[ -f $STATE_CONF ]]; then enable; else disable; fi ;;
+toggle) if [[ -f $STATE_FILE ]]; then enable; else disable; fi ;;
 esac

@@ -5,7 +5,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # Enable, disable, or toggle the touchpad
 
-STATE_CONF="$HOME/.local/state/omadora/toggles/hypr/touchpad-disabled.lua"
+STATE_FILE="$HOME/.local/state/omadora/toggles/hypr/touchpad-disabled.lua"
 
 device="$(omadora_run omadora-hw-touchpad)"
 
@@ -16,7 +16,7 @@ fi
 
 enable() {
   hyprctl eval "hl.device({ name = \"$device\", enabled = true })" >/dev/null
-  rm -f "$STATE_CONF"
+  rm -f "$STATE_FILE"
   notify-send -u low "󰟸    Touchpad enabled"
 }
 
@@ -30,5 +30,5 @@ disable() {
 case "${1:-toggle}" in
 on) enable ;;
 off) disable ;;
-toggle) if [[ -f $STATE_CONF ]]; then enable; else disable; fi ;;
+toggle) if [[ -f $STATE_FILE ]]; then enable; else disable; fi ;;
 esac
