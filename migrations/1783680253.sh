@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+migration_log="$HOME/omadora-lua-migration.log"
+exec > >(tee -a "$migration_log") 2>&1
+
+echo "Logging migration output to: $migration_log"
+echo "Starting Hyprland Lua migration at $(date -Is)"
 echo "Migrate Hyprland user config from Hyprlang to Lua..."
 
 hypr_config_dir="$HOME/.config/hypr"
@@ -138,6 +143,24 @@ for conf_toggle in "$toggle_state_dir"/*.conf; do
   toggle_backups+=("$(backup_move "$conf_toggle")")
 done
 
+echo
+echo "Reapply current theme to generate updated theme configuration..."
+current_theme=$("$OMADORA_PATH/libexec/omadora-theme-current" 2>/dev/null || true)
+
+if [[ -n $current_theme ]] && "$OMADORA_PATH/libexec/omadora-theme-set" "$current_theme"; then
+  echo "Reapplied current theme: $current_theme"
+else
+  if [[ -n $current_theme ]]; then
+    echo "Warning: failed to reapply current theme '$current_theme'. Falling back to Rose Pine Darker." >&2
+  else
+    echo "Warning: no current theme was found. Falling back to Rose Pine Darker." >&2
+  fi
+
+  if ! "$OMADORA_PATH/libexec/omadora-theme-set" "Rose Pine Darker"; then
+    echo "Warning: failed to apply fallback theme 'Rose Pine Darker'. Continuing the migration; reapply a theme manually afterward." >&2
+  fi
+fi
+
 if ((${#lua_backups[@]})); then
   echo
   echo "Existing Lua configs were replaced with new Omadora defaults and backed up:"
@@ -159,3 +182,4 @@ fi
 sudo touch /run/reboot-required
 
 echo "Hyprland must be restarted to switch from hyprland.conf to hyprland.lua. Log out and back in, or reboot when ready."
+echo "Completed Hyprland Lua migration at $(date -Is)"
