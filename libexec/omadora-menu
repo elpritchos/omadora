@@ -251,7 +251,7 @@ show_style_menu() {
   *Theme*) show_theme_menu ;;
   *"Terminal Font"*) show_font_menu ;;
   *Background*) omadora_run omadora-theme-bg-next ;;
-  *Hyprland*) open_in_editor ~/.config/hypr/looknfeel.conf ;;
+  *Hyprland*) open_in_editor ~/.config/hypr/looknfeel.lua ;;
   *Screensaver*) show_screensaver_menu ;;
   *About*) show_about_menu ;;
   *) show_main_menu ;;
@@ -296,8 +296,8 @@ show_font_menu() {
 
 show_setup_menu() {
   local options="  Audio\n  Wifi\n󰂯  Bluetooth\n󱐋  Power Profile\n󰍹  Monitors"
-  [ -f ~/.config/hypr/bindings.conf ] && options="$options\n  Keybindings"
-  [ -f ~/.config/hypr/input.conf ] && options="$options\n󰍽  Input"
+  [ -f ~/.config/hypr/bindings.lua ] && options="$options\n  Keybindings"
+  [ -f ~/.config/hypr/input.lua ] && options="$options\n󰍽  Input"
   options="$options\n󰱔  DNS\n  Security\n  Config"
 
   case $(menu "Setup" "$options") in
@@ -305,9 +305,9 @@ show_setup_menu() {
   *Wifi*) omadora_run omadora-launch-wifi ;;
   *Bluetooth*) omadora_run omadora-launch-bluetooth ;;
   *Power*) show_setup_power_menu ;;
-  *Monitors*) open_in_editor ~/.config/hypr/monitors.conf ;;
-  *Keybindings*) open_in_editor ~/.config/hypr/bindings.conf ;;
-  *Input*) open_in_editor ~/.config/hypr/input.conf ;;
+  *Monitors*) open_in_editor ~/.config/hypr/monitors.lua ;;
+  *Keybindings*) open_in_editor ~/.config/hypr/bindings.lua ;;
+  *Input*) open_in_editor ~/.config/hypr/input.lua ;;
   *DNS*) present_omadora_terminal omadora-setup-dns ;;
   *Security*) show_setup_security_menu ;;
   *Config*) show_setup_config_menu ;;
@@ -335,7 +335,7 @@ show_setup_security_menu() {
 
 show_setup_config_menu() {
   case $(menu "Setup" "  Hyprland\n  Hypridle\n  Hyprlock\n  Hyprsunset\n󰌧  Wofi\n󰍜  Waybar\n󰞅  XCompose") in
-  *Hyprland*) open_in_editor ~/.config/hypr/hyprland.conf ;;
+  *Hyprland*) open_in_editor ~/.config/hypr/hyprland.lua ;;
   *Hypridle*) open_in_editor ~/.config/hypr/hypridle.conf && omadora_run omadora-restart-hypridle ;;
   *Hyprlock*) open_in_editor ~/.config/hypr/hyprlock.conf ;;
   *Hyprsunset*) open_in_editor ~/.config/hypr/hyprsunset.conf && omadora_run omadora-restart-hyprsunset ;;

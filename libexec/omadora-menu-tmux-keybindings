@@ -233,19 +233,3 @@ if [[ $print_only == "true" ]]; then
 else
   output_keybindings | omadora_run omadora-launch-wofi --dmenu -p 'Search Tmux keybindings…'
 fi
-
-#records=$(output_keybindings)
-#
-#if [[ -z $WAYLAND_DISPLAY ]] || omarchy-cmd-missing walker; then
-#  printf '%s\n' "$records"
-#  exit 0
-#fi
-#
-#monitor_height=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused == true) | .height' 2>/dev/null)
-#
-#if [[ ! $monitor_height =~ ^[0-9]+$ ]] || ((monitor_height <= 0)); then
-#  monitor_height=900
-#fi
-#
-#menu_height=$((monitor_height * 40 / 100))
-#printf '%s\n' "$records" | walker --dmenu -p 'Tmux keybindings' --width 800 --height "$menu_height" >/dev/null

@@ -7,7 +7,26 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 # shellcheck source=lib/theme.sh
 source "$OMADORA_LIB_DIR/theme.sh"
 
-url="${1:-}"
+yes=false
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+  -y | --yes)
+    yes=true
+    shift
+    ;;
+  -*)
+    die "unknown option $1"
+    ;;
+  *)
+    [[ -z "${url:-}" ]] || die "unexpected argument $1"
+    url="$1"
+    shift
+    ;;
+  esac
+done
+
+url="${url:-}"
 
 [[ -n "$url" ]] || {
   die "missing theme repository URL"
@@ -19,6 +38,24 @@ theme_name="$(
 )"
 
 theme_path="$OMADORA_USER_THEMES_DIR/$theme_name"
+
+if [[ "$yes" != true ]]; then
+  cat <<'EOF'
+
++---------------------------------------------------------------------+
+| Warning: third-party theme install                                  |
++---------------------------------------------------------------------+
+| Themes can include files that run commands on your computer.        |
+| Only install from trusted repositories, and verify the files first. |
++---------------------------------------------------------------------+
+
+EOF
+
+  confirm "Install third-party theme '$theme_name'?" || {
+    info "Theme install cancelled."
+    exit 0
+  }
+fi
 
 info "Installing theme: $theme_name"
 

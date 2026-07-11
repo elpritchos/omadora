@@ -107,7 +107,7 @@ confirm() {
   is_interactive || return 1
 
   if has_cmd gum; then
-    gum confirm "$prompt"
+    gum confirm --default=false "$prompt"
     return $?
   fi
 

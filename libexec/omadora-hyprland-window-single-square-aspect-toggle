@@ -5,7 +5,7 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/common/init.sh"
 
 # Toggle single-window square aspect ratio.
 
-omadora_run omadora-hyprland-toggle \
-  --enabled-notification "    Enable single-window square aspect ratio" \
-  --disabled-notification "    Disable single-window square aspect ratio" \
-  single-window-aspect-ratio
+case $(omadora_run omadora-hyprland-toggle single-window-aspect-ratio) in
+on) notify-send -u low "    Enable single-window square aspect ratio" ;;
+off) notify-send -u low "    Disable single-window square aspect ratio" ;;
+esac

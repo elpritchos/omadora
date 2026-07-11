@@ -5,5 +5,5 @@
 if pgrep -x wofi >/dev/null; then
   pkill -x wofi
 else
-  hyprctl dispatch killactive
+  hyprctl dispatch 'hl.dsp.window.close()' || hyprctl dispatch killactive
 fi

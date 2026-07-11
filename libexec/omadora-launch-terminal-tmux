@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Launch or attach to the Work tmux session in a terminal
+
+omadora-exec omadora-launch-terminal bash -c "tmux attach || tmux new -s Work"

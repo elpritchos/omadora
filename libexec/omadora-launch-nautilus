@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Launch Files
+
+exec setsid uwsm-app -- nautilus --new-window
