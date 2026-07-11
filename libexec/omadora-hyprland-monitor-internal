@@ -25,6 +25,7 @@ off() {
     exit 1
   fi
   if omadora_run omadora-hyprland-toggle-disabled "$TOGGLE" && omadora_run omadora-hyprland-toggle-disabled "$MIRROR_TOGGLE"; then
+    mkdir -p "$(dirname "$TOGGLE_FLAG")"
     printf 'hl.monitor({ output = "%s", disabled = true })\n' "$INTERNAL" >"$TOGGLE_FLAG"
     notify-send -u low "󰍹    Laptop display disabled"
     hyprctl reload

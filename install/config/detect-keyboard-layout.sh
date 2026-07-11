@@ -6,9 +6,9 @@ layout=$(localectl status | awk -F: '/X11 Layout/ {gsub(/ /,"",$2); print $2}')
 variant=$(localectl status | awk -F: '/X11 Variant/ {gsub(/ /,"",$2); print $2}')
 
 if [[ -n "$layout" ]]; then
-  sed -i "/^[[:space:]]*kb_options *=/i\  kb_layout = $layout" "$hyprlua"
+  sed -i "/^[[:space:]]*kb_options *=/i\    kb_layout = \"$layout\"," "$hyprlua"
 fi
 
 if [[ -n "$variant" ]]; then
-  sed -i "/^[[:space:]]*kb_options *=/i\  kb_variant = $variant" "$hyprlua"
+  sed -i "/^[[:space:]]*kb_options *=/i\    kb_variant = \"$variant\"," "$hyprlua"
 fi

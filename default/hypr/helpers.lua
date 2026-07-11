@@ -110,7 +110,7 @@ function o.bind_menu(keys, description, menu, options)
   o.bind(
     keys,
     description,
-    menu and ("omaodra-exec omadora-menu " .. menu) or "omadora-exec omadora-menu",
+    menu and ("omadora-exec omadora-menu " .. menu) or "omadora-exec omadora-menu",
     options
   )
 end
