@@ -22,6 +22,7 @@ hl.unbind("SUPER + W")
 hl.unbind("SUPER + T")
 hl.unbind("SUPER + F")
 hl.unbind("SUPER + SHIFT + F")
+hl.unbind("SUPER + ALT + K")
 
 o.bind("SUPER + H", "Focus on left window", hl.dsp.focus({ direction = "l" }))
 o.bind("SUPER + L", "Focus on right window", hl.dsp.focus({ direction = "r" }))
@@ -34,6 +35,11 @@ o.bind("SUPER + SHIFT + J", "Swap window down", hl.dsp.window.swap({ direction =
 
 o.bind("SUPER + Q", "Close window", o.libexec("omadora-hyprland-window-killactive"))
 o.bind("SUPER + CTRL + K", "Show key bindings", o.libexec("omadora-menu-keybindings"))
+o.bind(
+  "SUPER + CTRL + ALT + K",
+  "Show Tmux key bindings",
+  o.libexec("omadora-menu-tmux-keybindings")
+)
 o.bind("SUPER + V", "Toggle window split", hl.dsp.layout("togglesplit"))
 o.bind("SUPER + F", "Toggle window floating/tiling", hl.dsp.window.float({ action = "toggle" }))
 o.bind("SUPER + SHIFT + F", "Full screen", hl.dsp.window.fullscreen({ mode = "fullscreen" }))
