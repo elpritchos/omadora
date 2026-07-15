@@ -1,8 +1,6 @@
 /* Colors are defined by theme file and can be referenced via @base, @text, @selected-text, and @border */
-@import ".config/omadora/current/theme/wofi.css";
-
 * {
-  font-family: 'Adwaita Sans', 'JetBrainsMono Nerd Font';
+  font-family: "Adwaita Sans", "JetBrainsMono Nerd Font";
   font-size: 11pt;
 }
 
@@ -52,3 +50,5 @@ window {
 #entry:selected #img {
   opacity: 1;
 }
+
+@import ".config/omadora/current/theme/wofi.css";
