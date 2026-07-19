@@ -94,19 +94,58 @@
     "format-alt": "{icon}   {text}",
     "format-icons": {
       "unknown": "󰖐",
-      "clear": ["", ""],
-      "cloudy": ["", ""],
-      "fog": ["", ""],
-      "drizzle": ["", ""],
-      "freezing_drizzle": [" ", " "],
-      "rain": ["", ""],
-      "freezing_rain": [" ", " "],
-      "showers": ["", ""],
-      "snow": ["", ""],
-      "snow_grains": ["", ""],
-      "snow_showers": ["", ""],
-      "thunderstorm": ["", ""],
-      "severe_thunderstorm": [" ", " "]
+      "clear": [
+        "",
+        ""
+      ],
+      "cloudy": [
+        "",
+        ""
+      ],
+      "fog": [
+        "",
+        ""
+      ],
+      "drizzle": [
+        "",
+        ""
+      ],
+      "freezing_drizzle": [
+        " ",
+        " "
+      ],
+      "rain": [
+        "",
+        ""
+      ],
+      "freezing_rain": [
+        " ",
+        " "
+      ],
+      "showers": [
+        "",
+        ""
+      ],
+      "snow": [
+        "",
+        ""
+      ],
+      "snow_grains": [
+        "",
+        ""
+      ],
+      "snow_showers": [
+        "",
+        ""
+      ],
+      "thunderstorm": [
+        "",
+        ""
+      ],
+      "severe_thunderstorm": [
+        " ",
+        " "
+      ]
     },
     "tooltip": true
   },
