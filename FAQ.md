@@ -10,7 +10,7 @@ During the install Network Manager will be completely removed and replaced with 
 
 After installation, use `iwctl` or the Wiremix TUI to reconnect to your WiFi network as usual.
 
-> **NOTE:** There is also a chance you may be missing the correct WiFi device drivers after the initial Fedora installation, in this case, you can use the bootable media to boot into Recovery Mode and get a shell, then `chroot /mnt/sysimage`, and from there connect and install the Hardware Support package group  `sudo dnf group install -y hardware-support`, or determine and install the specific drivers needed.
+> **NOTE:** There is also a chance you may be missing the correct WiFi device drivers after the initial Fedora installation, in this case, you can use the bootable media to boot into Recovery Mode and get a shell, then `chroot /mnt/sysimage`, and from there connect and install the Hardware Support package group `sudo dnf group install -y hardware-support`, or determine and install the specific drivers needed.
 
 ## Where is the documentation for Omadora?
 
@@ -49,6 +49,28 @@ Theme hot reload is provided by a forked version of the [Aether.nvim](https://gi
 ## How do I turn off the weather updates?
 
 You can use the default keybinding <kbd>Super</kbd> + <kbd>Shift</kbd> + <kbd>W</kbd>, or run `omactl toggle weather` to disable/enable the weather feature.
+
+## How do I configure the weather location and units?
+
+Weather uses an approximate IP-derived location by default, however if needed, add a configuration like the example below to `~/.config/omadora/config.json` to use an exact location without an IP lookup:
+
+```json
+{
+  "location": {
+    "latitude": 40.7128,
+    "longitude": -74.006,
+    "label": "New York, USA"
+  },
+  "weather": {
+    "units": "imperial"
+  }
+}
+```
+
+Weather units may be `metric`, `imperial`, or `auto`.
+If omitted or set to `auto`, Omadora derives the measurement system from your system locale.
+
+Forecast data is provided by [Open-Meteo](https://open-meteo.com/) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and is summarized by Omadora.
 
 ## I can't see the login keyring?
 

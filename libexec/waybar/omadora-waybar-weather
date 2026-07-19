@@ -7,151 +7,144 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 require_cmd jq
 
 readonly STATE_FILE="${OMADORA_STATE_HOME}/weather/state.json"
-
 now="$(date +%s)"
 
-if [[ ! -f "$STATE_FILE" ]]; then
-  jq -nc '
-    {
-      text: "--",
-      alt: "unknown",
-      class: ["error"],
-      tooltip: "Weather data unavailable: state file missing"
-    }
-  '
+weather_error() {
+  jq -nc --arg tooltip "$1" '{
+    text:"--",
+    alt:"unknown",
+    class:["error"],
+    tooltip:$tooltip
+  }'
+}
+
+if [[ ! -f $STATE_FILE ]]; then
+  weather_error "Weather data unavailable"
   exit 0
 fi
 
 if ! jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null 2>&1; then
-  jq -nc '
-    {
-      text: "--",
-      alt: "unknown",
-      class: ["error"],
-      tooltip: "Weather data invalid"
-    }
-  '
+  weather_error "Weather data invalid"
   exit 0
 fi
 
 jq -c --argjson now "$now" '
-  def cardinal:
-  [
-    "N","NNE","NE","ENE",
-    "E","ESE","SE","SSE",
-    "S","SSW","SW","WSW",
-    "W","WNW","NW","NNW"
-  ][((. + 11.25) / 22.5 | floor) % 16];
+  def markup_escape:
+    tostring
+    | gsub("&"; "&amp;")
+    | gsub("<"; "&lt;")
+    | gsub(">"; "&gt;")
+    | gsub("\""; "&quot;")
+    | gsub("\u0027"; "&apos;");
 
-  def time_only:
+  def left_pad($width):
+    tostring as $value
+    | (" " * ([$width - ($value | length), 0] | max)) + $value;
+
+  def right_pad($width):
+    tostring as $value
+    | $value + (" " * ([$width - ($value | length), 0] | max));
+
+  def rain_value:
+    if . == null then "--" else (tostring + "%") end;
+
+  def short_time:
     split("T")[1];
 
-  def titlecase_words:
-    gsub("_"; " ")
-    | split(" ")
-    | map(
-        if length > 0 then
-          (.[0:1] | ascii_upcase) + .[1:]
-        else
-          .
-        end
-      )
-    | join(" ");
+  def day_name:
+    strptime("%Y-%m-%d") | strftime("%a");
 
-  .meta.timestamp as $timestamp
-
-  | ($now - $timestamp) as $age_seconds
-  | ($age_seconds / 60 | floor) as $age_minutes
-  | ($age_seconds > 1800) as $stale
-
+  .meta.current_timestamp as $current_timestamp
+  | (($now - $current_timestamp) / 60 | floor) as $age_minutes
+  | ($now - $current_timestamp > 1800) as $stale
   | .location as $loc
   | .weather as $w
-
-  | ($w.current.is_day * 100) as $is_day_percentage
-
-  | $w.derived.condition as $condition
-  | ($condition | titlecase_words) as $condition_text
-
-  | ($w.current.temperature_2m | round) as $temp_now
-  | ($w.current.apparent_temperature | round) as $temp_feels
-
-  | ($w.daily.temperature_2m_max | round) as $temp_max
-  | ($w.daily.temperature_2m_min | round) as $temp_min
-
+  | ($w.current.temperature_2m | round) as $temperature
   | ($w.current.relative_humidity_2m | round) as $humidity
-
-  | ($w.current.pressure_msl | round) as $pressure
-
-  | ($w.current.wind_speed_10m | round) as $wind_speed
-  | ($w.current.wind_gusts_10m | round) as $wind_gusts
-  | ($w.current.wind_direction_10m | cardinal) as $wind_dir
-
-  | ($w.current.uv_index * 10 | round / 10) as $uv_index
-  | ($w.daily.uv_index_max * 10 | round / 10) as $uv_index_max
-  | ($w.current.precipitation * 10 | round / 10) as $precipitation
-
-  | {
-      text:
-        "\($temp_now)\($w.current_units.temperature_2m)",
-
-      percentage:
-        $is_day_percentage,
-
-      alt:
-        $condition,
-
-      class:
-        (
-          ["active", $condition]
-          + (if $stale then ["stale"] else [] end)
-        ),
-
-      tooltip:
-        [
-          "Location: \($loc.city), \($loc.country)",
-
-          (
-            if $stale then
-              "Updated: \($age_minutes) min ago (STALE)"
-            else
-              "Updated: \($age_minutes) min ago"
-            end
-          ),
-
-          "",
-
-          "Condition: \($condition_text)",
-
-          "",
-
-          "Current",
-
-          "Temperature: \($temp_now)\($w.current_units.temperature_2m) (feels \($temp_feels)\($w.current_units.apparent_temperature))",
-
-          "Precipitation: \($precipitation)\($w.current_units.precipitation)",
-
-          "Humidity: \($humidity)\($w.current_units.relative_humidity_2m)",
-
-          "Pressure: \($pressure)\($w.current_units.pressure_msl)",
-
-          "Wind: from \($wind_dir) at \($wind_speed)\($w.current_units.wind_speed_10m) (gusts \($wind_gusts)\($w.current_units.wind_gusts_10m))",
-
-          "UV Index: \($w.derived.uv_index_class | titlecase_words) (\($uv_index))",
-
-          "",
-
-          "Today",
-
-          "High / Low: \($temp_max)\($w.daily_units.temperature_2m_max) / \($temp_min)\($w.daily_units.temperature_2m_min)",
-
-          "Rain Chance: \($w.daily.precipitation_probability_max)\($w.daily_units.precipitation_probability_max)",
-
-          "UV Index Max: \($w.derived.uv_index_max_class | titlecase_words) (\($uv_index_max))",
-
-          "Sunrise: \($w.daily.sunrise | time_only)",
-
-          "Sunset: \($w.daily.sunset | time_only)"
+  | ($w.current.wind_speed_10m | round) as $wind
+  | $w.derived.condition_name as $condition
+  | $w.derived.icon as $condition_icon
+  | ($w.current.time[0:13]) as $current_hour
+  | ([
+      range(0; ($w.hourly.time | length))
+      | select($w.hourly.time[.][0:13] == $current_hour)
+    ][0] // 0) as $current_hour_index
+  | ($w.hourly.precipitation_probability[$current_hour_index] // null) as $rain
+  | [
+      range($current_hour_index; ($w.hourly.time | length); 3)
+      | select(. < ($current_hour_index + 24))
+      | {
+          time:($w.hourly.time[.] | short_time),
+          temperature:($w.hourly.temperature_2m[.] | round),
+          rain:($w.hourly.precipitation_probability[.] // null)
+        }
+    ] as $hourly
+  | [
+      range(0; ($w.daily.time | length))
+      | {
+          day:($w.daily.time[.] | day_name),
+          high:($w.daily.temperature_2m_max[.] | round),
+          low:($w.daily.temperature_2m_min[.] | round),
+          condition:$w.derived.daily_condition_names[.],
+          icon:(($w.derived.daily_icons // [])[.] // "")
+        }
+    ] as $daily
+  | [
+      range(0; 4)
+      | . as $row
+      | [
+          $hourly[$row],
+          $hourly[$row + 4]
         ]
-        | join("\r")
+      | map(
+          select(. != null)
+          | "\(.time)  \(.temperature | left_pad(3))°  \(.rain | rain_value | left_pad(4))"
+        )
+      | join("      ")
+    ] as $hourly_rows
+  | [
+      $daily[]
+      | "\(.day)  \(.icon | right_pad(3))  \(.high | left_pad(3))° / \(.low | left_pad(3))°  \(.condition)"
+    ] as $daily_rows
+  | (
+      if $condition_icon == "" then
+        ""
+      else
+        ($condition_icon | markup_escape) + "  "
+      end
+    ) as $icon_prefix
+  | (
+      if $stale then
+        "<small><b>Updated \($age_minutes) min ago · stale</b></small>"
+      else
+        "<small>Updated \($age_minutes) min ago</small>"
+      end
+    ) as $updated
+  | {
+      text:"\($temperature)\($w.current_units.temperature_2m)",
+      percentage:($w.current.is_day * 100),
+      alt:$w.derived.condition,
+      class:(["active", $w.derived.condition] + if $stale then ["stale"] else [] end),
+      tooltip:(
+        [
+          "<b>\($loc.label | markup_escape)</b>",
+          "<big>\($icon_prefix)\($temperature)\($w.current_units.temperature_2m | markup_escape)</big>  \($condition | markup_escape)",
+          "Rain \($rain | rain_value)   •   Humidity \($humidity)%   •   Wind \($wind) \($w.current_units.wind_speed_10m | markup_escape)",
+          $updated,
+          "",
+          "<b>Next 24 hours</b>",
+          (
+            "<tt>Time   Temp  Rain       Time   Temp  Rain\n"
+            + ($hourly_rows | map(markup_escape) | join("\n"))
+            + "</tt>"
+          ),
+          "",
+          "<b>Weekly forecast</b>",
+          ("<tt>" + ($daily_rows | map(markup_escape) | join("\n")) + "</tt>"),
+          "",
+          "<small>Forecast data: Open-Meteo</small>"
+        ]
+        | join("\n")
+      )
     }
 ' "$STATE_FILE"
