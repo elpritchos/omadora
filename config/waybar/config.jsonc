@@ -89,6 +89,7 @@
     "return-type": "json",
     "interval": 60,
     "signal": 11,
+    "escape": false,
     "format": "{icon}",
     "format-alt": "{icon}   {text}",
     "format-icons": {
@@ -117,11 +118,19 @@
         "",
         ""
       ],
+      "freezing_rain": [
+        " ",
+        " "
+      ],
       "showers": [
         "",
         ""
       ],
       "snow": [
+        "",
+        ""
+      ],
+      "snow_grains": [
         "",
         ""
       ],

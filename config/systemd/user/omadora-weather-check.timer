@@ -5,8 +5,7 @@ ConditionPathExists=!%h/.local/state/omadora/toggles/weather-check-off
 
 [Timer]
 OnActiveSec=5s
-OnUnitActiveSec=5m
-RandomizedDelaySec=15s
+OnUnitActiveSec=15m
 AccuracySec=1s
 
 [Install]

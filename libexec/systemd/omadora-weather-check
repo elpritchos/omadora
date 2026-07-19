@@ -4,47 +4,183 @@ set -euo pipefail
 # shellcheck source=lib/common/init.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 
-# =========================================================
-# Omadora Weather Check
-# =========================================================
+require_cmd curl jq
 
-STATE_DIR="${OMADORA_STATE_HOME}/weather"
-CACHE_DIR="${OMADORA_CACHE_HOME}/weather"
+readonly STATE_DIR="${OMADORA_STATE_HOME}/weather"
+readonly CACHE_DIR="${OMADORA_CACHE_HOME}/weather"
+readonly STATE_FILE="$STATE_DIR/state.json"
+readonly LOCATION_CACHE_FILE="$STATE_DIR/location.json"
+readonly CURRENT_CACHE_FILE="$CACHE_DIR/current.json"
+readonly HOURLY_CACHE_FILE="$CACHE_DIR/hourly.json"
+readonly DAILY_CACHE_FILE="$CACHE_DIR/daily.json"
 
-STATE_FILE="$STATE_DIR/state.json"
-RAW_FILE="$CACHE_DIR/raw.json"
+readonly LOCATION_TTL=21600
+readonly CURRENT_TTL=900
+readonly HOURLY_TTL=3600
+readonly DAILY_TTL=21600
+NOW="$(date +%s)"
+readonly NOW
 
 ensure_dir "$STATE_DIR" "$CACHE_DIR"
 
+config='{}'
+if [[ -f $OMADORA_CONFIG_FILE ]] &&
+  ! config="$(
+    jq -ec 'select(type == "object")' "$OMADORA_CONFIG_FILE" 2>/dev/null
+  )"; then
+  warn "Ignoring invalid Omadora configuration: $OMADORA_CONFIG_FILE"
+  config='{}'
+fi
+readonly config
+
 CURL_OPTS=(
-  -fsS
+  --fail
+  --silent
+  --show-error
   --connect-timeout 5
-  --max-time 15
-  --retry 1
-  --retry-max-time 30
+  --max-time 20
 )
 
-# ---------------------------------------
-# IP geolocation
-# ---------------------------------------
-get_location() {
-  curl "${CURL_OPTS[@]}" https://ipapi.co/json/ |
-    jq -r '{
-      source: "ipapi",
-      lat: .latitude,
-      lon: .longitude,
-      city: .city,
-      country: .country_name,
-      country_code: .country_code
-    }'
+write_atomic() {
+  local target="$1"
+  local tmp
+
+  tmp="$(mktemp "${target}.tmp.XXXXXX")"
+  cat >"$tmp"
+  mv -- "$tmp" "$target"
 }
 
-# ---------------------------------------
-# Get units
-# ---------------------------------------
+cache_fetched_at() {
+  jq -er '.meta.fetched_at | numbers' "$1" 2>/dev/null
+}
+
+cache_is_fresh() {
+  local file="$1"
+  local ttl="$2"
+  local fetched_at
+
+  [[ -f $file ]] || return 1
+  fetched_at="$(cache_fetched_at "$file")" || return 1
+  ((NOW - fetched_at < ttl))
+}
+
+cache_matches_request() {
+  local file="$1"
+  local latitude="$2"
+  local longitude="$3"
+  local system="$4"
+
+  jq -e \
+    --argjson latitude "$latitude" \
+    --argjson longitude "$longitude" \
+    --arg system "$system" \
+    '
+      (.meta.latitude | numbers) == $latitude
+      and (.meta.longitude | numbers) == $longitude
+      and .meta.system == $system
+    ' "$file" >/dev/null 2>&1
+}
+
+manual_location() {
+  jq -ec '
+    .location
+    | select(
+      (.latitude | type) == "number"
+      and .latitude >= -90
+      and .latitude <= 90
+      and (.longitude | type) == "number"
+      and .longitude >= -180
+      and .longitude <= 180
+      and (.label | type) == "string"
+      and (.label | length) > 0
+    )
+    | {
+        source: "config",
+        lat: .latitude,
+        lon: .longitude,
+        label: .label
+      }
+  ' <<<"$config"
+}
+
+cached_ip_location() {
+  jq -ec '.location | select(.lat != null and .lon != null and .label != null)' \
+    "$LOCATION_CACHE_FILE"
+}
+
+fetch_ip_location() {
+  local response
+
+  response="$(
+    curl "${CURL_OPTS[@]}" \
+      'https://ipwho.is/?fields=success,city,country,latitude,longitude'
+  )" || return 1
+
+  jq -ec '
+    select(
+      .success == true
+      and (.latitude | type) == "number"
+      and (.longitude | type) == "number"
+      and (.city | type) == "string"
+      and (.country | type) == "string"
+    )
+    | {
+        source: "ipwho.is",
+        lat: .latitude,
+        lon: .longitude,
+        city: .city,
+        country: .country,
+        label: ([.city, .country] | map(select(length > 0)) | join(", "))
+      }
+  ' <<<"$response"
+}
+
+get_location() {
+  local location
+
+  if location="$(manual_location 2>/dev/null)"; then
+    printf '%s\n' "$location"
+    return 0
+  fi
+
+  if jq -e 'has("location")' <<<"$config" >/dev/null; then
+    warn "Ignoring invalid location configuration: $OMADORA_CONFIG_FILE"
+  fi
+
+  if cache_is_fresh "$LOCATION_CACHE_FILE" "$LOCATION_TTL" &&
+    location="$(cached_ip_location)"; then
+    printf '%s\n' "$location"
+    return 0
+  fi
+
+  if location="$(fetch_ip_location)"; then
+    jq -n \
+      --argjson fetched_at "$NOW" \
+      --argjson location "$location" \
+      '{meta:{fetched_at:$fetched_at},location:$location}' |
+      write_atomic "$LOCATION_CACHE_FILE"
+    printf '%s\n' "$location"
+    return 0
+  fi
+
+  warn "Failed to refresh IP location; trying stale location cache."
+  cached_ip_location
+}
+
 get_units() {
-  local mode="${OMADORA_WEATHER_UNITS:-auto}"
+  local mode
+  local measurement
   local system
+
+  mode="$(
+    jq -r '
+      if has("weather") and (.weather | type) != "object" then
+        "__invalid__"
+      else
+        (.weather.units // "auto")
+      end
+    ' <<<"$config"
+  )"
 
   case "$mode" in
   metric | imperial)
@@ -52,7 +188,6 @@ get_units() {
     ;;
   auto)
     measurement="$(locale measurement 2>/dev/null || true)"
-
     case "$measurement" in
     1) system="metric" ;;
     2) system="imperial" ;;
@@ -65,48 +200,178 @@ get_units() {
     esac
     ;;
   *)
+    warn "Ignoring invalid weather units in: $OMADORA_CONFIG_FILE"
     mode="auto"
-    system="metric"
+    measurement="$(locale measurement 2>/dev/null || true)"
+    case "$measurement" in
+    1) system="metric" ;;
+    2) system="imperial" ;;
+    *)
+      case "${LANG:-}" in
+      *US* | *LR* | *MM*) system="imperial" ;;
+      *) system="metric" ;;
+      esac
+      ;;
+    esac
     ;;
   esac
 
   printf '{"mode":"%s","system":"%s"}\n' "$mode" "$system"
 }
 
-# ---------------------------------------
-# Open-Meteo fetch
-# ---------------------------------------
 fetch_weather() {
-  local lat="$1"
-  local lon="$2"
+  local latitude="$1"
+  local longitude="$2"
   local system="$3"
-
+  local need_current="$4"
+  local need_hourly="$5"
+  local need_daily="$6"
   local wind_speed_unit="kmh"
   local temperature_unit="celsius"
   local precipitation_unit="mm"
+  local -a args
 
-  if [[ "$system" == "imperial" ]]; then
+  if [[ $system == "imperial" ]]; then
     wind_speed_unit="mph"
     temperature_unit="fahrenheit"
     precipitation_unit="inch"
   fi
 
-  curl "${CURL_OPTS[@]}" \
-    "https://api.open-meteo.com/v1/forecast?\
-latitude=${lat}\
-&longitude=${lon}\
-&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,sunrise,sunset\
-&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,pressure_msl,wind_speed_10m,wind_gusts_10m,wind_direction_10m,uv_index\
-&wind_speed_unit=${wind_speed_unit}\
-&temperature_unit=${temperature_unit}\
-&precipitation_unit=${precipitation_unit}\
-&timezone=auto\
-&forecast_days=1"
+  args=(
+    --get
+    'https://api.open-meteo.com/v1/forecast'
+    --data-urlencode "latitude=$latitude"
+    --data-urlencode "longitude=$longitude"
+    --data-urlencode "temperature_unit=$temperature_unit"
+    --data-urlencode "wind_speed_unit=$wind_speed_unit"
+    --data-urlencode "precipitation_unit=$precipitation_unit"
+    --data-urlencode 'timezone=auto'
+  )
+
+  if ((need_current)); then
+    args+=(--data-urlencode
+      'current=temperature_2m,relative_humidity_2m,is_day,weather_code,wind_speed_10m')
+  fi
+
+  if ((need_hourly)); then
+    args+=(
+      --data-urlencode 'hourly=temperature_2m,precipitation_probability'
+      --data-urlencode 'forecast_hours=24'
+    )
+  fi
+
+  if ((need_daily)); then
+    args+=(
+      --data-urlencode 'daily=weather_code,temperature_2m_max,temperature_2m_min'
+      --data-urlencode 'forecast_days=8'
+    )
+  fi
+
+  curl "${CURL_OPTS[@]}" "${args[@]}"
 }
 
-# ---------------------------------------
-# Condition mapping (WMO)
-# ---------------------------------------
+write_tier_cache() {
+  local file="$1"
+  local latitude="$2"
+  local longitude="$3"
+  local system="$4"
+  local data="$5"
+
+  jq -n \
+    --argjson fetched_at "$NOW" \
+    --argjson latitude "$latitude" \
+    --argjson longitude "$longitude" \
+    --arg system "$system" \
+    --argjson data "$data" \
+    '{
+      meta:{
+        fetched_at:$fetched_at,
+        latitude:$latitude,
+        longitude:$longitude,
+        system:$system
+      },
+      data:$data
+    }' | write_atomic "$file"
+}
+
+update_weather_caches() {
+  local raw="$1"
+  local latitude="$2"
+  local longitude="$3"
+  local system="$4"
+  local need_current="$5"
+  local need_hourly="$6"
+  local need_daily="$7"
+  local tier
+
+  if ((need_current)); then
+    if tier="$(jq -ec '
+      select(
+        .current.time != null
+        and .current.temperature_2m != null
+        and .current.relative_humidity_2m != null
+        and .current.is_day != null
+        and .current.weather_code != null
+        and .current.wind_speed_10m != null
+      )
+      | {
+          utc_offset_seconds,
+          timezone,
+          units:.current_units,
+          values:.current
+        }
+    ' <<<"$raw")"; then
+      write_tier_cache \
+        "$CURRENT_CACHE_FILE" "$latitude" "$longitude" "$system" "$tier"
+    else
+      warn "Open-Meteo response did not contain valid current conditions."
+    fi
+  fi
+
+  if ((need_hourly)); then
+    if tier="$(jq -ec '
+      select(
+        (.hourly.time | arrays | length) > 0
+        and (.hourly.temperature_2m | arrays | length) == (.hourly.time | length)
+        and (.hourly.precipitation_probability | arrays | length) == (.hourly.time | length)
+      )
+      | {
+          utc_offset_seconds,
+          timezone,
+          units:.hourly_units,
+          values:.hourly
+        }
+    ' <<<"$raw")"; then
+      write_tier_cache \
+        "$HOURLY_CACHE_FILE" "$latitude" "$longitude" "$system" "$tier"
+    else
+      warn "Open-Meteo response did not contain a valid hourly forecast."
+    fi
+  fi
+
+  if ((need_daily)); then
+    if tier="$(jq -ec '
+      select(
+        (.daily.time | arrays | length) > 0
+        and (.daily.weather_code | arrays | length) == (.daily.time | length)
+        and (.daily.temperature_2m_max | arrays | length) == (.daily.time | length)
+        and (.daily.temperature_2m_min | arrays | length) == (.daily.time | length)
+      )
+      | {
+          utc_offset_seconds,
+          timezone,
+          units:.daily_units,
+          values:.daily
+        }
+    ' <<<"$raw")"; then
+      write_tier_cache \
+        "$DAILY_CACHE_FILE" "$latitude" "$longitude" "$system" "$tier"
+    else
+      warn "Open-Meteo response did not contain a valid daily forecast."
+    fi
+  fi
+}
+
 get_condition() {
   case "$1" in
   0) echo "clear" ;;
@@ -126,249 +391,213 @@ get_condition() {
   esac
 }
 
-# ---------------------------------------
-# Wind class (Beaufort scale 0–12)
-# ---------------------------------------
-get_wind_class() {
-  local speed="$1"
-  local unit="$2"
-
-  local ms
-
-  case "$unit" in
-  km/h | kmh)
-    ms=$(awk -v v="$speed" 'BEGIN { print v / 3.6 }')
-    ;;
-  mph)
-    ms=$(awk -v v="$speed" 'BEGIN { print v * 0.44704 }')
-    ;;
-  knots | kt | kt.)
-    ms=$(awk -v v="$speed" 'BEGIN { print v * 0.514444 }')
-    ;;
-  m/s | ms | mps | "")
-    ms="$speed"
-    ;;
-  *)
-    ms="$speed"
-    ;;
+get_condition_name() {
+  case "$1" in
+  0) echo "Clear sky" ;;
+  1) echo "Mainly clear" ;;
+  2) echo "Partly cloudy" ;;
+  3) echo "Overcast" ;;
+  45) echo "Fog" ;;
+  48) echo "Depositing rime fog" ;;
+  51) echo "Light drizzle" ;;
+  53) echo "Moderate drizzle" ;;
+  55) echo "Dense drizzle" ;;
+  56) echo "Light freezing drizzle" ;;
+  57) echo "Dense freezing drizzle" ;;
+  61) echo "Slight rain" ;;
+  63) echo "Moderate rain" ;;
+  65) echo "Heavy rain" ;;
+  66) echo "Light freezing rain" ;;
+  67) echo "Heavy freezing rain" ;;
+  71) echo "Slight snowfall" ;;
+  73) echo "Moderate snowfall" ;;
+  75) echo "Heavy snowfall" ;;
+  77) echo "Snow grains" ;;
+  80) echo "Slight rain showers" ;;
+  81) echo "Moderate rain showers" ;;
+  82) echo "Violent rain showers" ;;
+  85) echo "Slight snow showers" ;;
+  86) echo "Heavy snow showers" ;;
+  95) echo "Slight or moderate thunderstorm" ;;
+  96) echo "Thunderstorm with slight hail" ;;
+  99) echo "Thunderstorm with heavy hail" ;;
+  *) echo "Unknown" ;;
   esac
-
-  awk -v w="$ms" 'BEGIN {
-    if      (w < 0.3)  print "calm"
-    else if (w < 1.6)  print "light_air"
-    else if (w < 3.4)  print "light_breeze"
-    else if (w < 5.5)  print "gentle_breeze"
-    else if (w < 8.0)  print "moderate_breeze"
-    else if (w < 10.8) print "fresh_breeze"
-    else if (w < 13.9) print "strong_breeze"
-    else if (w < 17.2) print "near_gale"
-    else if (w < 20.8) print "gale"
-    else if (w < 24.5) print "strong_gale"
-    else if (w < 28.5) print "storm"
-    else if (w < 32.7) print "violent_storm"
-    else               print "hurricane"
-  }'
 }
 
-# ---------------------------------------
-# UV class (WHO)
-# ---------------------------------------
-get_uv_class() {
-  awk -v u="$1" 'BEGIN {
-    if (u < 3) print "low"
-    else if (u < 6) print "moderate"
-    else if (u < 8) print "high"
-    else if (u < 11) print "very_high"
-    else print "extreme"
-  }'
-}
-
-# ---------------------------------------
-# Fallback
-# ---------------------------------------
-fallback_state() {
-  jq -n '{
-    meta:{valid:false},
-    location:{},
-    weather:{
-      source: null,
-      current_units:{},
-      current:{},
-      daily_units:{},
-      daily:{},
-      derived:{icon:"",condition:"unknown"},
-      signals:{},
-    }
-  }'
-}
-
-# ---------------------------------------
-# Reducer
-# ---------------------------------------
-reduce_weather() {
-  local data="$1"
-
-  utc_offset_seconds=$(jq -r '.utc_offset_seconds' <<<"$data")
-
-  # CURRENT
-  current_units=$(jq -r '.current_units' <<<"$data")
-  current=$(jq -r '.current' <<<"$data")
-
-  # DAILY
-  daily_units=$(jq -r '.daily_units' <<<"$data")
-  daily=$(jq -r '.daily | with_entries(.value |= .[0])' <<<"$data")
-
-  # DERIVED
-  weather_code=$(jq -r '.current.weather_code' <<<"$data")
-  wind_speed_10m=$(jq -r '.current.wind_speed_10m' <<<"$data")
-  wind_speed_unit=$(jq -r '.current_units.wind_speed_10m' <<<"$data")
-  uv_index=$(jq -r '.current.uv_index' <<<"$data")
-  uv_index_max=$(jq -r '.daily.uv_index_max[0]' <<<"$data")
-
-  condition=$(get_condition "$weather_code")
-  wind_class=$(get_wind_class "$wind_speed_10m" "$wind_speed_unit")
-  uv_class=$(get_uv_class "$uv_index")
-  uv_max_class=$(get_uv_class "$uv_index_max")
-
-  # VIEW ICON
-  is_day=$(jq -r '.current.is_day' <<<"$data")
-
-  local icon=""
-  case "$condition:$is_day" in
-  clear:1) icon="󰖙" ;;
-  clear:0) icon="󰖔" ;;
-  cloudy:*) icon="" ;;
-  fog:*) icon="" ;;
-  drizzle:*) icon="" ;;
-  freezing_drizzle:*) icon="" ;;
-  rain:*) icon="" ;;
-  showers:*) icon="" ;;
-  snow:*) icon="" ;;
-  snow_showers:*) icon="" ;;
-  thunderstorm:*) icon="" ;;
-  severe_thunderstorm:*) icon="" ;;
+get_icon() {
+  case "$1:$2" in
+  clear:0) echo "" ;;
+  clear:1) echo "" ;;
+  cloudy:0) echo "" ;;
+  cloudy:1) echo "" ;;
+  fog:0) echo "" ;;
+  fog:1) echo "" ;;
+  drizzle:0) echo "" ;;
+  drizzle:1) echo "" ;;
+  freezing_drizzle:0) echo " " ;;
+  freezing_drizzle:1) echo " " ;;
+  rain:0) echo "" ;;
+  rain:1) echo "" ;;
+  freezing_rain:0) echo " " ;;
+  freezing_rain:1) echo " " ;;
+  showers:0) echo "" ;;
+  showers:1) echo "" ;;
+  snow:0) echo "" ;;
+  snow:1) echo "" ;;
+  snow_grains:0) echo "" ;;
+  snow_grains:1) echo "" ;;
+  snow_showers:0) echo "" ;;
+  snow_showers:1) echo "" ;;
+  thunderstorm:0) echo "" ;;
+  thunderstorm:1) echo "" ;;
+  severe_thunderstorm:0) echo " " ;;
+  severe_thunderstorm:1) echo " " ;;
+  *) echo "󰖐" ;;
   esac
-
-  jq -n \
-    --argjson utc_offset_seconds "$utc_offset_seconds" \
-    --argjson current_units "$current_units" \
-    --argjson current "$current" \
-    --argjson daily_units "$daily_units" \
-    --argjson daily "$daily" \
-    --arg condition "$condition" \
-    --arg icon "$icon" \
-    --arg wind_class "$wind_class" \
-    --arg uv_class "$uv_class" \
-    --arg uv_max_class "$uv_max_class" \
-    '
-    {
-      source:"open-meteo",
-
-      utc_offset_seconds:$utc_offset_seconds,
-
-      current_units:$current_units,
-
-      current:$current,
-
-      daily_units:$daily_units,
-
-      daily:$daily,
-
-      derived:{
-        icon:$icon,
-        condition:$condition,
-        wind_class:$wind_class,
-        uv_index_class:$uv_class,
-        uv_index_max_class:$uv_max_class
-      },
-    }
-  '
 }
 
-# ---------------------------------------
-# Compile
-# ---------------------------------------
-compile_output() {
-  local loc="$1"
+compile_state() {
+  local location="$1"
   local units="$2"
-  local reduced="$3"
+  local current_cache hourly_cache daily_cache
+  local weather_code is_day condition condition_name icon
+  local daily_code daily_condition daily_name daily_icon
+  local daily_condition_names='[]'
+  local daily_icons='[]'
+
+  current_cache="$(jq -ec '.data' "$CURRENT_CACHE_FILE")" || return 1
+  hourly_cache="$(jq -ec '.data' "$HOURLY_CACHE_FILE")" || return 1
+  daily_cache="$(jq -ec '.data' "$DAILY_CACHE_FILE")" || return 1
+
+  weather_code="$(jq -r '.values.weather_code' <<<"$current_cache")"
+  is_day="$(jq -r '.values.is_day' <<<"$current_cache")"
+  condition="$(get_condition "$weather_code")"
+  condition_name="$(get_condition_name "$weather_code")"
+  icon="$(get_icon "$condition" "$is_day")"
+
+  while IFS= read -r daily_code; do
+    daily_condition="$(get_condition "$daily_code")"
+    daily_name="$(get_condition_name "$daily_code")"
+    daily_icon="$(get_icon "$daily_condition" 1)"
+    daily_condition_names="$(
+      jq -c --arg name "$daily_name" '. + [$name]' <<<"$daily_condition_names"
+    )"
+    daily_icons="$(
+      jq -c --arg icon "$daily_icon" '. + [$icon]' <<<"$daily_icons"
+    )"
+  done < <(jq -r '.values.weather_code[]' <<<"$daily_cache")
 
   jq -n \
-    --argjson location "$loc" \
+    --argjson timestamp "$NOW" \
+    --argjson current_timestamp "$(cache_fetched_at "$CURRENT_CACHE_FILE")" \
+    --argjson hourly_timestamp "$(cache_fetched_at "$HOURLY_CACHE_FILE")" \
+    --argjson daily_timestamp "$(cache_fetched_at "$DAILY_CACHE_FILE")" \
+    --argjson location "$location" \
     --argjson units "$units" \
-    --argjson weather "$reduced" \
-    '
-    {
+    --argjson current "$current_cache" \
+    --argjson hourly "$hourly_cache" \
+    --argjson daily "$daily_cache" \
+    --arg condition "$condition" \
+    --arg condition_name "$condition_name" \
+    --argjson daily_condition_names "$daily_condition_names" \
+    --argjson daily_icons "$daily_icons" \
+    --arg icon "$icon" \
+    '{
       meta:{
-        valid: true,
-        timestamp:(now|floor)
+        valid:true,
+        timestamp:$timestamp,
+        current_timestamp:$current_timestamp,
+        hourly_timestamp:$hourly_timestamp,
+        daily_timestamp:$daily_timestamp
       },
-      location: $location,
-      units: $units,
-      weather: $weather
-    }
-  '
+      location:$location,
+      units:$units,
+      weather:{
+        source:"open-meteo",
+        current_units:$current.units,
+        current:$current.values,
+        hourly_units:$hourly.units,
+        hourly:$hourly.values,
+        daily_units:$daily.units,
+        daily:$daily.values,
+        derived:{
+          icon:$icon,
+          condition:$condition,
+          condition_name:$condition_name,
+          daily_condition_names:$daily_condition_names,
+          daily_icons:$daily_icons
+        }
+      }
+    }'
 }
 
-# ---------------------------------------
-# Waybar
-# ---------------------------------------
 waybar_module_refresh() {
   pkill -RTMIN+11 waybar
 }
 
-# ---------------------------------------
-# Main
-# ---------------------------------------
-info 'Starting weather check...'
+info "Starting weather check..."
 
-info 'Fetching location data...'
-if ! loc=$(get_location); then
-  error "Failed to fetch location data, writing fallback state."
-  fallback_state >"$STATE_FILE"
+if ! location="$(get_location)"; then
+  error "No configured, cached, or automatic location is available."
   exit 0
 fi
 
-info 'Getting unit preference...'
-units=$(get_units || true)
+latitude="$(jq -r '.lat' <<<"$location")"
+longitude="$(jq -r '.lon' <<<"$location")"
+units="$(get_units)"
+system="$(jq -r '.system' <<<"$units")"
 
-lat=$(jq -r '.lat // empty' <<<"$loc")
-lon=$(jq -r '.lon // empty' <<<"$loc")
-system=$(jq -r '.system // empty' <<<"$units")
+need_current=0
+need_hourly=0
+need_daily=0
 
-if [[ -z "$lat" || -z "$lon" || -z "$system" ]]; then
-  error "Failed to get location or unit data, writing fallback state."
-  fallback_state >"$STATE_FILE"
+if ! cache_is_fresh "$CURRENT_CACHE_FILE" "$CURRENT_TTL" ||
+  ! cache_matches_request \
+    "$CURRENT_CACHE_FILE" "$latitude" "$longitude" "$system"; then
+  need_current=1
+fi
+
+if ! cache_is_fresh "$HOURLY_CACHE_FILE" "$HOURLY_TTL" ||
+  ! cache_matches_request \
+    "$HOURLY_CACHE_FILE" "$latitude" "$longitude" "$system"; then
+  need_hourly=1
+fi
+
+if ! cache_is_fresh "$DAILY_CACHE_FILE" "$DAILY_TTL" ||
+  ! cache_matches_request \
+    "$DAILY_CACHE_FILE" "$latitude" "$longitude" "$system"; then
+  need_daily=1
+fi
+
+if ((need_current || need_hourly || need_daily)); then
+  info "Refreshing expired weather data..."
+  if raw="$(fetch_weather \
+    "$latitude" "$longitude" "$system" \
+    "$need_current" "$need_hourly" "$need_daily")"; then
+    update_weather_caches \
+      "$raw" "$latitude" "$longitude" "$system" \
+      "$need_current" "$need_hourly" "$need_daily"
+  else
+    warn "Failed to refresh Open-Meteo data; using cached state."
+  fi
+else
+  info "Weather caches are fresh."
+fi
+
+if ! compiled="$(compile_state "$location" "$units")"; then
+  if jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null 2>&1; then
+    warn "Weather caches are incomplete; preserving the previous valid state."
+    exit 0
+  fi
+
+  error "Weather data is unavailable and no valid prior state exists."
+  jq -n '{meta:{valid:false},location:{},weather:{}}' |
+    write_atomic "$STATE_FILE"
   exit 0
 fi
 
-info 'Fetching weather data...'
-if ! raw=$(fetch_weather "$lat" "$lon" "$system"); then
-  error "Failed to fetch weather data, writing fallback state."
-  fallback_state >"$STATE_FILE"
-  exit 0
-fi
+printf '%s' "$compiled" | write_atomic "$STATE_FILE"
+waybar_module_refresh || debug "Failed to update Waybar module"
 
-printf '%s' "$raw" >"$RAW_FILE"
-
-info 'Reducing weather data...'
-if ! reduced=$(reduce_weather "$raw"); then
-  error "Failed to reduce weather data, writing fallback state."
-  fallback_state >"$STATE_FILE"
-  exit 0
-fi
-
-info 'Compiling state...'
-if ! compiled=$(compile_output "$loc" "$units" "$reduced"); then
-  error "Failed to compile state, writing fallback state."
-  fallback_state >"$STATE_FILE"
-  exit 0
-fi
-
-info 'Writing state...'
-printf '%s' "$compiled" >"$STATE_FILE"
-
-waybar_module_refresh ||
-  debug "Failed to update Waybar module"
-
-info 'Finished weather check.'
+info "Finished weather check."

@@ -1,31 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Returns a formatted weather status string with temperature and wind speed.
+STATE_FILE="${OMADORA_STATE_HOME:-${XDG_STATE_HOME:-$HOME/.local/state}/omadora}/weather/state.json"
 
-STATE_FILE="$HOME/.local/state/omadora/weather/state.json"
-
-if [[ ! -f "$STATE_FILE" ]]; then
+if [[ ! -f $STATE_FILE ]] ||
+  ! jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null 2>&1; then
   echo "Weather unavailable"
   exit 0
 fi
 
-if ! jq -e '.meta.valid == true' "$STATE_FILE" >/dev/null 2>&1; then
-  echo "Weather information invalid"
-  exit 0
-fi
-
-read -r icon city country temperature temp_unit wind wind_unit < <(
-  jq -r '
-    [
-      .weather.derived.icon,
-      .location.city,
-      .location.country,
-      .weather.current.temperature_2m,
-      .weather.current_units.temperature_2m,
-      .weather.current.wind_speed_10m,
-      .weather.current_units.wind_speed_10m
-    ] | @tsv
-  ' "$STATE_FILE"
-)
-
-echo "$icon    $city, $country · Temp ${temperature}${temp_unit} · Wind ${wind}${wind_unit}"
+jq -r '
+  .weather as $weather
+  | $weather.derived.icon as $icon
+  | $weather.derived.condition_name as $condition
+  | ($weather.current.temperature_2m | round) as $temperature
+  | ($weather.current.wind_speed_10m | round) as $wind
+  | ($weather.current.time[0:13]) as $current_hour
+  | ([
+      range(0; ($weather.hourly.time | length))
+      | select($weather.hourly.time[.][0:13] == $current_hour)
+    ][0] // 0) as $current_hour_index
+  | ($weather.hourly.precipitation_probability[$current_hour_index] // null) as $rain
+  | "\(if $icon == "" then "" else $icon + "    " end)\($condition) · \($temperature)\($weather.current_units.temperature_2m) · Rain \(if $rain == null then "--" else ($rain | tostring) + "%" end) · Wind \($wind) \($weather.current_units.wind_speed_10m)"
+' "$STATE_FILE"
