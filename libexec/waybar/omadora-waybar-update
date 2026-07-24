@@ -7,127 +7,333 @@ source "$(dirname "${BASH_SOURCE[0]}")/../../lib/common/init.sh"
 require_cmd jq
 
 readonly STATE_FILE="${OMADORA_STATE_HOME}/update/state.json"
+readonly RELAUNCH_FILE="${OMADORA_STATE_HOME}/relaunch-required"
+readonly REBOOT_REQUIRED_FILE="${OMADORA_REBOOT_REQUIRED_FILE:-/run/reboot-required}"
+readonly MAX_UPDATE_ITEMS=8
+readonly TARGET_ADVISORY_ITEMS=5
 
-[[ -f "$STATE_FILE" ]] || exit 0
+update_error() {
+  jq -nc --arg tooltip "$1" '{
+    text:"",
+    alt:"unknown",
+    class:["error"],
+    tooltip:$tooltip
+  }'
+}
 
-if ! jq empty "$STATE_FILE" >/dev/null 2>&1; then
-  warn "Invalid update state file"
+if [[ ! -f $STATE_FILE ]]; then
+  update_error "Update status unavailable"
+  exit 0
+fi
+
+if ! jq -e '
+  def nonnegative_integer:
+    type == "number" and . >= 0 and floor == .;
+
+  def valid_status:
+    type == "string"
+    and (. == "ok" or . == "error" or . == "unavailable");
+
+  def valid_counted_source:
+    type == "object"
+    and (.count | nonnegative_integer)
+    and (.status | valid_status);
+
+  def valid_item_source:
+    valid_counted_source
+    and (.items | type == "array")
+    and all(.items[]; type == "string" and length > 0);
+
+  def valid_advisory:
+    type == "object"
+    and (.id | type == "string" and length > 0)
+    and (.title | type == "string" and length > 0)
+    and (.type | type == "string" and length > 0)
+    and (.severity | type == "string" and length > 0);
+
+  .schema_version == 2
+  and (.meta.timestamp | nonnegative_integer)
+  and (.meta.with_errors | type) == "boolean"
+  and (.updates.total | nonnegative_integer)
+  and (.updates.omadora | valid_counted_source)
+  and (.updates.omadora.current_version | type == "string")
+  and (.updates.omadora.latest_version | type == "string")
+  and (
+    [.updates.dnf, .updates.flatpak, .updates.cargo, .updates.firmware]
+    | all(valid_item_source)
+  )
+  and (
+    .updates.omadora.count == 0
+    or (.updates.omadora.latest_version | length) > 0
+  )
+  and (.advisories.dnf.security | nonnegative_integer)
+  and (.advisories.dnf.items | type) == "array"
+  and all(.advisories.dnf.items[]; valid_advisory)
+' "$STATE_FILE" >/dev/null 2>&1; then
+  warn "Invalid or unsupported update state file"
+  update_error "Update status unavailable"
   exit 0
 fi
 
 reboot_required=false
-[[ -e /run/reboot-required ]] && reboot_required=true
+relaunch_required=false
+[[ -e $REBOOT_REQUIRED_FILE ]] && reboot_required=true
+if [[ $reboot_required == false && -e $RELAUNCH_FILE ]]; then
+  relaunch_required=true
+fi
 
-jq -c \
-  --argjson reboot_required "$reboot_required" \
-  '
-def update_section:
-  (
-    [
-      (.updates.omadora.count
-        | select(. > 0)
-        | tostring + " omadora"),
+now="$(date +%s)"
 
-      (.updates.dnf.count
-        | select(. > 0)
-        | tostring + " dnf"),
+output=""
+if ! output="$(
+  jq -c \
+    --argjson now "$now" \
+    --argjson reboot_required "$reboot_required" \
+    --argjson relaunch_required "$relaunch_required" \
+    --argjson max_update_items "$MAX_UPDATE_ITEMS" \
+    --argjson target_advisory_items "$TARGET_ADVISORY_ITEMS" \
+    '
+  def markup_escape:
+    tostring
+    | gsub("&"; "&amp;")
+    | gsub("<"; "&lt;")
+    | gsub(">"; "&gt;")
+    | gsub("\""; "&quot;")
+    | gsub("\u0027"; "&apos;");
 
-      (.updates.flatpak.count
-        | select(. > 0)
-        | tostring + " flatpak"),
+  def count_label($count; $singular; $plural):
+    "\($count) \(if $count == 1 then $singular else $plural end)";
 
-      (.updates.cargo.count
-        | select(. > 0)
-        | tostring + " cargo"),
-
-      (.updates.firmware.count
-        | select(. > 0)
-        | tostring + " firmware")
-    ]
-    | map(select(. != null))
-  )
-  | if length > 0 then
-      ["Updates:"] + .
+  def age_label($seconds):
+    if $seconds < 60 then
+      "just now"
+    elif $seconds < 3600 then
+      (($seconds / 60 | floor) as $value
+       | count_label($value; "minute"; "minutes") + " ago")
+    elif $seconds < 86400 then
+      (($seconds / 3600 | floor) as $value
+       | count_label($value; "hour"; "hours") + " ago")
     else
-      []
+      (($seconds / 86400 | floor) as $value
+       | count_label($value; "day"; "days") + " ago")
     end;
 
-def advisory_section:
-  (
-    [
-      (.advisories.dnf.security
-        | select(. > 0)
-        | tostring + " security"),
+  ([0, ($now - .meta.timestamp | floor)] | max) as $age
+  | ($age >= 43200) as $stale
+  | [
+      {name:"DNF", data:.updates.dnf},
+      {name:"Flatpak", data:.updates.flatpak},
+      {name:"Cargo", data:.updates.cargo},
+      {name:"Firmware", data:.updates.firmware}
+    ] as $sources
+  | (
+      (
+        [{name:"Omadora", status:.updates.omadora.status}]
+        + [$sources[] | {name:.name, status:.data.status}]
+      )
+      | map(select(.status == "error") | .name)
+    ) as $failed_sources
+  | (
+      [
+        $sources[]
+        | select(.data.count > 0 and (.data.items | length) > 0)
+      ]
+      | length
+    ) as $represented_sources
+  | (
+      reduce $sources[] as $source (
+        {
+          bonus_remaining:($max_update_items - $represented_sources),
+          groups:[]
+        };
+        if $source.data.count > 0 then
+            . as $selection
+            | ($source.data.items | length) as $item_count
+            | (if $item_count > 0 then 1 else 0 end) as $base_count
+            | (
+                [
+                  ($item_count - $base_count),
+                  $selection.bonus_remaining
+                ]
+                | min
+              ) as $bonus_count
+            | ($base_count + $bonus_count) as $visible_count
+            | ($source.data.items[0:$visible_count]) as $visible
+            | (
+                [$source.data.count - $visible_count, 0]
+                | max
+              ) as $hidden_count
+            | .groups += [{
+                name:$source.name,
+                count:$source.data.count,
+                visible:$visible,
+                hidden:$hidden_count
+              }]
+            | .bonus_remaining -= $bonus_count
+          else
+            .
+          end
+      )
+    ) as $update_selection
+  | (
+      reduce $update_selection.groups[] as $group (
+        [];
+        .
+        + ["", "<b>\($group.name | markup_escape) (\($group.count))</b>"]
+        + ($group.visible | map("  " + (. | markup_escape)))
+        + (
+            if $group.hidden > 0 then
+              ["  +\($group.hidden) more"]
+            else
+              []
+            end
+          )
+      )
+    ) as $update_lines
+  | (
+      [
+        .advisories.dnf.items[]
+        | select(
+            .type == "security"
+            and (.severity | ascii_downcase) == "critical"
+          )
+      ]
+      | sort_by(.id)
+    ) as $critical_advisories
+  | (
+      [
+        .advisories.dnf.items[]
+        | select(
+            .type == "security"
+            and (.severity | ascii_downcase) == "important"
+          )
+      ]
+      | sort_by(.id)
+    ) as $important_advisories
+  | (
+      [$target_advisory_items - ($critical_advisories | length), 0]
+      | max
+    ) as $important_slots
+  | (
+      $critical_advisories + $important_advisories[0:$important_slots]
+    ) as $displayed_advisories
+  | (
+      [
+        .advisories.dnf.security - ($displayed_advisories | length),
+        0
+      ]
+      | max
+    ) as $hidden_advisory_count
+  | (
+      if $reboot_required then
+        ["<b>Reboot required</b>"]
+      elif $relaunch_required then
+        ["<b>Hyprland relaunch required</b>"]
+      else
+        []
+      end
+    ) as $restart_lines
+  | (
+      if .updates.omadora.count > 0 then
+        [
+          "<b>Omadora \(.updates.omadora.latest_version | markup_escape) available</b>"
+        ]
+      else
+        []
+      end
+    ) as $omadora_lines
+  | (
+      if .updates.total > 0 then
+        [count_label(.updates.total; "update available"; "updates available")]
+      elif ($restart_lines | length) == 0 and ($failed_sources | length) == 0 then
+        ["System fully updated"]
+      else
+        []
+      end
+    ) as $status_lines
+  | (
+      if .advisories.dnf.security > 0 then
+        [
+          "",
+          "<b>Security</b> · "
+          + count_label(
+              .advisories.dnf.security;
+              "advisory";
+              "advisories"
+            )
+        ]
+        + (
+            $displayed_advisories
+            | map("\(.severity | markup_escape) · \(.title | markup_escape)")
+          )
+        + (
+            if $hidden_advisory_count > 0 then
+              ["+\($hidden_advisory_count) more"]
+            else
+              []
+            end
+          )
+      else
+        []
+      end
+    ) as $advisory_lines
+  | (
+      if ($failed_sources | length) > 0 then
+        [
+          "",
+          "<b>Check incomplete</b> · \(($failed_sources | join(", ")) | markup_escape)"
+        ]
+      else
+        []
+      end
+    ) as $error_lines
+  | (
+      "<small>Last checked \(age_label($age))"
+      + (if $stale then " · stale" else "" end)
+      + "</small>"
+    ) as $checked_line
+  | {
+      text:(if .updates.total > 0 then (.updates.total | tostring) else "" end),
+      alt:
+        (if $reboot_required then "reboot-required"
+         elif $relaunch_required then "relaunch-required"
+         elif .advisories.dnf.security > 0 then "security"
+         elif .updates.total > 0 then "updates"
+         elif ($failed_sources | length) > 0 then "unknown"
+         else "updated"
+         end),
+      class:(
+        []
+        + (if $reboot_required then ["reboot-required"] else [] end)
+        + (if $relaunch_required then ["relaunch-required"] else [] end)
+        + (if .advisories.dnf.security > 0 then ["security"] else [] end)
+        + (if .updates.total > 0 then ["updates"]
+           elif ($failed_sources | length) == 0 then ["updated"]
+           else []
+           end)
+        + (if ($failed_sources | length) > 0 then ["error"] else [] end)
+        + (
+            if $stale and ($restart_lines | length) == 0 then ["stale"]
+            else []
+            end
+          )
+      ),
+      tooltip:(
+        $restart_lines
+        + $omadora_lines
+        + $status_lines
+        + $advisory_lines
+        + $update_lines
+        + $error_lines
+        + ["", $checked_line]
+        | join("\n")
+      )
+    }
+    ' "$STATE_FILE"
+)"; then
+  warn "Failed to render update state"
+  update_error "Update status unavailable"
+  exit 0
+fi
 
-      (.advisories.dnf.bugfix
-        | select(. > 0)
-        | tostring + " bugfix"),
-
-      (.advisories.dnf.enhancement
-        | select(. > 0)
-        | tostring + " enhancement"),
-
-      (.advisories.dnf.other
-        | select(. > 0)
-        | tostring + " other")
-    ]
-    | map(select(. != null))
-  )
-  | if length > 0 then
-      ["Advisories:"] + .
-    else
-      []
-    end;
-
-def full_summary:
-  (update_section + [""] + advisory_section)
-  | join("\n");
-
-if $reboot_required then
-  {
-    text:
-      (if .updates.total > 0
-       then (.updates.total | tostring)
-       else ""
-       end),
-    alt: "reboot-required",
-    tooltip:
-      "Reboot required\n\n"
-      + (.updates.total | tostring)
-      + " Updates Available\n\n"
-      + full_summary,
-    class: ["reboot-required"]
-  }
-
-elif .updates.total > 0 then
-  {
-    text: (.updates.total | tostring),
-
-    alt:
-      (if .advisories.dnf.security > 0
-       then "security"
-       else "updates"
-       end),
-
-    tooltip:
-      (.updates.total | tostring)
-      + " Updates Available\n\n"
-      + full_summary,
-
-    class:
-      (if .advisories.dnf.security > 0
-       then ["updates", "security"]
-       else ["updates"]
-       end)
-  }
-
-else
-  {
-    text: "",
-    alt: "updated",
-    tooltip: "System fully updated",
-    class: ["updated"]
-  }
-
-end
-' "$STATE_FILE"
+printf '%s\n' "$output"
