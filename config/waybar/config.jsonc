@@ -61,11 +61,13 @@
     "interval": 60,
     "signal": 7,
     "on-click": "omadora-exec omadora-launch-floating-terminal-with-presentation \"omactl update all\"",
+    "escape": false,
     "format": "{icon}",
     "format-icons": {
       "updated": "󰏗",
       "updates": "󰏕",
       "security": "󰏭",
+      "relaunch-required": "󰑓",
       "reboot-required": "󰜉",
       "unknown": "󰞋"
     },

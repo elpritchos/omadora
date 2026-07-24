@@ -3,7 +3,7 @@
 * {
   border-radius: 0;
   border: none;
-  font-family: 'Adwaita Sans', 'JetBrainsMono Nerd Font';
+  font-family: "Adwaita Sans", "JetBrainsMono Nerd Font";
   font-size: 10.5pt;
   min-height: 0;
 }
@@ -55,6 +55,7 @@
 }
 
 #custom-weather.stale,
+#custom-update.stale,
 #workspaces button.empty {
   opacity: 0.5;
 }
@@ -62,6 +63,9 @@
 #custom-idle-indicator.active,
 #custom-notification-silencing-indicator.active,
 #custom-screenrecording-indicator.active,
+#custom-update.error,
+#custom-update.reboot-required,
+#custom-update.relaunch-required,
 #custom-update.security,
 #custom-weather.error {
   color: #a55555;
