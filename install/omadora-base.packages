@@ -68,6 +68,7 @@ qt5-qtwayland
 qt6-qtwayland
 ripgrep
 seahorse
+selinux-policy-devel
 slurp
 socat
 sushi

@@ -1,0 +1,9 @@
+policy_module(local_omadora_gnome_keyring, 1.0)
+
+require {
+  type local_login_t;
+}
+
+optional_policy(`
+  gnome_stream_connect_gkeyringd(local_login_t)
+')
