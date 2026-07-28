@@ -6,7 +6,7 @@
 @define-color border alpha(#44415a, 0.667);
 @define-color foreground #e0def4;
 @define-color background #020406;
-@define-color window-background alpha(@base, 0.95);
+@define-color window-background @base;
 
 window {
   background-color: @window-background;

@@ -85,8 +85,7 @@ hl.config({
 hl.layer_rule({
   match = { namespace = "wofi" },
   no_anim = false,
-  blur = true,
-  ignore_alpha = 0.2,
+  blur = false,
   dim_around = true,
   animation = "popin",
 })
