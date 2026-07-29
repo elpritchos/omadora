@@ -38,9 +38,9 @@ end
 
 o.window(
   { tag = "chromium-based-browser" },
-  { tag = "-default-opacity", tile = true, opacity = "1.0 0.97" }
+  { tag = "-default-opacity", tile = true, opacity = "1.0 0.985" }
 )
-o.window({ tag = "firefox-based-browser" }, { tag = "-default-opacity", opacity = "1.0 0.97" })
+o.window({ tag = "firefox-based-browser" }, { tag = "-default-opacity", opacity = "1.0 0.985" })
 
 -- Video apps: remove chromium browser tag so they don't get opacity applied.
 o.window(

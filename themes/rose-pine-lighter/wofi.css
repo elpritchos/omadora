@@ -1,15 +1,11 @@
-/* Rose Pine crisp Fluent: light variant. */
 @define-color selected-text #56949f;
 @define-color text #575279;
 @define-color base #eff1f5;
 @define-color accent #56949f;
 @define-color border alpha(#cecacd, 0.667);
-@define-color foreground #575279;
-@define-color background #eff1f5;
-@define-color window-background @base;
 
 window {
-  background-color: @window-background;
+  background-color: @base;
   border: 1px solid @border;
   border-radius: 0;
 }
@@ -19,9 +15,6 @@ window {
 }
 
 #input {
-  color: @text;
-  background-color: transparent;
-  border: none;
   border-bottom: 1px solid alpha(@accent, 0.65);
   border-radius: 0;
   min-height: 0;
@@ -29,13 +22,7 @@ window {
   padding: 6px 10px;
 }
 
-#scroll {
-  margin: 0 10px 10px;
-}
-
 #entry {
-  color: @text;
-  background-color: transparent;
   border-left: 3px solid transparent;
   border-radius: 0;
   margin: 1px 0;
@@ -43,19 +30,10 @@ window {
 }
 
 #entry:selected {
-  color: @text;
   background-color: alpha(@accent, 0.14);
   border-left-color: @accent;
 }
 
 #entry:selected #text {
   color: @text;
-}
-
-#entry #img {
-  opacity: 0.78;
-}
-
-#entry:selected #img {
-  opacity: 1;
 }
