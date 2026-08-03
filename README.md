@@ -6,6 +6,12 @@ It provides a more stable release cycle with tested and curated packages.
 Omadora purposely does not include all the apps and features included with Omarchy, as it's intended to be a minimal install that provides core desktop functionality to allow users to build from.
 However, as the implementation closely matches Omarchy, adding the extra features from Omarchy should be simple if you wish to do so.
 
+## Preview
+
+[![Omadora desktop using the dark theme](docs/screenshots/desktop-dark.png)](docs/screenshots/)
+
+See the [screenshot gallery](docs/screenshots/) for dark and light theme previews.
+
 Read more about Omarchy itself at [omarchy.org](https://omarchy.org).
 
 > **Note**
