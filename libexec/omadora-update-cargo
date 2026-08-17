@@ -11,5 +11,5 @@ cargo install-update --version >/dev/null 2>&1 ||
 
 info "Updating cargo packages"
 
-cargo install-update --all ||
+cargo install-update --all --locked ||
   die "failed to update cargo packages"
