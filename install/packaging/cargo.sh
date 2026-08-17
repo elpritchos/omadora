@@ -16,7 +16,7 @@ install_cargo_bin() {
     return
   fi
 
-  cargo install "$package"
+  cargo install --locked "$package"
 }
 
 install_cargo_bin cargo-update cargo-install-update
