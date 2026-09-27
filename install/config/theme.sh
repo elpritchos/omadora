@@ -12,9 +12,6 @@ gsettings set org.gnome.desktop.interface monospace-font-name "JetBrains Mono 10
 # Setup user theme folder
 mkdir -p ~/.config/omadora/themes
 
-# Install Omarchy themes
-omadora-exec omadora-theme-install-omarchy -y
-
 # Set initial theme
 omadora-exec omadora-theme-set "Rose Pine Darker" 2>/dev/null
 

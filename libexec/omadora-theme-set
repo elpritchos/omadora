@@ -16,48 +16,175 @@ theme_name="$(theme_name_normalize "$1")"
 local_theme_path="${OMADORA_USER_THEMES_DIR}/${theme_name}"
 system_theme_path="${OMADORA_THEMES_DIR}/${theme_name}"
 
-if [[ ! -d "$local_theme_path" ]] && [[ ! -d "$system_theme_path" ]]; then
-  die "theme not found: $theme_name"
+# What a theme installed from a git repo may not ship, because these run code.
+# Omadora also sources mako.ini and hyprlock.conf directly, so those configs
+# need the same treatment as terminal configs and Lua overrides.
+installed_theme_denied=(alacritty.toml foot.ini ghostty.conf hyprlock.conf kitty.conf mako.ini vscode.json)
+ignored_theme_files=()
+
+is_denied_installed_file() {
+  local name="$1"
+  local denied
+
+  [[ $name == *.lua ]] && return 0
+
+  for denied in "${installed_theme_denied[@]}"; do
+    [[ $name == "$denied" ]] && return 0
+  done
+
+  return 1
+}
+
+# Themes older than colors.toml still get their palette, but their
+# alacritty.toml never reaches the staged theme.
+stage_installed_colors_from_alacritty() {
+  local source="$1"
+  local scratch
+
+  if [[ -f $OMADORA_NEXT_THEME_DIR/colors.toml ]]; then
+    return
+  fi
+
+  if [[ ! -f $source/alacritty.toml || -L $source/alacritty.toml ]]; then
+    return
+  fi
+
+  scratch="$(mktemp -d)"
+  cp "$source/alacritty.toml" "$scratch/alacritty.toml"
+  "$OMADORA_LIBEXEC_DIR/omadora-theme-colors-from-alacritty" "$scratch"
+
+  if [[ -f $scratch/colors.toml ]]; then
+    cp "$scratch/colors.toml" "$OMADORA_NEXT_THEME_DIR/colors.toml"
+  fi
+
+  rm -rf "$scratch"
+}
+
+# Copy a directory without following symlinks from an installed theme.
+stage_installed_dir() {
+  local source="$1"
+  local dest="$2"
+  local entry name
+
+  mkdir -p "$dest"
+
+  for entry in "$source"/*; do
+    [[ -e $entry && ! -L $entry ]] || continue
+    name="${entry##*/}"
+
+    if [[ -d $entry ]]; then
+      stage_installed_dir "$entry" "$dest/$name"
+    else
+      cp "$entry" "$dest/$name"
+    fi
+  done
+}
+
+# A .git directory identifies a theme installed from a third-party repository.
+# Local themes and official Omarchy snapshots are trusted and copied intact.
+theme_came_from_a_repo() {
+  local source="$1"
+
+  [[ -d $source/.git ]]
+}
+
+stage_installed_theme() {
+  local source="$1"
+  local entry name
+
+  [[ -d $source ]] || return 0
+
+  for entry in "$source"/*; do
+    [[ -e $entry ]] || continue
+    name="${entry##*/}"
+
+    if [[ -L $entry ]] || is_denied_installed_file "$name"; then
+      case "${name,,}" in
+      readme* | license* | changelog* | *.md | *.txt) ;;
+      *) ignored_theme_files+=("$name") ;;
+      esac
+    elif [[ -d $entry ]]; then
+      stage_installed_dir "$entry" "$OMADORA_NEXT_THEME_DIR/$name"
+    else
+      cp "$entry" "$OMADORA_NEXT_THEME_DIR/$name"
+    fi
+  done
+
+  stage_installed_colors_from_alacritty "$source"
+
+  [[ -f $OMADORA_NEXT_THEME_DIR/colors.toml ]] ||
+    die "installed theme must provide colors.toml or a complete alacritty.toml palette"
+}
+
+report_ignored_theme_files() {
+  ((${#ignored_theme_files[@]} > 0)) || return 0
+
+  warn "Ignored in $local_theme_path: ${ignored_theme_files[*]}"
+  warn "A theme installed from a git repo cannot supply Lua or an executable application config."
+}
+
+if ! theme_name_is_safe "$theme_name"; then
+  die "invalid theme name: $1"
 fi
 
 info "Applying theme: $theme_name"
 
-# Setup clean next theme directory (for atomic theme config swapping)
+# Serialize changes to the shared staging and current-theme directories.
+exec 9>"$OMADORA_THEME_LOCK_FILE"
+flock 9
+
+# Check only after taking the lock so an installer or remover cannot change
+# the source theme between this check and the staging copy.
+if [[ ! -d $local_theme_path && ! -d $system_theme_path ]]; then
+  die "theme not found: $theme_name"
+fi
+
+# Setup clean next theme directory (for atomic theme config swapping).
 rm -rf "$OMADORA_NEXT_THEME_DIR"
 ensure_dir "$OMADORA_NEXT_THEME_DIR"
 
-# Copy official theme first, then overlay user customizations on top
-[[ -d "$local_theme_path" ]] &&
-  cp -r "$local_theme_path/." "$OMADORA_NEXT_THEME_DIR/"
-[[ -d "$system_theme_path" ]] &&
+# Copy the system theme first, then overlay user customizations.
+if [[ -d $system_theme_path ]]; then
   cp -r "$system_theme_path/." "$OMADORA_NEXT_THEME_DIR/"
+fi
 
-# Generate colors.toml from alacritty.toml if theme is missing colors.toml
+if theme_came_from_a_repo "$local_theme_path"; then
+  stage_installed_theme "$local_theme_path"
+  report_ignored_theme_files
+elif [[ -d $local_theme_path ]]; then
+  cp -r "$local_theme_path/." "$OMADORA_NEXT_THEME_DIR/"
+fi
+
+# Generate colors.toml from alacritty.toml if the theme is missing one.
 if [[ ! -f $OMADORA_NEXT_THEME_DIR/colors.toml && -f $OMADORA_NEXT_THEME_DIR/alacritty.toml ]]; then
   "$OMADORA_LIBEXEC_DIR/omadora-theme-colors-from-alacritty" "$OMADORA_NEXT_THEME_DIR"
 fi
 
-# Generate dynamic configs
-theme_set_templates ||
+# Generate dynamic configs.
+"$OMADORA_LIBEXEC_DIR/omadora-theme-set-templates" ||
   die "failed to generate themed templates"
 
-# Swap next theme in as current
+# Swap next theme in as current.
 rm -rf "$OMADORA_CURRENT_THEME_DIR"
 mv "$OMADORA_NEXT_THEME_DIR" "$OMADORA_CURRENT_THEME_DIR"
 
-# Store theme name for reference
+# Store theme name for reference.
 printf '%s\n' "$theme_name" >"$OMADORA_THEME_NAME_FILE"
 
-# Change background with theme
+# Select and apply the new background while the theme state remains locked.
 if [[ "${OMADORA_THEME_SKIP_BACKGROUND:-}" != "1" ]]; then
-  "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" &
+  "$OMADORA_LIBEXEC_DIR/omadora-theme-bg-next" ||
+    warn "failed to apply theme background"
 fi
 
-# Change app-specific themes
+# Slow application reloads do not need to hold the theme-state lock.
+flock -u 9
+
+# Change app-specific themes.
 theme_set_gnome ||
   warn "failed to apply GNOME theme settings"
 
-# Restart components to apply new theme
+# Restart components to apply new theme.
 reload() {
   local fn="service_reload_$1"
 
@@ -76,7 +203,7 @@ wait
 reload btop &
 reload opencode &
 
-# Call hook on theme set
+# Call hook on theme set.
 ("$OMADORA_LIBEXEC_DIR/omadora-hook" theme-set "$theme_name" ||
   warn "theme-set hook failed") &
 

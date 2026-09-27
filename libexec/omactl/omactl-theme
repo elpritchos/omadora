@@ -27,7 +27,9 @@ CLI_COMMANDS=(
   "current||Show current theme|run_current||"
   "set|<name>|Apply a theme|run_set|complete_themes|"
   "install|<repo-url>|Install a theme from git|run_install||"
+  "install-omarchy|[--latest] [--commit <sha>] [-y]|Install the official Omarchy themes|run_install_omarchy||"
   "remove|<name>|Remove a user-installed theme|run_remove|complete_user_themes|"
+  "remove-omarchy|[-y]|Remove the official Omarchy themes|run_remove_omarchy||"
   "update|<name>|Update a user-installed theme|run_update|complete_user_themes|"
   "background next||Cycle to next background|run_background_next||"
   "background install|<image-path>|Add a background image|run_background_install|complete_files|filenames"
@@ -58,8 +60,16 @@ run_install() {
   omadora_exec omadora-theme-install "$@"
 }
 
+run_install_omarchy() {
+  omadora_exec omadora-theme-install-omarchy "$@"
+}
+
 run_remove() {
   omadora_exec omadora-theme-remove "$@"
+}
+
+run_remove_omarchy() {
+  omadora_exec omadora-theme-remove-omarchy "$@"
 }
 
 run_update() {

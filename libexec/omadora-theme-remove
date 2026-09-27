@@ -12,19 +12,23 @@ theme_name="${1:-}"
 [[ -n "$theme_name" ]] ||
   die "missing theme name"
 
+theme_name_is_safe "$theme_name" ||
+  die "invalid theme name: $theme_name"
+
 theme_path="${OMADORA_USER_THEMES_DIR}/$theme_name"
+
+# Serialize the active-theme check and deletion with theme switching.
+exec 9>"$OMADORA_THEME_LOCK_FILE"
+flock 9
 
 [[ -d "$theme_path" ]] ||
   die "theme not found: $theme_name"
 
-current_theme_name="$(theme_current)" ||
-  die "no current theme set"
-
-if [[ "$current_theme_name" == "$theme_name" ]]; then
+if [[ "$(theme_current 2>/dev/null || true)" == "$theme_name" ]]; then
   die "cannot remove active theme"
 fi
 
-rm -rf "$theme_path" ||
+rm -rf -- "$theme_path" ||
   die "failed to remove theme: $theme_name"
 
 info "Removed theme: $theme_name"

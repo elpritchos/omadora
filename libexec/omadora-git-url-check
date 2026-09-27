@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Refuse Git URLs that select a remote helper. In particular, ext:: URLs can
+# execute arbitrary shell commands before a theme has been reviewed.
+transports=(ssh git git+ssh ssh+git http https ftp ftps file)
+
+fail() {
+  echo "omadora-git-url-check: $*" >&2
+  exit 1
+}
+
+url="${1-}"
+
+if [[ -z $url ]]; then
+  fail "a git URL is required"
+fi
+
+if [[ $url == -* || $url =~ ^[A-Za-z0-9][A-Za-z0-9+.-]*:: ]]; then
+  fail "'$url' names a git option or transport helper, not a repository."
+fi
+
+if [[ $url =~ ^([A-Za-z0-9][A-Za-z0-9+.-]*):// ]]; then
+  scheme="${BASH_REMATCH[1]}"
+
+  for transport in "${transports[@]}"; do
+    if [[ $scheme == "$transport" ]]; then
+      exit 0
+    fi
+  done
+
+  fail "'$url' names the '$scheme' transport, which Omadora does not clone from."
+fi

@@ -10,6 +10,19 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/theme.sh"
 # Removes Omarchy themes installed in the user themes directory.
 
 dest="$OMADORA_USER_THEMES_DIR"
+yes=false
+
+while (($# > 0)); do
+  case "$1" in
+  -y | --yes)
+    yes=true
+    shift
+    ;;
+  *)
+    die "unknown option $1"
+    ;;
+  esac
+done
 
 shopt -s nullglob
 theme_dirs=("$dest"/omarchy-*)
@@ -20,7 +33,28 @@ if [[ ${#theme_dirs[@]} -eq 0 ]]; then
   exit 0
 fi
 
-confirm "Remove all Omarchy themes?" || exit 0
+if [[ $yes != true ]]; then
+  confirm "Remove all Omarchy themes?" || exit 0
+fi
+
+if [[ $(theme_current 2>/dev/null || true) == omarchy-* ]]; then
+  "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "Rose Pine Darker" ||
+    die "failed to switch away from active Omarchy theme"
+fi
+
+# Re-check while holding the switch lock. If another process selected an
+# official theme in the meantime, leave the complete theme set installed.
+exec 9>"$OMADORA_THEME_LOCK_FILE"
+flock 9
+
+current_theme="$(theme_current 2>/dev/null || true)"
+if [[ $current_theme == omarchy-* ]]; then
+  die "cannot remove the active Omarchy theme: $current_theme"
+fi
+
+shopt -s nullglob
+theme_dirs=("$dest"/omarchy-*)
+shopt -u nullglob
 
 for dir in "${theme_dirs[@]}"; do
   [[ -d "$dir" ]] || continue

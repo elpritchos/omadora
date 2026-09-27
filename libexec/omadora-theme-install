@@ -32,10 +32,25 @@ url="${url:-}"
   die "missing theme repository URL"
 }
 
+"$OMADORA_LIBEXEC_DIR/omadora-git-url-check" "$url" ||
+  die "invalid theme repository URL"
+
+# Strip the user@host: prefix from scp-style SSH URLs so basename sees only
+# the repository path.
+repo_path="$url"
+if [[ $repo_path != *"://"* && $repo_path == *:* && ${repo_path%%:*} != */* ]]; then
+  repo_path="${repo_path#*:}"
+fi
+
 theme_name="$(
-  basename "$url" .git |
-    sed -E 's/^(omarchy|omadora)-//; s/-theme$//'
+  basename -- "$repo_path" .git |
+    sed -E 's/^(omarchy|omadora)-//; s/-theme$//' |
+    tr '[:upper:]' '[:lower:]'
 )"
+
+if ! (LC_ALL=C; [[ $theme_name =~ ^[a-z0-9_][a-z0-9._+-]*$ ]]); then
+  die "'$url' does not give a usable theme name"
+fi
 
 theme_path="$OMADORA_USER_THEMES_DIR/$theme_name"
 
@@ -59,14 +74,21 @@ fi
 
 info "Installing theme: $theme_name"
 
-# Remove existing theme if present
-if [ -d "$theme_path" ]; then
-  rm -rf "$theme_path"
-fi
+ensure_dir "$OMADORA_USER_THEMES_DIR"
+stage_dir="$(mktemp -d "$OMADORA_CONFIG_HOME/.theme-install.XXXXXX")"
+trap 'rm -rf -- "$stage_dir"' EXIT
+stage_theme="$stage_dir/theme"
 
-# Clone the repo directly into the user themes directory
-git clone "$url" "$theme_path" ||
+git clone -- "$url" "$stage_theme" ||
   die "failed to clone theme repository"
+
+# Replace the source atomically with respect to theme switching. Both paths
+# are on the same filesystem, so the final move cannot expose a partial clone.
+exec 9>"$OMADORA_THEME_LOCK_FILE"
+flock 9
+rm -rf -- "$theme_path"
+mv -- "$stage_theme" "$theme_path"
+flock -u 9
 
 # Apply the new theme
 "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$theme_name" ||

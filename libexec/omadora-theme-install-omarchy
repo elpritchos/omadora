@@ -9,9 +9,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/../lib/theme.sh"
 
 # Installs Omarchy themes to the user themes directory.
 
-repo="https://github.com/basecamp/omarchy.git"
-branch="master"
-commit=""
+repo="https://github.com/omacom/omarchy.git"
+branch="quattro"
+default_commit="28ceaae70ebac3a0edcc21f2faa77a90dc6d404c"
+commit="$default_commit"
 yes=false
 
 remote_dir="themes"
@@ -19,19 +20,16 @@ dest="$OMADORA_USER_THEMES_DIR"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-  -b | --branch)
-    [[ $# -ge 2 ]] || {
-      die "missing value for $1"
-    }
-    branch="$2"
-    shift 2
-    ;;
   -c | --commit)
     [[ $# -ge 2 ]] || {
       die "missing value for $1"
     }
     commit="$2"
     shift 2
+    ;;
+  --latest)
+    commit=""
+    shift
     ;;
   -y | --yes)
     yes=true
@@ -44,7 +42,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 tmpdir="$(mktemp -d)"
-trap 'rm -rf "$tmpdir"' EXIT
+install_stage=""
+
+cleanup() {
+  rm -rf -- "$tmpdir"
+  [[ -z $install_stage ]] || rm -rf -- "$install_stage"
+}
+
+trap cleanup EXIT
 
 ensure_dir "$dest"
 
@@ -61,26 +66,89 @@ git -C "$tmpdir" sparse-checkout set "$remote_dir"
 
 if [[ -n "$commit" ]]; then
   git -C "$tmpdir" fetch --depth=1 origin "$commit"
-  git -C "$tmpdir" checkout "$commit"
+  git -c advice.detachedHead=false -C "$tmpdir" checkout "$commit"
 fi
 
-for theme_dir in "$tmpdir/$remote_dir"/*; do
+source_commit="$(git -C "$tmpdir" rev-parse HEAD)"
+info "Using Omarchy themes from commit: $source_commit"
+
+shopt -s nullglob
+source_themes=("$tmpdir/$remote_dir"/*)
+installed_themes=("$dest"/omarchy-*)
+shopt -u nullglob
+
+((${#source_themes[@]} > 0)) || die "no themes found in Omarchy repository"
+
+declare -A wanted_themes=()
+for theme_dir in "${source_themes[@]}"; do
+  [[ -d "$theme_dir" ]] || continue
+  theme_name="$(basename "$theme_dir")"
+  wanted_themes["omarchy-$theme_name"]=1
+  [[ -f "$theme_dir/colors.toml" ]] ||
+    die "Omarchy theme is missing colors.toml: $theme_name"
+  "$OMADORA_LIBEXEC_DIR/omadora-theme-color" --file "$theme_dir/colors.toml" --all >/dev/null ||
+    die "invalid Omarchy theme: $theme_name"
+done
+
+if ((${#installed_themes[@]} > 0)) && [[ "$yes" != true ]]; then
+  confirm "Replace the installed Omarchy theme set?" || {
+    info "Omarchy theme installation cancelled."
+    exit 0
+  }
+fi
+
+install_stage="$(mktemp -d "$OMADORA_CONFIG_HOME/.omarchy-theme-install.XXXXXX")"
+for theme_dir in "${source_themes[@]}"; do
   [[ -d "$theme_dir" ]] || continue
 
   theme_name="$(basename "$theme_dir")"
-  dest_theme_name="omarchy-$theme_name"
+  cp -r -- "$theme_dir" "$install_stage/omarchy-$theme_name"
+done
+
+# Theme switching takes the same lock before reading a source directory, so it
+# can only observe the complete old or complete new official theme set.
+exec 9>"$OMADORA_THEME_LOCK_FILE"
+flock 9
+
+current_theme="$(theme_current 2>/dev/null || true)"
+
+shopt -s nullglob
+installed_themes=("$dest"/omarchy-*)
+shopt -u nullglob
+
+for installed_theme in "${installed_themes[@]}"; do
+  [[ -d "$installed_theme" ]] || continue
+  installed_name="${installed_theme##*/}"
+  if [[ -z ${wanted_themes[$installed_name]:-} ]]; then
+    rm -rf -- "$installed_theme"
+    info "Removed stale theme: $installed_name"
+  fi
+done
+
+shopt -s nullglob
+staged_themes=("$install_stage"/omarchy-*)
+shopt -u nullglob
+
+for staged_theme in "${staged_themes[@]}"; do
+  dest_theme_name="${staged_theme##*/}"
   target="$dest/$dest_theme_name"
 
   if [[ -e "$target" ]]; then
-    if [[ "$yes" == true ]] || confirm "Theme '$dest_theme_name' already exists. Overwrite?"; then
-      rm -rf -- "$target"
-      cp -r -- "$theme_dir" "$target"
-      info "Updated theme: $dest_theme_name"
-    else
-      info "Skipped theme: $dest_theme_name"
-    fi
+    rm -rf -- "$target"
+    mv -- "$staged_theme" "$target"
+    info "Updated theme: $dest_theme_name"
   else
-    cp -r -- "$theme_dir" "$target"
+    mv -- "$staged_theme" "$target"
     info "Installed theme: $dest_theme_name"
   fi
 done
+
+flock -u 9
+
+if [[ $current_theme == omarchy-* ]]; then
+  if [[ -d $dest/$current_theme ]]; then
+    "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$current_theme"
+  else
+    "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "Rose Pine Darker"
+  fi
+fi

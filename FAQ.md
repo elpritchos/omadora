@@ -38,6 +38,11 @@ The update check will be performed a few times per day, however you can force an
 
 This is a conscious decision not to include all the applications and configuration options provided by Omarchy and only install functionality that would be expected of a minimal desktop environment, leaving software installation choices to the user.
 
+## How do I install the official Omarchy themes?
+
+Run `omactl theme install-omarchy`, then use `omactl theme list` and `omactl theme set <name>` to select an installed `omarchy-*` theme.
+The command installs the tested Omarchy Quattro theme set by default; pass `--latest` to use the latest themes from the Quattro branch instead.
+
 ## Do I have to use the LazyVim Neovim starter?
 
 No, not at all.

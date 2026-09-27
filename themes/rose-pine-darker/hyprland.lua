@@ -1,5 +1,5 @@
 local palette = {
-  active_border = "rgba(ebbcbae6)",
+  active_border = { colors = { "rgba(ebbcbae6)", "rgba(c4a7e7e6)" }, angle = 45 },
   inactive_border = "rgba(44415aaa)",
   background = "rgb(020406)",
   shadow = "rgba(02040680)",

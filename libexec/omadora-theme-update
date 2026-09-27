@@ -12,7 +12,15 @@ theme_name="${1:-}"
 [[ -n "$theme_name" ]] ||
   die "missing theme name"
 
+theme_name_is_safe "$theme_name" ||
+  die "invalid theme name: $theme_name"
+
 theme_path="${OMADORA_USER_THEMES_DIR}/$theme_name"
+
+# A pull updates files in place, so hold the switch lock for the mutation and
+# re-check the repository only after acquiring it.
+exec 9>"$OMADORA_THEME_LOCK_FILE"
+flock 9
 
 [[ -d "$theme_path" ]] ||
   die "theme not found: $theme_name"
@@ -24,6 +32,8 @@ info "Updating theme: $theme_name"
 
 git -C "$theme_path" pull --ff-only ||
   die "failed to update theme: $theme_name"
+
+flock -u 9
 
 "$OMADORA_LIBEXEC_DIR/omadora-theme-set" "$theme_name" ||
   die "failed to apply updated theme"
