@@ -129,9 +129,9 @@ color_to_shell_hex() {
     r=${BASH_REMATCH[1]}
     g=${BASH_REMATCH[2]}
     b=${BASH_REMATCH[3]}
-    (( r > 255 )) && r=255
-    (( g > 255 )) && g=255
-    (( b > 255 )) && b=255
+    ((r > 255)) && r=255
+    ((g > 255)) && g=255
+    ((b > 255)) && b=255
     printf "#%02x%02x%02x" "$r" "$g" "$b"
   elif [[ $color =~ ^0x[0-9A-Fa-f]{8}$ ]]; then
     printf "#%s" "${color:4:6}"
@@ -146,14 +146,14 @@ hypr_gradient_value() {
   spec=$(resolve_theme_ref "$1" "${2:-}")
   parse_gradient "$spec"
 
-  if (( ${#GRADIENT_COLORS[@]} == 0 )); then
+  if ((${#GRADIENT_COLORS[@]} == 0)); then
     printf '"%s"' "$spec"
-  elif (( ${#GRADIENT_COLORS[@]} == 1 )); then
+  elif ((${#GRADIENT_COLORS[@]} == 1)); then
     printf '"%s"' "${GRADIENT_COLORS[0]}"
   else
     printf '{ colors = {'
     for index in "${!GRADIENT_COLORS[@]}"; do
-      (( index > 0 )) && printf ','
+      ((index > 0)) && printf ','
       printf ' "%s"' "${GRADIENT_COLORS[$index]}"
     done
     printf ' }'
@@ -168,7 +168,7 @@ gradient_start_value() {
   spec=$(resolve_theme_ref "$1" "${2:-}")
   parse_gradient "$spec"
 
-  if (( ${#GRADIENT_COLORS[@]} == 0 )); then
+  if ((${#GRADIENT_COLORS[@]} == 0)); then
     color_to_shell_hex "$spec"
   else
     color_to_shell_hex "${GRADIENT_COLORS[0]}"
@@ -181,13 +181,13 @@ shell_gradient_value() {
   spec=$(resolve_theme_ref "$1" "${2:-}")
   parse_gradient "$spec"
 
-  if (( ${#GRADIENT_COLORS[@]} == 0 )); then
+  if ((${#GRADIENT_COLORS[@]} == 0)); then
     printf "%s" "$spec"
     return
   fi
 
   for index in "${!GRADIENT_COLORS[@]}"; do
-    (( index > 0 )) && printf " "
+    ((index > 0)) && printf " "
     printf "%s" "${GRADIENT_COLORS[$index]}"
   done
 
@@ -224,17 +224,17 @@ add_mix_value() {
   value=$(mix_color "$start" "$end" "$amount")
 
   case "$fn" in
-    mix)
-      ;;
-    mix_strip)
-      value="${value#\#}"
-      ;;
-    mix_rgb)
-      value=$(hex_to_rgb "$value")
-      ;;
-    *)
-      return
-      ;;
+  mix)
+    ;;
+  mix_strip)
+    value="${value#\#}"
+    ;;
+  mix_rgb)
+    value=$(hex_to_rgb "$value")
+    ;;
+  *)
+    return
+    ;;
   esac
 
   printf 's|%s|%s|g\n' "$token" "$value" >>"$sed_script"
@@ -262,18 +262,18 @@ add_gradient_function_value() {
   read -r fn key fallback <<<"$content"
 
   case "$fn" in
-    hypr_gradient)
-      value=$(hypr_gradient_value "$key" "$fallback")
-      ;;
-    gradient_start)
-      value=$(gradient_start_value "$key" "$fallback")
-      ;;
-    shell_gradient)
-      value=$(shell_gradient_value "$key" "$fallback")
-      ;;
-    *)
-      return
-      ;;
+  hypr_gradient)
+    value=$(hypr_gradient_value "$key" "$fallback")
+    ;;
+  gradient_start)
+    value=$(gradient_start_value "$key" "$fallback")
+    ;;
+  shell_gradient)
+    value=$(shell_gradient_value "$key" "$fallback")
+    ;;
+  *)
+    return
+    ;;
   esac
 
   printf 's|%s|%s|g\n' "$token" "$value" >>"$sed_script"
@@ -312,13 +312,15 @@ apply_shell_section_override() {
   local override="$1"
   local section tmp body
 
-  [[ -f $NEXT_THEME_DIR/shell.toml ]] || return
-  [[ -f $override ]] || return
+  # Omadora does not generate shell.toml by default. Official themes may still
+  # ship shell section overrides, which are optional when no base file exists.
+  [[ -f $NEXT_THEME_DIR/shell.toml ]] || return 0
+  [[ -f $override ]] || return 0
 
   section=$(basename "$override")
   section="${section#shell.}"
   section="${section%.toml}"
-  [[ $section =~ ^[A-Za-z0-9_-]+$ ]] || return
+  [[ $section =~ ^[A-Za-z0-9_-]+$ ]] || return 0
 
   tmp=$(mktemp)
   body=$(mktemp)
